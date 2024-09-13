@@ -6,12 +6,15 @@ from consts.consts_af import indices, ROUND_DIGITS
 
 class ArcFlashParser:
     """
-    Class to handle extraction, parsing, and processing of Arc Flash data from SQLite databases.
+    The ArcFlashParser class is responsible for extracting, parsing, and processing arc flash data
+    from ETAP arc flash study results stored in SQLite databases.
     """
 
-    def __init__(self, etap_dir):
+    def __init__(self, etap_dir: Path):
         """
-        Initializes the ArcFlash class with SQL queries and an empty dictionary for ANSI Arc Flash data.
+        Initializes the ArcFlashParser instance with the directory containing arc flash study files.
+
+        :param Path etap_dir: Path to the directory containing the arc flash study files (AAFS files).
         """
         self.ansi_af_data = {}
         self.sql_ansi_af_info = "SELECT Output, Config FROM IAFStudyCase"
@@ -29,7 +32,10 @@ class ArcFlashParser:
 
     def extract_ansi_af_data(self):
         """
-        Extracts ANSI Arc Flash data from given SQLite database file paths.
+        Extracts ANSI arc flash data from each SQLite database in the specified directory.
+
+        It attempts to connect to each database, execute the relevant queries, and fetch data
+        for further processing. Any errors during database access are logged.
         """
         for file_path in self.filepaths:
             try:
@@ -40,12 +46,12 @@ class ArcFlashParser:
             except (Error, OperationalError) as e:
                 print(f"Error with file {file_path}: {e}")
 
-    def _fetch_and_process_data(self, cur):
+    def _fetch_and_process_data(self, cur: sqlite3.Cursor):
         """
-        Fetches and processes data from the database cursor.
+        Fetches study case information and arc flash data from the given database cursor,
+        and processes the fetched data to include additional metadata.
 
-        Args:
-            cur (sqlite3.Cursor): SQLite cursor object.
+        :param sqlite3.Cursor cur: Cursor object for executing SQL queries on the database.
         """
         cur.execute(self.sql_ansi_af_info)
         af_info = cur.fetchone()
@@ -58,15 +64,13 @@ class ArcFlashParser:
                 af_data[i].insert(indices['con'] + 1, af_info[1])
             self._update_ansi_af_data(af_data)
 
-    def _fetch_all_data(self, cur):
+    def _fetch_all_data(self, cur: sqlite3.Cursor) -> list:
         """
-        Fetches all relevant Arc Flash data from the database cursor.
+        Fetches all arc flash data from the database for both buses and protective devices.
 
-        Args:
-            cur (sqlite3.Cursor): SQLite cursor object.
-
-        Returns:
-            list: List of fetched data.
+        :param sqlite3.Cursor cur: Cursor object for executing SQL queries on the database.
+        :return: A list of arc flash data entries.
+        :rtype: list
         """
         af_data = []
         cur.execute(self.sql_ansi_af_bus)
@@ -75,12 +79,12 @@ class ArcFlashParser:
         af_data.extend([list(elem) for elem in cur.fetchall()])
         return af_data
 
-    def _update_ansi_af_data(self, af_data):
+    def _update_ansi_af_data(self, af_data: list):
         """
-        Updates the ANSI Arc Flash data dictionary with new data.
+        Updates the internal ANSI arc flash data dictionary by retaining the highest incident
+        energy value for each entry.
 
-        Args:
-            af_data (list): List of Arc Flash data entries.
+        :param list af_data: List of arc flash data entries to process and update.
         """
         for entry in af_data:
             _id = entry[0]
@@ -89,11 +93,16 @@ class ArcFlashParser:
             if _id not in self.ansi_af_data or _energy > self.ansi_af_data[_id][indices['ie']]:
                 self.ansi_af_data[_id] = _data
 
-    def parse_ansi_af_data(self, exclude_startswith, exclude_contains):
+    def parse_ansi_af_data(self, exclude_startswith: list[str], exclude_contains: list[list]):
         """
-        Parses the ANSI Arc Flash data to convert units and perform calculations.
-        """
+        Parses and processes the extracted ANSI arc flash data, applying filtering and formatting.
 
+        Entries can be excluded based on specific prefixes or contained strings. Numerical values
+        are rounded to a predefined precision, and several fields are converted or recalculated.
+
+        :param list[str] exclude_startswith: List of string prefixes to exclude from the parsed data.
+        :param list[str] exclude_contains: List of strings to exclude if contained in entry IDs.
+        """
         def filter_func(pair):
             _id, value = pair
             if any(word in _id for word in exclude_contains):
@@ -121,62 +130,62 @@ class ArcFlashParser:
                                         reverse=True))
 
     @staticmethod
-    def _calculate_la_var(value):
+    def _calculate_la_var(value: int) -> int:
         """
-        Calculates the la_var value.
+        Calculates the LaVar (Low Arc Voltage Variation) based on the input value.
 
-        Args:
-            value (int): The input value for calculation.
-
-        Returns:
-            int: The calculated la_var value or None if input is 0.
+        :param int value: Input value for calculation.
+        :return: 100 minus the value if it's non-zero, otherwise None.
+        :rtype: int
         """
         return None if int(value) == 0 else 100 - value
 
     @staticmethod
-    def _convert_to_ft(value):
+    def _convert_to_ft(value: float) -> str:
         """
-        Converts a value in feet to a formatted string in feet and inches.
+        Converts a numeric value in feet and inches to a formatted string.
 
-        Args:
-            value (float): Value in feet.
-
-        Returns:
-            str: Formatted string in feet and inches.
+        :param float value: The value to convert.
+        :return: A string in the format "X'Y"", where X is feet and Y is inches.
+        :rtype: str
         """
         ft = int(value)
         inch = round((value - ft) * 12)
         return f"{ft}'{inch}\""
 
     @staticmethod
-    def _convert_cycle_to_sec(value):
+    def _convert_cycle_to_sec(value: float) -> float:
         """
-        Converts cycles to seconds.
+        Converts a time value from cycles to seconds.
 
-        Args:
-            value (float): Value in cycles.
-
-        Returns:
-            float: Value in seconds.
+        :param float value: The time value in cycles.
+        :return: The time value in seconds.
+        :rtype: float
         """
         return value / 60
 
     @staticmethod
-    def _map_electrode_config(index):
+    def _map_electrode_config(index: int) -> str:
         """
-        Maps an index to an electrode configuration string.
+        Maps an electrode configuration index to its corresponding name.
 
-        Args:
-            index (int): Index of the electrode configuration.
-
-        Returns:
-            str: Electrode configuration string.
+        :param int index: The index representing an electrode configuration.
+        :return: The corresponding electrode configuration name.
+        :rtype: str
         """
         electrode_configs = ['None', 'VCB', 'VCBB']
         return electrode_configs[index] if 0 <= index < len(electrode_configs) else 'Unknown'
 
     @staticmethod
-    def get_filepaths(input_dir, ext):
+    def get_filepaths(input_dir: Path, ext: str) -> list[str]:
+        """
+        Retrieves all file paths with the specified extension from the given directory.
+
+        :param Path input_dir: Path to the directory to search.
+        :param str ext: File extension to filter by.
+        :return: List of file paths with the given extension.
+        :rtype: list[str]
+        """
         filepaths = []
         for path in input_dir.iterdir():
             if path.is_file() and path.suffix == f'.{ext}':
