@@ -35,7 +35,6 @@ class Interface(QMainWindow, Ui_MainWindow):
         self.browse_btn_2.clicked.connect(self.show_file_browser_output)
         self.generate_btn.clicked.connect(self.execute_worker_thread)
         self.clear_all_btn.clicked.connect(self.clear_all_inputs)
-        self.etap_dir_checkbox.clicked['bool'].connect(self.set_default_output_dir)
 
     def set_default_output_dir(self, is_checked):
         if is_checked:
@@ -57,7 +56,6 @@ class Interface(QMainWindow, Ui_MainWindow):
         calculate_swgr = self.swgr_checkbox.isChecked()
         add_series_ratings = self.series_rating_checkbox.isChecked()
         mark_assumed = self.mark_assumed_checkbox.isChecked()
-        no_motor_config = self.nm_revisions_radio.isChecked()
         high_energy = self.high_energy_box.value()
         low_energy = self.low_energy_box.value()
 
@@ -129,11 +127,18 @@ class Interface(QMainWindow, Ui_MainWindow):
         else:
             self.datahub_note.setVisible(True)
 
+    def handle_report_toggle(self):
+        checkboxes = [self.device_duty_checkbox, self.arc_flash_checkbox]
+        self.output_dir_group.setDisabled(all(not checkbox.isChecked() for checkbox in checkboxes))
+
     def add_connections(self):
         self.create_scenarios_checkbox.toggled['bool'].connect(self.handle_options_toggle)
         self.run_scenarios_checkbox.toggled['bool'].connect(self.handle_options_toggle)
         self.mark_assumed_checkbox.toggled['bool'].connect(self.handle_options_toggle)
         self.series_rating_checkbox.toggled['bool'].connect(self.handle_options_toggle)
+        self.device_duty_checkbox.toggled.connect(self.handle_report_toggle)
+        self.arc_flash_checkbox.toggled.connect(self.handle_report_toggle)
+        self.etap_dir_checkbox.clicked['bool'].connect(self.set_default_output_dir)
 
     @staticmethod
     def split_tags(tags, delimiter=';'):
