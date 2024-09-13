@@ -56,13 +56,13 @@ class Worker(QThread):
 
     def execute_data_parsing(self):
         """
-        Parses data from input files. Placeholder for actual data parsing logic.
+        Parses data from input files. Abstract method for inheritance.
         """
         pass
 
     def execute_data_export(self):
         """
-        Exports parsed data to the specified output directory. Placeholder for actual data export logic.
+        Exports parsed data to the specified output directory. Abstract method for inheritance.
         """
         pass
 
