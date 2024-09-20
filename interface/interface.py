@@ -20,6 +20,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         self.connect_buttons()
         self.add_connections()
         self.datahub_note.setVisible(False)
+        self.exclude_revisions_input.setVisible(False)
         self.show()
 
     def show_file_browser_input(self):
@@ -52,6 +53,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         run_scenarios = self.run_scenarios_checkbox.isChecked()
         exclude_startswith = self.split_tags(self.exclude_start_input.text())
         exclude_contains = self.split_tags(self.exclude_contain_input.text())
+        create_table = self.create_reports_checkbox.isChecked()
         calculate_sw = self.sw_checkbox.isChecked()
         calculate_swgr = self.swgr_checkbox.isChecked()
         add_series_ratings = self.series_rating_checkbox.isChecked()
@@ -59,21 +61,29 @@ class Interface(QMainWindow, Ui_MainWindow):
         high_energy = self.high_energy_box.value()
         low_energy = self.low_energy_box.value()
 
+        arg_list_device_duty = [port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
+                                exclude_startswith, exclude_contains, create_table, calculate_sw,
+                                calculate_swgr, add_series_ratings, mark_assumed]
+
+        arg_list_arc_flash = [port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
+                              exclude_startswith, exclude_contains, create_table, high_energy, low_energy]
+
         if not self.validate_inputs():
             return
 
         if self.device_duty_checkbox.isChecked():
-            self.dd_worker = DeviceDutyWorker(port, input_dir_path, output_dir_path, create_scenarios,
-                                              run_scenarios, exclude_startswith, exclude_contains, calculate_sw,
-                                              calculate_swgr, add_series_ratings, mark_assumed)
+            self.dd_worker = DeviceDutyWorker(*arg_list_device_duty)
             self.dd_worker.error_occurred.connect(self.handle_error)
             self.dd_worker.process_finished.connect(self.handle_finished)
+            run_arc_flash = lambda: self.run_arc_flash(*arg_list_arc_flash)
+            self.dd_worker.start_arc_flash_process.connect(run_arc_flash)
             self.dd_worker.start()
+        else:
+            self.run_arc_flash(*arg_list_arc_flash)
 
+    def run_arc_flash(self, *args):
         if self.arc_flash_checkbox.isChecked():
-            self.af_worker = ArcFlashWorker(port, input_dir_path, output_dir_path, create_scenarios,
-                                            run_scenarios, exclude_startswith, exclude_contains, high_energy,
-                                            low_energy)
+            self.af_worker = ArcFlashWorker(*args)
             self.af_worker.error_occurred.connect(self.handle_error)
             self.af_worker.process_finished.connect(self.handle_finished)
             self.af_worker.start()
@@ -92,7 +102,8 @@ class Interface(QMainWindow, Ui_MainWindow):
 
     @staticmethod
     def handle_finished(wb_path):
-        os.startfile(wb_path)
+        if Path(wb_path).is_file():
+            os.startfile(wb_path)
 
     def validate_inputs(self):
         port = self.port.text()
@@ -102,7 +113,10 @@ class Interface(QMainWindow, Ui_MainWindow):
                          self.series_rating_checkbox.isChecked() or
                          self.mark_assumed_checkbox.isChecked())
         if not self.device_duty_checkbox.isChecked() and not self.arc_flash_checkbox.isChecked():
-            self.show_message('Input Error', 'Please select a report to generate.')
+            self.show_message('Input Error', 'Please select a study.')
+            return False
+        if not self.create_reports_checkbox.isChecked() and not self.create_scenarios_checkbox.isChecked():
+            self.show_message('Input Error', 'Please select an option to continue.')
             return False
         if port_required and (not port or not port.isnumeric() or len(port) < 5):
             self.show_message('Data Validation Error', 'Please enter a valid ETAP Datahub port number.')
@@ -127,17 +141,11 @@ class Interface(QMainWindow, Ui_MainWindow):
         else:
             self.datahub_note.setVisible(True)
 
-    def handle_report_toggle(self):
-        checkboxes = [self.device_duty_checkbox, self.arc_flash_checkbox]
-        self.output_dir_group.setDisabled(all(not checkbox.isChecked() for checkbox in checkboxes))
-
     def add_connections(self):
         self.create_scenarios_checkbox.toggled['bool'].connect(self.handle_options_toggle)
         self.run_scenarios_checkbox.toggled['bool'].connect(self.handle_options_toggle)
         self.mark_assumed_checkbox.toggled['bool'].connect(self.handle_options_toggle)
         self.series_rating_checkbox.toggled['bool'].connect(self.handle_options_toggle)
-        self.device_duty_checkbox.toggled.connect(self.handle_report_toggle)
-        self.arc_flash_checkbox.toggled.connect(self.handle_report_toggle)
         self.etap_dir_checkbox.clicked['bool'].connect(self.set_default_output_dir)
 
     @staticmethod

@@ -13,7 +13,7 @@ class ArcFlashWorker(Worker):
     """
 
     def __init__(self, port: int, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
-                 run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str],
+                 run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str], create_table: bool,
                  high_energy: float, low_energy: float, *args, **kwargs):
         """
         Initializes the ArcFlashWorker with specific parameters for arc flash processing.
@@ -31,7 +31,7 @@ class ArcFlashWorker(Worker):
         :param kwargs: Additional keyword arguments for Worker initialization.
         """
         super().__init__(port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
-                         exclude_startswith, exclude_contains, *args, **kwargs)
+                         exclude_startswith, exclude_contains, create_table, *args, **kwargs)
         self.high_energy = high_energy
         self.low_energy = low_energy
         self.scenario_class = ArcFlashScenario

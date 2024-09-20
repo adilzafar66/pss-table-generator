@@ -11,18 +11,17 @@ class Scenario:
     within the ETAP environment using an XML configuration file.
     """
 
-    def __init__(self, study_mode: str, port: int = 65358):
+    def __init__(self, port: int = 65358):
         """
         Initializes a Scenario instance with the specified study mode and ETAP connection port.
 
-        :param str study_mode: The study mode to be used for the scenario (e.g., "ANSI", "IEC").
         :param int port: The port number for connecting to the ETAP Datahub (default is 65358).
         """
         self.etap = etap.api.connect(f'http://localhost:{port}')
         self.scenario_ids = []
         self.scenario_xml = ET.parse(self.get_scenario_xml_path())
         self.scenario_root = self.scenario_xml.getroot()
-        self.study_mode = study_mode
+        self.presentation = json.loads(self.etap.application.getactivescenario())['Presentation']
 
     def run_scenarios(self):
         """
@@ -64,11 +63,12 @@ class Scenario:
         """
         self.scenario_xml.write(self.get_scenario_xml_path())
 
-    def create_scenario(self, scenario_id: str, switching_config: str, study_case: str,
-                        rev_config: str, output: str):
+    def create_scenario(self, scenario_id: str, switching_config: str, study_mode: str,
+                        study_case: str, rev_config: str, output: str):
         """
         Creates a new scenario in the XML file if it does not already exist.
 
+        :param str study_mode:
         :param str scenario_id: The unique identifier for the scenario.
         :param str switching_config: The switching configuration for the scenario.
         :param str study_case: The study case configuration for the scenario.
@@ -87,14 +87,14 @@ class Scenario:
         scenario_element.set('background', 'No')
         scenario_element.set('ToolTip', r'\n\n')
         scenario_element.set('System', SYSTEM)
-        scenario_element.set('Presentation', PRESENTATION)
-        scenario_element.set('Mode', f'STUDY_SHORTCIRCUIT {self.study_mode}')
+        scenario_element.set('Presentation', self.presentation)
+        scenario_element.set('Mode', f'STUDY_SHORTCIRCUIT {study_mode}')
         scenario_element.set('Config', switching_config)
         scenario_element.set('StudyCase', study_case)
         scenario_element.set('Revision', rev_config)
         scenario_element.set('Output', output)
         scenario_element.set('Sequence', "")
-        scenario_element.set('ActionTool', f'STUDY_SHORTCIRCUIT {self.study_mode}')
+        scenario_element.set('ActionTool', f'STUDY_SHORTCIRCUIT {study_mode}')
         scenario_element.set('Comments', "")
         scenario_element.set('Compare', "False")
         scenario_element.set('NewFilePath', rf'.\{output}.AAFS')

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>448</width>
-    <height>755</height>
+    <width>475</width>
+    <height>836</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -139,20 +139,40 @@
                </property>
               </widget>
              </item>
+             <item row="2" column="0">
+              <widget class="QCheckBox" name="create_reports_checkbox">
+               <property name="text">
+                <string>Create Reports</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
           </layout>
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QGroupBox" name="report_group">
+         <widget class="QGroupBox" name="study_group">
           <property name="title">
-           <string>Report</string>
+           <string>Study</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
-            <layout class="QGridLayout" name="report_grid">
+            <layout class="QGridLayout" name="study_grid">
              <item row="1" column="0">
+              <widget class="QCheckBox" name="device_duty_checkbox">
+               <property name="text">
+                <string>Device Duty</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
               <widget class="QCheckBox" name="arc_flash_checkbox">
                <property name="text">
                 <string>Arc Flash</string>
@@ -162,13 +182,10 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="0">
-              <widget class="QCheckBox" name="device_duty_checkbox">
+             <item row="3" column="0">
+              <widget class="QCheckBox" name="placeholder_checkbox">
                <property name="text">
-                <string>Device Duty</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
+                <string>Placeholder</string>
                </property>
               </widget>
              </item>
@@ -244,6 +261,22 @@
         <layout class="QVBoxLayout" name="verticalLayout_11">
          <item>
           <layout class="QGridLayout" name="arc_flash_grid">
+           <item row="2" column="2">
+            <widget class="QLineEdit" name="exclude_revisions_input">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="placeholderText">
+              <string>Revisions to include in Create Scenarios...</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="2">
             <layout class="QHBoxLayout" name="incident_energy_layout">
              <item>
@@ -283,10 +316,70 @@
                  </property>
                 </widget>
                </item>
+               <item>
+                <spacer name="energy_spacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
               </layout>
              </item>
+            </layout>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="incident_energy_label">
+             <property name="text">
+              <string>Incident Energy:              </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <layout class="QHBoxLayout" name="exclude_revisions_layout">
              <item>
-              <spacer name="energy_spacer">
+              <widget class="QRadioButton" name="exclude_none_radio">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>None</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="exclude_all_radio">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>All</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="exclude_only_radio">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>All Except</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="exclude_revisions_spacer">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -300,10 +393,10 @@
              </item>
             </layout>
            </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="incident_energy_label">
+           <item row="1" column="1">
+            <widget class="QLabel" name="exclude_revisions_label">
              <property name="text">
-              <string>Incident Energy:</string>
+              <string>Exclude Revisions:</string>
              </property>
             </widget>
            </item>
@@ -333,7 +426,7 @@
             <bool>false</bool>
            </property>
            <property name="placeholderText">
-            <string>Path to Project ETAP Folder</string>
+            <string>Path to Project ETAP Folder...</string>
            </property>
            <property name="clearButtonEnabled">
             <bool>true</bool>
@@ -382,7 +475,7 @@
             </size>
            </property>
            <property name="placeholderText">
-            <string>Path to Output Folder</string>
+            <string>Path to Output Folder...</string>
            </property>
            <property name="clearButtonEnabled">
             <bool>true</bool>
@@ -451,6 +544,9 @@
            <property name="text">
             <string>BUS;</string>
            </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
@@ -474,6 +570,9 @@
            </property>
            <property name="text">
             <string>BCH;FORTIS;</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -566,7 +665,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>448</width>
+     <width>475</width>
      <height>21</height>
     </rect>
    </property>
@@ -600,44 +699,12 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>748</y>
+     <x>496</x>
+     <y>801</y>
     </hint>
     <hint type="destinationlabel">
      <x>309</x>
      <y>54</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>create_scenarios_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>etap_dir_group</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>414</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>47</x>
-     <y>434</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>create_scenarios_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>etap_dir</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>414</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>114</x>
-     <y>423</y>
     </hint>
    </hints>
   </connection>
@@ -670,22 +737,6 @@
     <hint type="destinationlabel">
      <x>414</x>
      <y>182</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>device_duty_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>device_duty_group</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>83</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>307</x>
-     <y>276</y>
     </hint>
    </hints>
   </connection>
@@ -697,11 +748,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>228</x>
-     <y>544</y>
+     <y>595</y>
     </hint>
     <hint type="destinationlabel">
-     <x>221</x>
-     <y>517</y>
+     <x>252</x>
+     <y>568</y>
     </hint>
    </hints>
   </connection>
@@ -713,11 +764,155 @@
    <hints>
     <hint type="sourcelabel">
      <x>228</x>
-     <y>544</y>
+     <y>595</y>
     </hint>
     <hint type="destinationlabel">
      <x>106</x>
-     <y>547</y>
+     <y>598</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_scenarios_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>etap_dir_group</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>276</x>
+     <y>152</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>113</x>
+     <y>515</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exclude_only_radio</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exclude_revisions_input</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>297</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>171</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_scenarios_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exclude_none_radio</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>315</x>
+     <y>149</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>176</x>
+     <y>370</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_scenarios_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exclude_all_radio</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>361</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>230</x>
+     <y>376</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_scenarios_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exclude_only_radio</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>354</x>
+     <y>149</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>282</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_reports_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>low_energy_box</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>331</x>
+     <y>197</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>215</x>
+     <y>335</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_reports_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>high_energy_box</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>366</x>
+     <y>199</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>323</x>
+     <y>337</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_reports_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>device_duty_group</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>351</x>
+     <y>198</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>243</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_reports_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>output_dir_group</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>386</x>
+     <y>198</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>350</x>
+     <y>543</y>
     </hint>
    </hints>
   </connection>
@@ -728,76 +923,28 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>182</y>
+     <x>100</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>340</y>
+     <x>141</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>device_duty_checkbox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>mark_assumed_checkbox</receiver>
-   <slot>setChecked(bool)</slot>
+   <receiver>device_duty_group</receiver>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>151</x>
-     <y>159</y>
+     <x>73</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
-     <x>414</x>
-     <y>242</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>device_duty_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>series_rating_checkbox</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>168</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>114</x>
-     <y>242</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>device_duty_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>sw_checkbox</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>70</x>
-     <y>154</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>72</x>
-     <y>265</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>device_duty_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>swgr_checkbox</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>92</x>
-     <y>150</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>264</x>
-     <y>250</y>
+     <x>103</x>
+     <y>236</y>
     </hint>
    </hints>
   </connection>

@@ -16,7 +16,8 @@ class Worker(QThread):
     process_finished = pyqtSignal(str)
 
     def __init__(self, port: int, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
-                 run_scenarios: bool, exclude_startswith: list, exclude_contains: list, *args, **kwargs):
+                 run_scenarios: bool, exclude_startswith: list, exclude_contains: list, create_table: bool,
+                 *args, **kwargs):
         """
         Initializes the Worker with required parameters for data processing tasks.
 
@@ -36,6 +37,7 @@ class Worker(QThread):
         self.run_scenarios = run_scenarios
         self.exclude_startswith = exclude_startswith
         self.exclude_contains = exclude_contains
+        self.create_table = create_table
         self.scenario_class = None
         self.parsed_ansi_data = None
         self.parsed_iec_data = None
@@ -66,6 +68,9 @@ class Worker(QThread):
         """
         pass
 
+    def start_next_process(self):
+        pass
+
     def run(self):
         """
         The main method executed when the thread starts. Handles the execution of scenarios,
@@ -73,9 +78,12 @@ class Worker(QThread):
         """
         try:
             self.execute_scenarios()
-            self.execute_data_parsing()
-            output_path = self.execute_data_export()
+            output_path = None
+            if self.create_table:
+                self.execute_data_parsing()
+                output_path = self.execute_data_export()
             self.process_finished.emit(str(output_path))
+            self.start_next_process()
 
         except ConnectionError as ce:
             prompt = '. Please make sure ETAP Datahub is up and running.'

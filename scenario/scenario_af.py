@@ -17,7 +17,7 @@ class ArcFlashScenario(Scenario):
 
         :param int port: The port number for connecting to the ETAP Datahub (default is 65358).
         """
-        super().__init__(AF_STUDY_MODE, port)
+        super().__init__(port)
 
     def create_scenarios(self) -> None:
         """
@@ -34,7 +34,10 @@ class ArcFlashScenario(Scenario):
         # Retrieve switching configurations and remove the 'Ultimate' configuration
         switching_configs = json.loads(self.etap.projectdata.getconfigurations())
         rev_configs = json.loads(self.etap.projectdata.getrevisions())
-        switching_configs.remove('Ultimate')
+        if 'Ultimate' in switching_configs:
+            switching_configs.remove('Ultimate')
+        if 'ULT' in switching_configs:
+            switching_configs.remove('ULT')
 
         # Define electrode configurations for arc flash studies
         electrode_configs = [VCB_CONFIG, VCBB_CONFIG]
@@ -50,7 +53,8 @@ class ArcFlashScenario(Scenario):
                     scenario_id = study_case + '_' + switching_config_name + rev_config_name
 
                     # Create the scenario and add its ID to the list
-                    self.create_scenario(scenario_id, switching_config, study_case, rev_config, scenario_id)
+                    self.create_scenario(scenario_id, switching_config, AF_STUDY_MODE, study_case,
+                                         rev_config, scenario_id)
                     self.scenario_ids.append(scenario_id)
 
         # Write the updated scenarios to the XML file

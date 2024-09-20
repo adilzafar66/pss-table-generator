@@ -1,4 +1,7 @@
 from pathlib import Path
+
+from PyQt5.QtCore import pyqtSignal
+
 from worker.worker import Worker
 from controller.parser_dd import DeviceDutyParser
 from exporter.exporter_dd import DeviceDutyExporter
@@ -13,8 +16,10 @@ class DeviceDutyWorker(Worker):
     Inherits from the Worker class and provides specialized methods for device duty operations.
     """
 
+    start_arc_flash_process = pyqtSignal()
+
     def __init__(self, port: int, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
-                 run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str],
+                 run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str], create_table: bool,
                  calculate_sw: bool, calculate_swgr: bool, add_series_ratings: bool, mark_assumed: bool,
                  *args, **kwargs):
         """
@@ -35,7 +40,7 @@ class DeviceDutyWorker(Worker):
         :param kwargs: Additional keyword arguments for Worker initialization.
         """
         super().__init__(port, input_dir_path, output_dir_path, create_scenarios, run_scenarios, exclude_startswith,
-                         exclude_contains, *args, **kwargs)
+                         exclude_contains, create_table, *args, **kwargs)
         self.calculate_sw = calculate_sw
         self.calculate_swgr = calculate_swgr
         self.add_series_ratings = add_series_ratings
@@ -102,3 +107,6 @@ class DeviceDutyWorker(Worker):
         wb_path = Path(self.output_dir_path, filename)
         dd_exporter.save_workbook(wb_path)
         return wb_path
+
+    def start_next_process(self):
+        self.start_arc_flash_process.emit()

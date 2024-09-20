@@ -1,7 +1,8 @@
 import json
 from consts.consts import BASE_REVISION
 from scenario.scenario import Scenario
-from consts.consts_dd import CONFIG_MAP_INV, DD_STUDY_TAG, DD_STUDY_MODE, DD_STUDY_CASE
+from consts.consts_dd import CONFIG_MAP_INV, DD_STUDY_TAG, DD_STUDY_MODE, DD_STUDY_CASE, DD_STUDY_CASE_IEC, \
+    DD_STUDY_MODE_IEC
 
 
 class DeviceDutyScenario(Scenario):
@@ -17,7 +18,7 @@ class DeviceDutyScenario(Scenario):
 
         :param port: The port number for connecting to the ETAP Datahub (default is 65358).
         """
-        super().__init__(DD_STUDY_MODE, port)
+        super().__init__(port)
 
     def create_scenarios(self) -> None:
         """
@@ -30,20 +31,28 @@ class DeviceDutyScenario(Scenario):
         - Study case: Defined as DD_STUDY_CASE.
         - Revision configuration: Set to BASE_REVISION.
         """
-        # Retrieve switching configurations from the ETAP project
+
+        study_cases = {DD_STUDY_MODE: DD_STUDY_CASE}
+        etap_study_cases = json.loads(self.etap.projectdata.getstudycasenames())['NonDefault']
+        if DD_STUDY_CASE_IEC in etap_study_cases:
+            study_cases.update({DD_STUDY_MODE_IEC: DD_STUDY_CASE_IEC})
         switching_configs = json.loads(self.etap.projectdata.getconfigurations())
 
-        # Iterate over each switching configuration to create scenarios
-        for switching_config in switching_configs:
-            # Map the switching configuration to its corresponding name
-            switching_config_name = CONFIG_MAP_INV.get(switching_config, switching_config)
+        for study_mode, study_case in study_cases.items():
+            # Iterate over each switching configuration to create scenarios
+            for switching_config in switching_configs:
+                # Map the switching configuration to its corresponding name
+                switching_config_name = CONFIG_MAP_INV.get(switching_config, switching_config)
 
-            # Construct the scenario identifier using the study tag and switching configuration name
-            scenario_id = DD_STUDY_TAG + '_' + switching_config_name
+                # Get the standard of the current study (ANSI or IEC)
+                standard = study_mode.split()[0]
 
-            # Create the scenario and add its ID to the list
-            self.create_scenario(scenario_id, switching_config, DD_STUDY_CASE, BASE_REVISION, scenario_id)
-            self.scenario_ids.append(scenario_id)
+                # Construct the scenario identifier using the study tag and switching configuration name
+                scenario_id = DD_STUDY_TAG + '_' + switching_config_name + ('_IEC' if standard == 'IEC' else '')
+
+                # Create the scenario and add its ID to the list
+                self.create_scenario(scenario_id, switching_config, study_mode, study_case, BASE_REVISION, scenario_id)
+                self.scenario_ids.append(scenario_id)
 
         # Write the updated scenarios to the XML file
         self.write_scenario_xml()
