@@ -64,15 +64,15 @@ class Scenario:
         self.scenario_xml.write(self.get_scenario_xml_path())
 
     def create_scenario(self, scenario_id: str, switching_config: str, study_mode: str,
-                        study_case: str, rev_config: str, output: str):
+                        study_case: str, revision: str, output: str):
         """
         Creates a new scenario in the XML file if it does not already exist.
 
-        :param str study_mode:
         :param str scenario_id: The unique identifier for the scenario.
         :param str switching_config: The switching configuration for the scenario.
+        :param str study_mode: The study mode configuration for the scenario.
         :param str study_case: The study case configuration for the scenario.
-        :param str rev_config: The revision configuration for the scenario.
+        :param str revision: The revision configuration for the scenario.
         :param str output: The output file name for the scenario results.
         """
         # Check if the scenario already exists
@@ -91,7 +91,7 @@ class Scenario:
         scenario_element.set('Mode', f'STUDY_SHORTCIRCUIT {study_mode}')
         scenario_element.set('Config', switching_config)
         scenario_element.set('StudyCase', study_case)
-        scenario_element.set('Revision', rev_config)
+        scenario_element.set('Revision', revision)
         scenario_element.set('Output', output)
         scenario_element.set('Sequence', "")
         scenario_element.set('ActionTool', f'STUDY_SHORTCIRCUIT {study_mode}')

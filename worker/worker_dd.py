@@ -32,6 +32,7 @@ class DeviceDutyWorker(Worker):
         :param bool run_scenarios: Flag to indicate whether scenarios should be executed.
         :param list exclude_startswith: List of prefixes for files to exclude from parsing.
         :param list exclude_contains: List of substrings; files containing these will be excluded.
+        :param bool create_table: A flag to determine whether to create an Excel table.
         :param bool calculate_sw: Flag to determine if switch calculations should be performed.
         :param bool calculate_swgr: Flag to determine if switchgear calculations should be performed.
         :param bool add_series_ratings: Flag to indicate if series ratings should be added.
@@ -109,4 +110,7 @@ class DeviceDutyWorker(Worker):
         return wb_path
 
     def start_next_process(self):
+        """
+        Sends the trigger to start the arc flash process after the thread finishes.
+        """
         self.start_arc_flash_process.emit()

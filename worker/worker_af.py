@@ -25,8 +25,10 @@ class ArcFlashWorker(Worker):
         :param bool run_scenarios: Flag to indicate if scenarios should be run.
         :param list exclude_startswith: List of strings; files starting with these prefixes will be excluded.
         :param list exclude_contains: List of strings; files containing these substrings will be excluded.
+        :param bool create_table: A flag to determine whether to create an Excel table.
         :param float high_energy: Threshold value for high energy highlighting.
         :param float low_energy: Threshold value for low energy highlighting.
+        :param list[str] | None revisions: List of revisions to be included in arc flash scenario creation.
         :param args: Additional arguments for Worker initialization.
         :param kwargs: Additional keyword arguments for Worker initialization.
         """

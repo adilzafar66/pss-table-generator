@@ -28,8 +28,8 @@ class DeviceDutyScenario(Scenario):
         The generated scenarios are added to the ETAP project, and the scenarios XML file is updated.
 
         - Switching configurations: Derived from the ETAP project configurations.
-        - Study case: Defined as DD_STUDY_CASE.
-        - Revision configuration: Set to BASE_REVISION.
+        - Study case: Derived from the ETAP project study cases.
+        - Revision: Set to BASE_REVISION.
         """
 
         study_cases = {DD_STUDY_MODE: DD_STUDY_CASE}

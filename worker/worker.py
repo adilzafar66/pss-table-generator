@@ -28,6 +28,7 @@ class Worker(QThread):
         :param bool run_scenarios: A flag to determine whether to run scenarios.
         :param list exclude_startswith: List of strings to exclude files that start with specified prefixes.
         :param list exclude_contains: List of strings to exclude files that contain specified substrings.
+        :param bool create_table: A flag to determine whether to create an Excel table.
         """
         super().__init__(*args, **kwargs)
         self.datahub_port = port
@@ -68,6 +69,9 @@ class Worker(QThread):
         pass
 
     def start_next_process(self):
+        """
+        Starts the next process after the thread finishes. Abstract method for inheritance.
+        """
         pass
 
     def run(self):

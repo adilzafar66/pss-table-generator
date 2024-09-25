@@ -11,11 +11,17 @@ class ArcFlashScenario(Scenario):
     configurations and scenarios related to arc flash studies.
     """
 
-    def __init__(self, port: int = 65358, revisions=None):
+    def __init__(self, port: int = 65358, revisions: list[str] | None = None):
         """
         Initializes an ArcFlashScenario instance with the specified ETAP connection port.
 
         :param int port: The port number for connecting to the ETAP Datahub (default is 65358).
+        :param list[str] | None revisions: List of revisions to be included in arc flash scenario creation.
+
+        Revisions rules:
+            1. All revisions - revisions = None
+            2. Base revision - revisions = []
+            3. Only some revisions - revisions = [...]
         """
         super().__init__(port)
         self.revisions = revisions
@@ -30,7 +36,7 @@ class ArcFlashScenario(Scenario):
 
         - Electrode configurations: VCB (Vacuum Circuit Breaker) and VCBB (Vacuum Circuit Breaker Box).
         - Switching configurations: Derived from the ETAP project configurations, excluding 'Ultimate'.
-        - Revision configurations: Derived from the ETAP project revisions.
+        - Revisions: Derived from the ETAP project revisions.
         """
         # Retrieve switching configurations and remove the 'Ultimate' configuration
         switching_configs = json.loads(self.etap.projectdata.getconfigurations())
