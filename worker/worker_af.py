@@ -14,7 +14,7 @@ class ArcFlashWorker(Worker):
 
     def __init__(self, port: int, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
                  run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str], create_table: bool,
-                 high_energy: float, low_energy: float, *args, **kwargs):
+                 high_energy: float, low_energy: float, revisions: list[str] | None = None, *args, **kwargs):
         """
         Initializes the ArcFlashWorker with specific parameters for arc flash processing.
 
@@ -34,7 +34,8 @@ class ArcFlashWorker(Worker):
                          exclude_startswith, exclude_contains, create_table, *args, **kwargs)
         self.high_energy = high_energy
         self.low_energy = low_energy
-        self.scenario_class = ArcFlashScenario
+        self.revisions = revisions
+        self.scenario_class = ArcFlashScenario(port, revisions)
 
     def execute_data_parsing(self) -> None:
         """

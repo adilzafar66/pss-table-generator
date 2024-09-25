@@ -45,7 +45,7 @@ class DeviceDutyWorker(Worker):
         self.calculate_swgr = calculate_swgr
         self.add_series_ratings = add_series_ratings
         self.mark_assumed = mark_assumed
-        self.scenario_class = DeviceDutyScenario
+        self.scenario_class = DeviceDutyScenario(port)
 
     def execute_data_parsing(self) -> None:
         """

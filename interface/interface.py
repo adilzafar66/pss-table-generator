@@ -20,7 +20,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         self.connect_buttons()
         self.add_connections()
         self.datahub_note.setVisible(False)
-        self.exclude_revisions_input.setVisible(False)
+        self.include_revisions_input.setVisible(False)
         self.show()
 
     def show_file_browser_input(self):
@@ -60,13 +60,14 @@ class Interface(QMainWindow, Ui_MainWindow):
         mark_assumed = self.mark_assumed_checkbox.isChecked()
         high_energy = self.high_energy_box.value()
         low_energy = self.low_energy_box.value()
+        revisions = self.get_revisions()
 
         arg_list_device_duty = [port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
                                 exclude_startswith, exclude_contains, create_table, calculate_sw,
                                 calculate_swgr, add_series_ratings, mark_assumed]
 
         arg_list_arc_flash = [port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
-                              exclude_startswith, exclude_contains, create_table, high_energy, low_energy]
+                              exclude_startswith, exclude_contains, create_table, high_energy, low_energy, revisions]
 
         if not self.validate_inputs():
             return
@@ -151,6 +152,15 @@ class Interface(QMainWindow, Ui_MainWindow):
     @staticmethod
     def split_tags(tags, delimiter=';'):
         return [tag.strip() for tag in filter(None, tags.split(delimiter))]
+
+    def get_revisions(self):
+        if self.include_all_radio.isChecked():
+            return None
+        if self.include_base_radio.isChecked():
+            return []
+        if self.include_only_radio.isChecked():
+            revisions = self.include_revisions_input.text()
+            return self.split_tags(revisions)
 
     def clear_all_inputs(self):
         checkboxes = [

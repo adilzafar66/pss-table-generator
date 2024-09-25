@@ -2,7 +2,7 @@ import etap.api
 import json
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from consts.consts import SYSTEM, PRESENTATION
+from consts.consts import SYSTEM
 
 
 class Scenario:

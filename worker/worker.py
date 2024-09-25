@@ -48,11 +48,10 @@ class Worker(QThread):
         Updates input and output directory paths as needed.
         """
         if self.create_scenarios:
-            scenario = self.scenario_class(self.datahub_port)
-            scenario.create_scenarios()
-            self.input_dir_path = scenario.get_project_dir()
+            self.scenario_class.create_scenarios()
+            self.input_dir_path = self.scenario_class.get_project_dir()
             if self.run_scenarios:
-                scenario.run_scenarios()
+                self.scenario_class.run_scenarios()
             if str(self.output_dir_path) == '.':
                 self.output_dir_path = self.input_dir_path
 
