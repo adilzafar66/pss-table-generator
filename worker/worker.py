@@ -15,13 +15,11 @@ class Worker(QThread):
     error_occurred = pyqtSignal(str)
     process_finished = pyqtSignal(str)
 
-    def __init__(self, port: int, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
-                 run_scenarios: bool, exclude_startswith: list, exclude_contains: list, create_table: bool,
-                 *args, **kwargs):
+    def __init__(self, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool, run_scenarios: bool,
+                 exclude_startswith: list, exclude_contains: list, create_table: bool, *args, **kwargs):
         """
         Initializes the Worker with required parameters for data processing tasks.
 
-        :param int port: The port number for connecting to the data hub.
         :param Path input_dir_path: The directory path for input data.
         :param Path output_dir_path: The directory path for output data.
         :param bool create_scenarios: A flag to determine whether to create scenarios.
@@ -31,7 +29,6 @@ class Worker(QThread):
         :param bool create_table: A flag to determine whether to create an Excel table.
         """
         super().__init__(*args, **kwargs)
-        self.datahub_port = port
         self.input_dir_path = input_dir_path
         self.output_dir_path = output_dir_path
         self.create_scenarios = create_scenarios
@@ -49,10 +46,11 @@ class Worker(QThread):
         Updates input and output directory paths as needed.
         """
         if self.create_scenarios:
-            self.scenario_class.create_scenarios()
-            self.input_dir_path = self.scenario_class.get_project_dir()
+            scenario = self.scenario_class()
+            scenario.create_scenarios()
+            self.input_dir_path = scenario.get_project_dir()
             if self.run_scenarios:
-                self.scenario_class.run_scenarios()
+                scenario.run_scenarios()
             if str(self.output_dir_path) == '.':
                 self.output_dir_path = self.input_dir_path
 

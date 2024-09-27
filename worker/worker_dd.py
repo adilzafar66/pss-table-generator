@@ -20,7 +20,7 @@ class DeviceDutyWorker(Worker):
 
     def __init__(self, port: int, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
                  run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str], create_table: bool,
-                 calculate_sw: bool, calculate_swgr: bool, add_series_ratings: bool, mark_assumed: bool,
+                 add_switches: bool, use_all_sw_configs: bool, add_series_ratings: bool, mark_assumed: bool,
                  *args, **kwargs):
         """
         Initializes the DeviceDutyWorker with parameters specific to device duty analysis.
@@ -33,30 +33,30 @@ class DeviceDutyWorker(Worker):
         :param list exclude_startswith: List of prefixes for files to exclude from parsing.
         :param list exclude_contains: List of substrings; files containing these will be excluded.
         :param bool create_table: A flag to determine whether to create an Excel table.
-        :param bool calculate_sw: Flag to determine if switch calculations should be performed.
-        :param bool calculate_swgr: Flag to determine if switchgear calculations should be performed.
+        :param bool add_switches: Flag to indicate whether to add switches to the Device Duty report.
+        :param bool use_all_sw_configs: Flag to indicate whether to use all available switching configurations.
         :param bool add_series_ratings: Flag to indicate if series ratings should be added.
         :param bool mark_assumed: Flag to indicate if assumed equipment should be marked.
         :param args: Additional arguments for Worker initialization.
         :param kwargs: Additional keyword arguments for Worker initialization.
         """
-        super().__init__(port, input_dir_path, output_dir_path, create_scenarios, run_scenarios, exclude_startswith,
+        super().__init__(input_dir_path, output_dir_path, create_scenarios, run_scenarios, exclude_startswith,
                          exclude_contains, create_table, *args, **kwargs)
-        self.calculate_sw = calculate_sw
-        self.calculate_swgr = calculate_swgr
+        self.add_switches = add_switches
+        self.use_all_sw_configs = use_all_sw_configs
         self.add_series_ratings = add_series_ratings
         self.mark_assumed = mark_assumed
-        self.scenario_class = DeviceDutyScenario(port)
+        self.scenario_class = lambda: DeviceDutyScenario(port)
 
     def execute_data_parsing(self) -> None:
         """
         Executes the parsing of device duty data by using the DeviceDutyParser class.
-        Parses both ANSI and IEC data from the input directory and processes series ratings and assumed equipment if specified.
+        Parses both ANSI and IEC data from the input directory and processes series ratings and
+        assumed equipment if specified.
         """
         dd_parser = DeviceDutyParser(self.input_dir_path)
-        dd_parser.extract_ansi_data()
-        dd_parser.parse_ansi_data(self.exclude_startswith, self.exclude_contains,
-                                  self.calculate_sw, self.calculate_swgr)
+        dd_parser.extract_ansi_data(self.use_all_sw_configs)
+        dd_parser.parse_ansi_data(self.exclude_startswith, self.exclude_contains, self.add_switches)
         dd_parser.extract_iec_data()
         dd_parser.parse_iec_data(self.exclude_startswith, self.exclude_contains)
         if self.add_series_ratings or self.mark_assumed:

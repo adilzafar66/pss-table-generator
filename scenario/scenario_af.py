@@ -39,10 +39,12 @@ class ArcFlashScenario(Scenario):
         - Revisions: Derived from the ETAP project revisions.
         """
         # Retrieve switching configurations and remove the 'Ultimate' configuration
+        all_revisions = json.loads(self.etap.projectdata.getrevisions())
         switching_configs = json.loads(self.etap.projectdata.getconfigurations())
         if self.revisions is None:
-            self.revisions = json.loads(self.etap.projectdata.getrevisions())
+            self.revisions = all_revisions
         if isinstance(self.revisions, list):
+            self.revisions = [rev for rev in self.revisions if rev in all_revisions]
             if not self.revisions:
                 self.revisions = [BASE_REVISION]
 

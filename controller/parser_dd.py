@@ -3,7 +3,7 @@ import etap.api
 from pathlib import Path
 import xml.etree.ElementTree as ET
 from sqlite3 import Error, OperationalError
-from consts.consts_dd import MV_SWITCHGEAR_MULTIPLIER, LV_SWITCHGEAR_MULTIPLIER
+from consts.consts_dd import MV_SWITCHGEAR_MULTIPLIER, LV_SWITCHGEAR_MULTIPLIER, CONFIG_MAP
 from consts.consts_dd import MODES, MULTIPLIER, ANSI_EXT, IEC_EXT, ANSI_SP_EXT, IEC_SP_EXT
 
 
@@ -56,11 +56,16 @@ class DeviceDutyParser:
         e = etap.api.connect(f'http://localhost:{port}')
         self.tree = ET.fromstring(e.projectdata.getxml())
 
-    def extract_ansi_data(self):
+    def extract_ansi_data(self, use_all_sw_configs: bool):
         """
         Extracts ANSI data from SQLite databases and populates the `ansi_data` attribute.
         It processes both momentary and interrupting duties for three-phase and single-phase systems.
+
+        :param bool use_all_sw_configs: Flag to indicate whether to use all non-default switching configuration files.
         """
+        if not use_all_sw_configs:
+            self.filter_filepaths()
+
         for filepath in self.ansi_filepaths:
             try:
                 conn = sqlite3.connect(filepath)
@@ -147,24 +152,21 @@ class DeviceDutyParser:
                 self.iec_data[config][self.mode_int] = []
             self.iec_data[config][self.mode_int] += int_data
 
-    def parse_ansi_data(self, exclude_startswith: list[str], exclude_contains: list[str],
-                        calc_sw_asym: bool, calc_swgr_sym: bool):
+    def parse_ansi_data(self, exclude_startswith: list[str], exclude_contains: list[str], add_switches: bool):
         """
         Parses the extracted ANSI data based on specified criteria, such as excluding specific IDs or
         calculating asymmetrical and symmetrical current values.
 
         :param list[str] exclude_startswith: List of strings that, if an ID starts with, should exclude the entry.
         :param list[str] exclude_contains: List of substrings that, if present in an ID, should exclude the entry.
-        :param bool calc_sw_asym: Flag to calculate switch asymmetrical values if they are not present.
-        :param bool calc_swgr_sym: Flag to calculate switchgear symmetrical values if required.
+        :param bool add_switches: Flag to indicate whether to add switches to the parsed data.
         """
         for config, modes in self.ansi_data.items():
             config_tags = config.split('_')
             config_id = config_tags[1]
             for mode, entries in modes.items():
                 if mode == self.mode_mom:
-                    self.parse_ansi_mom_entries(entries, config_id, exclude_startswith, exclude_contains,
-                                                calc_sw_asym, calc_swgr_sym)
+                    self.parse_ansi_mom_entries(entries, config_id, exclude_startswith, exclude_contains, add_switches)
                 if mode == self.mode_int:
                     self.parse_ansi_int_entries(entries, config_id, exclude_startswith, exclude_contains)
 
@@ -183,8 +185,7 @@ class DeviceDutyParser:
                     self.parse_iec_int_entries(entries, config_id, exclude_startswith, exclude_contains)
 
     def parse_ansi_mom_entries(self, entries: list, config: str, exclude_startswith: list[str],
-                               exclude_contains: list[str], calc_sw_asym: bool = True,
-                               calc_swgr_sym: bool = True) -> None:
+                               exclude_contains: list[str], add_switches: bool = True):
         """
         Parses ANSI momentary duty data entries based on specified criteria and calculates necessary values.
 
@@ -192,17 +193,18 @@ class DeviceDutyParser:
         :param str config: Configuration identifier.
         :param list[str] exclude_startswith: List of strings that, if an ID starts with, should exclude the entry.
         :param list[str] exclude_contains: List of substrings that, if present in an ID, should exclude the entry.
-        :param bool calc_sw_asym: Flag to calculate switch asymmetrical values if they are not present.
-        :param bool calc_swgr_sym: Flag to calculate switchgear symmetrical values if required.
+        :param bool add_switches: Flag to indicate whether to add switches to the parsed data.
         """
+        valid_types = ['Panelboard', 'Switchboard', 'Switchgear']
+        if add_switches:
+            valid_types += ['SPST Switch', 'SPDT Switch']
+
         for entry in entries:
             _id = entry[0]
             _voltage = entry[1]
             _type = entry[2]
 
-            if _type.strip() not in ['Panelboard', 'Switchboard',
-                                     'SPST Switch', 'SPDT Switch',
-                                     'Switchgear']:
+            if _type.strip() not in valid_types:
                 continue
 
             if any(word in _id for word in exclude_contains):
@@ -219,17 +221,18 @@ class DeviceDutyParser:
             if _type.endswith('Switch'):
                 cap_sym = entry[6]
                 cap_asym = entry[5]
-                if not cap_asym and calc_sw_asym:
-                    cap_asym = cap_sym * MULTIPLIER
+                if _id.startswith('MV') or _voltage > 0.6:
+                    cap_asym = cap_sym * MV_SWITCHGEAR_MULTIPLIER
+                elif _id.startswith('LV') or _voltage <= 0.6:
+                    cap_asym = cap_sym * LV_SWITCHGEAR_MULTIPLIER
             else:
                 cap_sym = entry[5]
                 cap_asym = entry[6]
-
-            if 'Switchgear' in _type and calc_swgr_sym:
-                if _id.startswith('MV') or _voltage > 0.6:
-                    cap_sym = cap_asym / MV_SWITCHGEAR_MULTIPLIER
-                elif _id.startswith('LV') or _voltage <= 0.6:
-                    cap_sym = cap_asym / LV_SWITCHGEAR_MULTIPLIER
+                if 'Switchgear' in _type or _type.endswith('Switch'):
+                    if _id.startswith('MV') or _voltage > 0.6:
+                        cap_sym = cap_asym / MV_SWITCHGEAR_MULTIPLIER
+                    elif _id.startswith('LV') or _voltage <= 0.6:
+                        cap_sym = cap_asym / LV_SWITCHGEAR_MULTIPLIER
 
             entry_data = {
                 'Voltage': _voltage,
@@ -244,7 +247,7 @@ class DeviceDutyParser:
                                                            key=lambda item: item[1]['Type']))
 
     def parse_ansi_int_entries(self, entries: list, config: str, exclude_startswith: list[str],
-                               exclude_contains: list[str]) -> None:
+                               exclude_contains: list[str]):
         """
         Parses ANSI interrupting duty data entries based on specified criteria.
 
@@ -281,7 +284,7 @@ class DeviceDutyParser:
                                                            key=lambda item: item[1]['Bus']))
 
     def parse_iec_int_entries(self, entries: list, config: str, exclude_startswith: list[str],
-                              exclude_contains: list[str]) -> None:
+                              exclude_contains: list[str]):
         """
         Parses IEC interrupting duty data entries based on specified criteria.
 
@@ -353,7 +356,7 @@ class DeviceDutyParser:
             raise AttributeError(f'No element with ID {element_id} found')
         return True if 'assumed' in element.get('CommentText').lower() else False
 
-    def add_series_rated_ratings(self, entries: dict, cap_tag: str, is_mom: bool=False) -> None:
+    def add_series_rated_ratings(self, entries: dict, cap_tag: str, is_mom: bool = False):
         """
         Adds series-rated ratings to the provided entries if they are series-rated, based on ANSI momentary data.
 
@@ -371,7 +374,7 @@ class DeviceDutyParser:
                     series_rated_value = ansi_mom[device_bus]['CapSym']
                     device_data[cap_tag] = series_rated_value
 
-    def mark_assumed_equipment(self, entries: dict) -> None:
+    def mark_assumed_equipment(self, entries: dict):
         """
         Marks equipment as 'Assumed' in the provided entries based on their assumed status.
 
@@ -381,7 +384,7 @@ class DeviceDutyParser:
             if self.is_assumed(_id):
                 device_data['Assumed'] = True
 
-    def process_series_rated_equipment(self) -> None:
+    def process_series_rated_equipment(self):
         """
         Processes all parsed ANSI and IEC data to identify series-rated equipment and update their ratings.
         """
@@ -392,7 +395,7 @@ class DeviceDutyParser:
         self.add_series_rated_ratings(ansi_int, 'CapAdjSym')
         self.add_series_rated_ratings(iec_int, 'CapLbSym')
 
-    def process_assumed_equipment(self) -> None:
+    def process_assumed_equipment(self):
         """
         Processes all parsed ANSI and IEC data to mark assumed equipment.
         """
@@ -409,3 +412,12 @@ class DeviceDutyParser:
             if path.is_file() and path.suffix == f'.{ext}':
                 filepaths.append(str(path))
         return filepaths
+
+    def filter_filepaths(self):
+        def filter_func(path_str):
+            filename = Path(path_str).stem
+            if filename.split('_')[-1] in CONFIG_MAP:
+                return True
+            return False
+
+        self.ansi_filepaths = list(filter(filter_func, self.ansi_filepaths))

@@ -87,8 +87,8 @@ class Interface(QMainWindow, Ui_MainWindow):
         exclude_startswith = self.split_tags(self.exclude_start_input.text())
         exclude_contains = self.split_tags(self.exclude_contain_input.text())
         create_table = self.create_reports_checkbox.isChecked()
-        calculate_sw = self.sw_checkbox.isChecked()
-        calculate_swgr = self.swgr_checkbox.isChecked()
+        add_switches = self.sw_checkbox.isChecked()
+        use_all_sw_configs = self.use_all_checkbox.isChecked()
         add_series_ratings = self.series_rating_checkbox.isChecked()
         mark_assumed = self.mark_assumed_checkbox.isChecked()
         high_energy = self.high_energy_box.value()
@@ -96,8 +96,8 @@ class Interface(QMainWindow, Ui_MainWindow):
         revisions = self.get_revisions()
 
         arg_list_device_duty = [port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
-                                exclude_startswith, exclude_contains, create_table, calculate_sw,
-                                calculate_swgr, add_series_ratings, mark_assumed]
+                                exclude_startswith, exclude_contains, create_table, add_switches,
+                                use_all_sw_configs, add_series_ratings, mark_assumed]
 
         arg_list_arc_flash = [port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
                               exclude_startswith, exclude_contains, create_table, high_energy, low_energy, revisions]
@@ -255,7 +255,7 @@ class Interface(QMainWindow, Ui_MainWindow):
             self.mark_assumed_checkbox,
             self.series_rating_checkbox,
             self.sw_checkbox,
-            self.swgr_checkbox,
+            self.use_all_checkbox,
             self.etap_dir_checkbox
         ]
         lines = [

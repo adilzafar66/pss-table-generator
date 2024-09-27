@@ -32,12 +32,12 @@ class ArcFlashWorker(Worker):
         :param args: Additional arguments for Worker initialization.
         :param kwargs: Additional keyword arguments for Worker initialization.
         """
-        super().__init__(port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
-                         exclude_startswith, exclude_contains, create_table, *args, **kwargs)
+        super().__init__(input_dir_path, output_dir_path, create_scenarios, run_scenarios, exclude_startswith,
+                         exclude_contains, create_table, *args, **kwargs)
         self.high_energy = high_energy
         self.low_energy = low_energy
         self.revisions = revisions
-        self.scenario_class = ArcFlashScenario(port, revisions)
+        self.scenario_class = lambda: ArcFlashScenario(port, revisions)
 
     def execute_data_parsing(self) -> None:
         """

@@ -105,22 +105,21 @@ class Ui_MainWindow(object):
         self.verticalLayout_10.setObjectName("verticalLayout_10")
         self.device_duty_grid = QtWidgets.QGridLayout()
         self.device_duty_grid.setObjectName("device_duty_grid")
-        self.sw_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
-        self.sw_checkbox.setChecked(True)
-        self.sw_checkbox.setObjectName("sw_checkbox")
-        self.device_duty_grid.addWidget(self.sw_checkbox, 1, 0, 1, 1)
-        self.swgr_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
-        self.swgr_checkbox.setChecked(True)
-        self.swgr_checkbox.setObjectName("swgr_checkbox")
-        self.device_duty_grid.addWidget(self.swgr_checkbox, 1, 1, 1, 1)
         self.mark_assumed_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
         self.mark_assumed_checkbox.setChecked(False)
         self.mark_assumed_checkbox.setObjectName("mark_assumed_checkbox")
-        self.device_duty_grid.addWidget(self.mark_assumed_checkbox, 0, 1, 1, 1)
+        self.device_duty_grid.addWidget(self.mark_assumed_checkbox, 1, 1, 1, 1)
         self.series_rating_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
         self.series_rating_checkbox.setChecked(False)
         self.series_rating_checkbox.setObjectName("series_rating_checkbox")
-        self.device_duty_grid.addWidget(self.series_rating_checkbox, 0, 0, 1, 1)
+        self.device_duty_grid.addWidget(self.series_rating_checkbox, 1, 0, 1, 1)
+        self.sw_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
+        self.sw_checkbox.setChecked(True)
+        self.sw_checkbox.setObjectName("sw_checkbox")
+        self.device_duty_grid.addWidget(self.sw_checkbox, 0, 0, 1, 1)
+        self.use_all_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
+        self.use_all_checkbox.setObjectName("use_all_checkbox")
+        self.device_duty_grid.addWidget(self.use_all_checkbox, 0, 1, 1, 1)
         self.verticalLayout_10.addLayout(self.device_duty_grid)
         self.device_duty_layout.addWidget(self.device_duty_group)
         self.main_layout.addLayout(self.device_duty_layout)
@@ -316,10 +315,15 @@ class Ui_MainWindow(object):
         self.create_scenarios_checkbox.toggled['bool'].connect(self.include_only_radio.setEnabled) # type: ignore
         self.create_reports_checkbox.toggled['bool'].connect(self.low_energy_box.setEnabled) # type: ignore
         self.create_reports_checkbox.toggled['bool'].connect(self.high_energy_box.setEnabled) # type: ignore
-        self.create_reports_checkbox.toggled['bool'].connect(self.device_duty_group.setEnabled) # type: ignore
         self.create_reports_checkbox.toggled['bool'].connect(self.output_dir_group.setEnabled) # type: ignore
         self.arc_flash_checkbox.toggled['bool'].connect(self.arc_flash_layout.setEnabled) # type: ignore
         self.device_duty_checkbox.toggled['bool'].connect(self.device_duty_group.setEnabled) # type: ignore
+        self.create_reports_checkbox.toggled['bool'].connect(self.mark_assumed_checkbox.setEnabled) # type: ignore
+        self.create_reports_checkbox.toggled['bool'].connect(self.series_rating_checkbox.setEnabled) # type: ignore
+        self.create_reports_checkbox.toggled['bool'].connect(self.sw_checkbox.setEnabled) # type: ignore
+        self.create_scenarios_checkbox.toggled['bool'].connect(self.include_revisions_input.setEnabled) # type: ignore
+        self.create_scenarios_checkbox.toggled['bool'].connect(self.etap_dir.clear) # type: ignore
+        self.create_reports_checkbox.toggled['bool'].connect(self.use_all_checkbox.setEnabled) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -337,11 +341,12 @@ class Ui_MainWindow(object):
         self.arc_flash_checkbox.setText(_translate("MainWindow", "Arc Flash"))
         self.placeholder_checkbox.setText(_translate("MainWindow", "Placeholder"))
         self.device_duty_group.setTitle(_translate("MainWindow", "Device Duty"))
-        self.sw_checkbox.setText(_translate("MainWindow", "Add Switch Asymm."))
-        self.swgr_checkbox.setText(_translate("MainWindow", "Add Switchgear Symm."))
         self.mark_assumed_checkbox.setText(_translate("MainWindow", "Mark Assumed Equipment *"))
         self.series_rating_checkbox.setText(_translate("MainWindow", "Add Series Ratings *"))
+        self.sw_checkbox.setText(_translate("MainWindow", "Include Switches"))
+        self.use_all_checkbox.setText(_translate("MainWindow", "Use All Switching Configs"))
         self.arc_flash_layout.setTitle(_translate("MainWindow", "Arc Flash"))
+        self.include_revisions_input.setText(_translate("MainWindow", "Base;"))
         self.include_revisions_input.setPlaceholderText(_translate("MainWindow", "Revisions to include in Create Scenarios..."))
         self.low_energy_label.setText(_translate("MainWindow", "High"))
         self.high_energy_label.setText(_translate("MainWindow", "Critical"))

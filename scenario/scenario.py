@@ -79,6 +79,9 @@ class Scenario:
         if self.scenario_root.findall(f'./Scenario[@ID="{scenario_id}"]'):
             return
 
+        # Remove all % characters from scenario ID
+        scenario_id = scenario_id.replace('%', '')
+
         # Create a new scenario element with the specified attributes
         scenario_element = ET.Element('Scenario')
         scenario_element.set('ID', scenario_id)
