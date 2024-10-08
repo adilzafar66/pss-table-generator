@@ -213,32 +213,31 @@ class DeviceDutyParser:
             if any(_id.startswith(word) for word in exclude_startswith):
                 continue
 
+            if _type.endswith('Switch'):
+                _symmetric = 0
+            else:
+                _symmetric = entry[3]
+            _asymmetric = entry[4]
+
             if _id in self.parsed_ansi_data[self.mode_mom]:
-                self.parsed_ansi_data[self.mode_mom][_id]['Sym'].update({config: entry[3]})
-                self.parsed_ansi_data[self.mode_mom][_id]['Asym'].update({config: entry[4]})
+                self.parsed_ansi_data[self.mode_mom][_id]['Sym'].update({config: _symmetric})
+                self.parsed_ansi_data[self.mode_mom][_id]['Asym'].update({config: _asymmetric})
                 continue
 
-            if _type.endswith('Switch'):
-                cap_sym = entry[6]
-                cap_asym = entry[5]
+            cap_sym = entry[5]
+            cap_asym = entry[6]
+
+            if 'Switchgear' in _type:
                 if _id.startswith('MV') or _voltage > 0.6:
-                    cap_asym = cap_sym * MV_SWITCHGEAR_MULTIPLIER
+                    cap_sym = cap_asym / MV_SWITCHGEAR_MULTIPLIER
                 elif _id.startswith('LV') or _voltage <= 0.6:
-                    cap_asym = cap_sym * LV_SWITCHGEAR_MULTIPLIER
-            else:
-                cap_sym = entry[5]
-                cap_asym = entry[6]
-                if 'Switchgear' in _type or _type.endswith('Switch'):
-                    if _id.startswith('MV') or _voltage > 0.6:
-                        cap_sym = cap_asym / MV_SWITCHGEAR_MULTIPLIER
-                    elif _id.startswith('LV') or _voltage <= 0.6:
-                        cap_sym = cap_asym / LV_SWITCHGEAR_MULTIPLIER
+                    cap_sym = cap_asym / LV_SWITCHGEAR_MULTIPLIER
 
             entry_data = {
                 'Voltage': _voltage,
                 'Type': _type,
-                'Sym': {config: entry[3]},
-                'Asym': {config: entry[4]},
+                'Sym': {config: _symmetric},
+                'Asym': {config: _asymmetric},
                 'CapSym': cap_sym,
                 'CapAsym': cap_asym
             }

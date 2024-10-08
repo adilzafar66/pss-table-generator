@@ -294,12 +294,12 @@ class DeviceDutyExporter:
             row[2].value = values[i].get(spec_keys['Type'], '').strip()
             row[3].value = values[i].get('Device', '').strip()
             fault_vals = [values[i][k] for k in spec_keys['fault_head']]
-            cap_vals = [round(values[i][k], 2) for k in spec_keys['cap_fault_head']]
+            cap_vals = [values[i][k] for k in spec_keys['cap_fault_head']]
             for j in range(len(fault_vals)):
                 self.insert_fault_data(sheet_index, row, fault_vals[j], cap_vals[j], offset=j)
             last_col_index = self.get_col_index(sheet_index, TOP_COLS[1])
             for j in range(len(cap_vals)):
-                row[last_col_index + j].value = cap_vals[j]
+                row[last_col_index + j].value = round(cap_vals[j], 2) or '--'
                 self.highlight_series_rated(row[last_col_index + j], values[i].get('SeriesRated', False))
 
     def insert_fault_data(self, sheet_index: int, row: tuple[Cell, ...], values: dict, cap_val: float, offset: int = 0):
@@ -317,7 +317,7 @@ class DeviceDutyExporter:
             col_index = self.get_col_index(sheet_index, heading_key)
             if col_index:
                 cell = row[col_index + offset]
-                cell.value = round(fault_val, 2)
+                cell.value = round(fault_val, 2) or '--'
                 self.highlight_high_duty(cell, fault_val, cap_val)
 
     def save_workbook(self, wb_path: Path):

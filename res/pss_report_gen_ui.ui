@@ -162,17 +162,7 @@
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
             <layout class="QGridLayout" name="study_grid">
-             <item row="1" column="0">
-              <widget class="QCheckBox" name="device_duty_checkbox">
-               <property name="text">
-                <string>Device Duty</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
+             <item row="3" column="0">
               <widget class="QCheckBox" name="arc_flash_checkbox">
                <property name="text">
                 <string>Arc Flash</string>
@@ -182,10 +172,23 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
-              <widget class="QCheckBox" name="placeholder_checkbox">
+             <item row="2" column="0">
+              <widget class="QCheckBox" name="device_duty_checkbox">
                <property name="text">
-                <string>Placeholder</string>
+                <string>Device Duty</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QCheckBox" name="short_circuit_checkbox">
+               <property name="text">
+                <string>Short Circuit</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -406,27 +409,32 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="etap_dir_group">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
+       <widget class="QGroupBox" name="exclude_group">
         <property name="title">
-         <string>ETAP Directory</string>
+         <string>Exclude</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_8">
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QLineEdit" name="etap_dir">
+          <layout class="QVBoxLayout" name="exclude_start_layout">
+           <item>
+            <widget class="QLabel" name="exclude_start_label">
+             <property name="text">
+              <string>Element ID Starting With:</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="exclude_start_input">
            <property name="minimumSize">
             <size>
              <width>0</width>
              <height>24</height>
             </size>
            </property>
-           <property name="readOnly">
-            <bool>false</bool>
-           </property>
-           <property name="placeholderText">
-            <string>Path to Project ETAP Folder...</string>
+           <property name="text">
+            <string>BUS;</string>
            </property>
            <property name="clearButtonEnabled">
             <bool>true</bool>
@@ -434,28 +442,31 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="browse_btn_layout">
+          <layout class="QVBoxLayout" name="exclude_contain_layout">
            <item>
-            <widget class="QPushButton" name="browse_btn">
+            <widget class="QLabel" name="exclude_contain_label">
              <property name="text">
-              <string>Browse</string>
+              <string>Element ID Containing:</string>
              </property>
             </widget>
            </item>
-           <item>
-            <spacer name="browse_btn_spacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
           </layout>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="exclude_contain_input">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>24</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>BCH;FORTIS;</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -517,32 +528,27 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="exclude_group">
-        <property name="title">
-         <string>Exclude</string>
+       <widget class="QGroupBox" name="etap_dir_group">
+        <property name="enabled">
+         <bool>true</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="title">
+         <string>ETAP Directory</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_8">
          <item>
-          <layout class="QVBoxLayout" name="exclude_start_layout">
-           <item>
-            <widget class="QLabel" name="exclude_start_label">
-             <property name="text">
-              <string>Element ID Starting With:</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="exclude_start_input">
+          <widget class="QLineEdit" name="etap_dir">
            <property name="minimumSize">
             <size>
              <width>0</width>
              <height>24</height>
             </size>
            </property>
-           <property name="text">
-            <string>BUS;</string>
+           <property name="readOnly">
+            <bool>false</bool>
+           </property>
+           <property name="placeholderText">
+            <string>Path to Project ETAP Folder...</string>
            </property>
            <property name="clearButtonEnabled">
             <bool>true</bool>
@@ -550,31 +556,28 @@
           </widget>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="exclude_contain_layout">
+          <layout class="QHBoxLayout" name="browse_btn_layout">
            <item>
-            <widget class="QLabel" name="exclude_contain_label">
+            <widget class="QPushButton" name="browse_btn">
              <property name="text">
-              <string>Element ID Containing:</string>
+              <string>Browse</string>
              </property>
             </widget>
            </item>
+           <item>
+            <spacer name="browse_btn_spacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="exclude_contain_input">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>BCH;FORTIS;</string>
-           </property>
-           <property name="clearButtonEnabled">
-            <bool>true</bool>
-           </property>
-          </widget>
          </item>
         </layout>
        </widget>

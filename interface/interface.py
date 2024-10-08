@@ -249,6 +249,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         checkboxes = [
             self.device_duty_checkbox,
             self.arc_flash_checkbox,
+            self.short_circuit_checkbox,
             self.create_scenarios_checkbox,
             self.run_scenarios_checkbox,
             self.create_reports_checkbox,
@@ -265,8 +266,12 @@ class Interface(QMainWindow, Ui_MainWindow):
             self.exclude_contain_input
         ]
 
+        self.include_base_radio.setChecked(True)
+
         for line in lines:
             line.clear()
 
         for checkbox in checkboxes:
             checkbox.setChecked(False)
+
+

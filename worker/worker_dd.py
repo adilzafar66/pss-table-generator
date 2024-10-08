@@ -42,6 +42,7 @@ class DeviceDutyWorker(Worker):
         """
         super().__init__(input_dir_path, output_dir_path, create_scenarios, run_scenarios, exclude_startswith,
                          exclude_contains, create_table, *args, **kwargs)
+        self.datahub_port = port
         self.add_switches = add_switches
         self.use_all_sw_configs = use_all_sw_configs
         self.add_series_ratings = add_series_ratings
