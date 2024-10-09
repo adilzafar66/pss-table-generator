@@ -259,7 +259,8 @@ class Interface(QMainWindow, Ui_MainWindow):
             self.series_rating_checkbox,
             self.sw_checkbox,
             self.use_all_checkbox,
-            self.etap_dir_checkbox
+            self.etap_dir_checkbox,
+            self.si_units_checkbox
         ]
         lines = [
             self.etap_dir,

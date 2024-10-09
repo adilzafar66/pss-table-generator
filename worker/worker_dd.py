@@ -3,7 +3,7 @@ from pathlib import Path
 from PyQt5.QtCore import pyqtSignal
 
 from worker.worker import Worker
-from controller.parser_dd import DeviceDutyParser
+from parser.parser_dd import DeviceDutyParser
 from exporter.exporter_dd import DeviceDutyExporter
 from scenario.scenario_dd import DeviceDutyScenario
 from consts.consts_dd import mom_const_cols, mom_alt_cols, int_const_cols, int_alt_cols, spec_keys_iec_int
