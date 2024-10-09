@@ -20,8 +20,7 @@ class ArcFlashParser:
         self.sql_ansi_af_info = "SELECT Output, Config FROM IAFStudyCase"
         self.sql_ansi_af_bus = (
             "SELECT IDBus, NomlkV, EqType, Orientation, WDistance, FixedBoundary, ResBoundary, "
-            "IEnergy, PBoundary, FCT, FCTPD, ArcVaria, ArcI, FCTPDIa, FaultI, FCTPDIf "
-            "FROM BusArcFlash WHERE EqType <> 'Other'"
+            "IEnergy, PBoundary, FCT, FCTPD, ArcVaria, ArcI, FCTPDIa, FaultI, FCTPDIf FROM BusArcFlash"
         )
         self.sql_ansi_af_pd = (
             "SELECT ID, NomlkV, Type, Orientation, WDistance, FixedBoundary, ResBoundary, "
