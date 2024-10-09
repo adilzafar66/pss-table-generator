@@ -91,6 +91,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         use_all_sw_configs = self.use_all_checkbox.isChecked()
         add_series_ratings = self.series_rating_checkbox.isChecked()
         mark_assumed = self.mark_assumed_checkbox.isChecked()
+        use_si_units = self.si_units_checkbox.isChecked()
         high_energy = self.high_energy_box.value()
         low_energy = self.low_energy_box.value()
         revisions = self.get_revisions()
@@ -100,7 +101,8 @@ class Interface(QMainWindow, Ui_MainWindow):
                                 use_all_sw_configs, add_series_ratings, mark_assumed]
 
         arg_list_arc_flash = [port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
-                              exclude_startswith, exclude_contains, create_table, high_energy, low_energy, revisions]
+                              exclude_startswith, exclude_contains, create_table, use_si_units, high_energy,
+                              low_energy, revisions]
 
         if not self.validate_inputs():
             return

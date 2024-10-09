@@ -14,7 +14,8 @@ class ArcFlashWorker(Worker):
 
     def __init__(self, port: int, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
                  run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str], create_table: bool,
-                 high_energy: float, low_energy: float, revisions: list[str] | None = None, *args, **kwargs):
+                 use_si_units: bool, high_energy: float, low_energy: float, revisions: list[str] | None = None,
+                 *args, **kwargs):
         """
         Initializes the ArcFlashWorker with specific parameters for arc flash processing.
 
@@ -26,6 +27,7 @@ class ArcFlashWorker(Worker):
         :param list exclude_startswith: List of strings; files starting with these prefixes will be excluded.
         :param list exclude_contains: List of strings; files containing these substrings will be excluded.
         :param bool create_table: A flag to determine whether to create an Excel table.
+        :param bool use_si_units: A flag to determine whether to convert some columns to SI units.
         :param float high_energy: Threshold value for high energy highlighting.
         :param float low_energy: Threshold value for low energy highlighting.
         :param list[str] | None revisions: List of revisions to be included in arc flash scenario creation.
@@ -34,6 +36,7 @@ class ArcFlashWorker(Worker):
         """
         super().__init__(input_dir_path, output_dir_path, create_scenarios, run_scenarios, exclude_startswith,
                          exclude_contains, create_table, *args, **kwargs)
+        self.use_si_units = use_si_units
         self.high_energy = high_energy
         self.low_energy = low_energy
         self.revisions = revisions
@@ -46,7 +49,7 @@ class ArcFlashWorker(Worker):
         """
         af_parser = ArcFlashParser(self.input_dir_path)
         af_parser.extract_ansi_af_data()
-        af_parser.parse_ansi_af_data(self.exclude_startswith, self.exclude_contains)
+        af_parser.parse_ansi_af_data(self.use_si_units, self.exclude_startswith, self.exclude_contains)
         self.parsed_ansi_data = af_parser.ansi_af_data
 
     def execute_data_export(self) -> Path:
@@ -59,7 +62,7 @@ class ArcFlashWorker(Worker):
         :rtype: Path
         """
         af_exporter = ArcFlashExporter()
-        af_exporter.create_headers()
+        af_exporter.create_headers(self.use_si_units)
         af_exporter.add_data(self.parsed_ansi_data)
         af_exporter.format_sheet()
         af_exporter.highlight_high_energy(self.low_energy, self.high_energy)

@@ -1,7 +1,7 @@
 from pathlib import Path
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
-from consts.consts_af import COLUMN_NAMES, SPECS
+from consts.consts_af import COLUMN_NAMES, SPECS, COLUMN_NAMES_SI
 
 
 class ArcFlashExporter:
@@ -22,12 +22,15 @@ class ArcFlashExporter:
         self.ws = self.wb.active
         self.ws.title = 'ANSI Arc Flash Table'
 
-    def create_headers(self):
+    def create_headers(self, use_si_units: bool = False):
         """
         Creates the header row in the worksheet using predefined column names
         and applies header-specific formatting.
+
+        :param bool use_si_units: A flag to determine whether to use column headings with SI units.
         """
-        for index, col_name in enumerate(COLUMN_NAMES):
+        column_names = COLUMN_NAMES_SI if use_si_units else COLUMN_NAMES
+        for index, col_name in enumerate(column_names):
             cell = self.ws.cell(1, index + 1)
             cell.value = col_name
             cell.fill = SPECS['fill_header']

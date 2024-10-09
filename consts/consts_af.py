@@ -5,10 +5,11 @@ AF_STUDY_MODE = 'ANSI ARC-FLASH'
 VCB_CONFIG = 'VCB'
 VCBB_CONFIG = 'VCBB'
 ROUND_DIGITS = 2
+FT_M_MULTIPLIER = 0.3048
 FILE_NAME_SUFFIX = 'Arc Flash Report.xlsx'
 
 indices = {
-    'pdi': 2,
+    'ecf': 2,
     'lab': 4,
     'rab': 5,
     'rep': 6,
@@ -48,6 +49,28 @@ COLUMN_NAMES = [
     'Total Ibf at FCT (kA)',
     'Source PD Ibf at FCT (kA)'
 ]
+
+COLUMN_NAMES_SI = [
+    'ID',
+    'kV',
+    'Type',
+    'Electrode Configuration',
+    'Working Distance LL (m)',
+    'LAB to Fixed Part (m)',
+    'RAB (m)',
+    'Output Rpt.',
+    'Configuration',
+    'Total Energy (cal/cm²)',
+    'AFB (m)',
+    'Final FCT (sec)',
+    'Source PD ID',
+    '% Ia Variation',
+    "Total Ia'' (kA)",
+    'Source PD Ia at FCT (kA)',
+    'Total Ibf at FCT (kA)',
+    'Source PD Ibf at FCT (kA)'
+]
+
 SPECS = {
     'header_row': 1,
     'subheader_row': 2,

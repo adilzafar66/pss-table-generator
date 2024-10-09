@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 from sqlite3 import Error, OperationalError
-from consts.consts_af import indices, ROUND_DIGITS
+from consts.consts_af import indices, ROUND_DIGITS, FT_M_MULTIPLIER
 
 
 class ArcFlashParser:
@@ -19,12 +19,12 @@ class ArcFlashParser:
         self.ansi_af_data = {}
         self.sql_ansi_af_info = "SELECT Output, Config FROM IAFStudyCase"
         self.sql_ansi_af_bus = (
-            "SELECT IDBus, NomlkV, EqType, MainPDIsolation, WDistance, FixedBoundary, ResBoundary, "
+            "SELECT IDBus, NomlkV, EqType, Orientation, WDistance, FixedBoundary, ResBoundary, "
             "IEnergy, PBoundary, FCT, FCTPD, ArcVaria, ArcI, FCTPDIa, FaultI, FCTPDIf "
             "FROM BusArcFlash WHERE EqType <> 'Other'"
         )
         self.sql_ansi_af_pd = (
-            "SELECT ID, NomlkV, Type, MainPDIsolation, WDistance, FixedBoundary, ResBoundary, "
+            "SELECT ID, NomlkV, Type, Orientation, WDistance, FixedBoundary, ResBoundary, "
             "IEnergy, PBoundary, EnFCT, FCTPD, ArcVaria, EnIa, FCTPDIa, EnIf, FCTPDIf "
             "FROM PDArcFlash WHERE ID <> '' AND Type = 'SPST Switch'"
         )
@@ -93,13 +93,14 @@ class ArcFlashParser:
             if _id not in self.ansi_af_data or _energy > self.ansi_af_data[_id][indices['ie']]:
                 self.ansi_af_data[_id] = _data
 
-    def parse_ansi_af_data(self, exclude_startswith: list[str], exclude_contains: list[list]):
+    def parse_ansi_af_data(self, use_si_units: bool, exclude_startswith: list[str], exclude_contains: list[list]):
         """
         Parses and processes the extracted ANSI arc flash data, applying filtering and formatting.
 
         Entries can be excluded based on specific prefixes or contained strings. Numerical values
         are rounded to a predefined precision, and several fields are converted or recalculated.
 
+        :param bool use_si_units: A flag to determine whether to convert some columns to SI units.
         :param list[str] exclude_startswith: List of string prefixes to exclude from the parsed data.
         :param list[str] exclude_contains: List of strings to exclude if contained in entry IDs.
         """
@@ -111,11 +112,12 @@ class ArcFlashParser:
                 return False
             return True
 
+        conversion_func = self._convert_to_m if use_si_units else self._convert_to_ft
         for key, data in self.ansi_af_data.items():
-            data[indices['pdi']] = self._map_electrode_config(data[indices['pdi']])
-            data[indices['lab']] = self._convert_to_ft(data[indices['lab']])
-            data[indices['rab']] = self._convert_to_ft(data[indices['rab']])
-            data[indices['afb']] = self._convert_to_ft(data[indices['afb']])
+            data[indices['lab']] = conversion_func(data[indices['lab']])
+            data[indices['rab']] = conversion_func(data[indices['rab']])
+            data[indices['afb']] = conversion_func(data[indices['afb']])
+            data[indices['ecf']] = self._map_electrode_config(data[indices['ecf']])
             data[indices['fct']] = self._convert_cycle_to_sec(data[indices['fct']])
             data[indices['la_var']] = self._calculate_la_var(data[indices['la_var']])
 
@@ -151,7 +153,21 @@ class ArcFlashParser:
         """
         ft = int(value)
         inch = round((value - ft) * 12)
+        if inch == 12:
+            ft += 1
+            inch = 0
         return f"{ft}'{inch}\""
+
+    @staticmethod
+    def _convert_to_m(value: float) -> float:
+        """
+        Converts a numeric value in feet and inches to meters.
+
+        :param float value: The value to convert.
+        :return: value in meters.
+        :rtype: float
+        """
+        return value * FT_M_MULTIPLIER
 
     @staticmethod
     def _convert_cycle_to_sec(value: float) -> float:
@@ -173,7 +189,7 @@ class ArcFlashParser:
         :return: The corresponding electrode configuration name.
         :rtype: str
         """
-        electrode_configs = ['None', 'VCB', 'VCBB']
+        electrode_configs = ['VCB', 'VCBB', 'HCB']
         return electrode_configs[index] if 0 <= index < len(electrode_configs) else 'Unknown'
 
     @staticmethod
