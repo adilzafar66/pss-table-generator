@@ -1,9 +1,13 @@
 import os
+import pickle
 from pathlib import Path
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
+
+from consts.consts import HTTPS, HTTP
 from worker.worker_af import ArcFlashWorker
 from worker.worker_dd import DeviceDutyWorker
+from worker.worker_sc import ShortCircuitWorker
 from .interface_ui import Ui_MainWindow
 
 
@@ -16,6 +20,7 @@ class Interface(QMainWindow, Ui_MainWindow):
     INVALID_PORT_MSG = 'Please enter a valid ETAP Datahub port number.'
     INVALID_ETAP_DIR_MSG = 'Please enter a valid ETAP project directory path.'
     INVALID_OUTPUT_DIR_MSG = 'Please enter a valid output file directory path.'
+    PORT_FILE = 'port_number.pickle'
 
     def __init__(self, app_path: str, *args, **kwargs):
         """
@@ -27,17 +32,27 @@ class Interface(QMainWindow, Ui_MainWindow):
         """
         super(Interface, self).__init__(*args, **kwargs)
         self.icon_path = str(Path(app_path, './res', 'icon.ico'))
+        self.default_path = Path.home() / 'Documents' / 'PTG Data'
         self.setWindowIcon(QIcon(self.icon_path))
-        self.app_path = None
+        self.setupUi(self)
+        self.set_logo(app_path)
+        self.connect_buttons()
+        self.add_connections()
+        self.sc_worker = None
         self.af_worker = None
         self.dd_worker = None
         self.etap_dir_conn = None
-        self.setupUi(self)
-        self.connect_buttons()
-        self.add_connections()
-        self.datahub_note.setVisible(False)
+        self.load_port_number(self.default_path / self.PORT_FILE)
         self.include_revisions_input.setVisible(False)
+        self.datahub_note.setVisible(False)
+        self.setMinimumWidth(475)
+        self.adjustSize()
         self.show()
+
+    def set_logo(self, app_path):
+        logo_path = str(Path(app_path, './res', 'logo_title.png'))
+        logo = QPixmap(logo_path)
+        self.title.setPixmap(logo)
 
     def show_file_browser_input(self) -> None:
         """
@@ -75,17 +90,19 @@ class Interface(QMainWindow, Ui_MainWindow):
             self.output_dir.clear()
             self.etap_dir.textChanged.disconnect(self.etap_dir_conn)
 
-    def execute_worker_thread(self) -> None:
-        """
-        Validates inputs and executes either the Device Duty or Arc Flash worker threads.
-        """
-        port = self.port.text()
+    def get_datahub_url(self):
+        protocol = HTTPS if self.radio_etap24.isChecked() else HTTP
+        return f'{protocol}://localhost:{self.port.text()}'
+
+    def get_analysis_args(self):
+        url = self.get_datahub_url()
         input_dir_path = Path(self.etap_dir.text())
         output_dir_path = Path(self.output_dir.text())
         create_scenarios = self.create_scenarios_checkbox.isChecked()
         run_scenarios = self.run_scenarios_checkbox.isChecked()
         exclude_startswith = self.split_tags(self.exclude_start_input.text())
         exclude_contains = self.split_tags(self.exclude_contain_input.text())
+        exclude_except = self.get_exclude_except()
         create_table = self.create_reports_checkbox.isChecked()
         add_switches = self.sw_checkbox.isChecked()
         use_all_sw_configs = self.use_all_checkbox.isChecked()
@@ -96,35 +113,81 @@ class Interface(QMainWindow, Ui_MainWindow):
         low_energy = self.low_energy_box.value()
         revisions = self.get_revisions()
 
-        arg_list_device_duty = [port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
-                                exclude_startswith, exclude_contains, create_table, add_switches,
-                                use_all_sw_configs, add_series_ratings, mark_assumed]
+        args_short_circuit = [url, input_dir_path,
+                              output_dir_path, create_scenarios,
+                              run_scenarios, exclude_startswith,
+                              exclude_contains, exclude_except, create_table]
 
-        arg_list_arc_flash = [port, input_dir_path, output_dir_path, create_scenarios, run_scenarios,
-                              exclude_startswith, exclude_contains, create_table, use_si_units, high_energy,
-                              low_energy, revisions]
+        args_device_duty = [url, input_dir_path, output_dir_path,
+                            create_scenarios, run_scenarios, exclude_startswith,
+                            exclude_contains, exclude_except, create_table,
+                            add_switches, use_all_sw_configs, add_series_ratings, mark_assumed]
 
+        args_arc_flash = [url, input_dir_path, output_dir_path,
+                          create_scenarios, run_scenarios, exclude_startswith,
+                          exclude_contains, exclude_except, create_table,
+                          use_si_units, high_energy, low_energy, revisions]
+
+        return args_short_circuit, args_device_duty, args_arc_flash
+
+    def execute_worker_thread(self) -> None:
+        """
+        Validates inputs and executes Short Circuit, Device Duty and/or Arc Flash worker threads.
+        """
+        analysis_args = self.get_analysis_args()
         if not self.validate_inputs():
             return
 
+        if self.short_circuit_checkbox.isChecked():
+            self.run_short_circuit(*analysis_args)
+            return
+
         if self.device_duty_checkbox.isChecked():
-            self.dd_worker = DeviceDutyWorker(*arg_list_device_duty)
+            self.run_device_duty(analysis_args[1], analysis_args[2])
+            return
+
+        if self.arc_flash_checkbox.isChecked():
+            self.run_arc_flash(analysis_args[2])
+            return
+
+    def run_short_circuit(self, args_short_circuit: list, args_device_duty: list, args_arc_flash: list) -> None:
+        """
+        Runs the Short Circuit worker if the Short Circuit checkbox is checked.
+
+        :param list args_short_circuit: Arguments to pass to the Short Circuit worker.
+        :param list args_device_duty: Arguments to pass to the Device Duty worker.
+        :param list args_arc_flash: Arguments to pass to the Arc Flash worker.
+        """
+        if self.short_circuit_checkbox.isChecked():
+            self.sc_worker = ShortCircuitWorker(*args_short_circuit)
+            self.sc_worker.error_occurred.connect(self.handle_error)
+            run_device_duty = lambda: self.run_device_duty(args_device_duty, args_arc_flash)
+            self.sc_worker.start_device_duty_process.connect(run_device_duty)
+            self.sc_worker.start()
+
+    def run_device_duty(self, args_device_duty: list, args_arc_flash: list) -> None:
+        """
+        Runs the Device Duty worker if the Device Duty checkbox is checked.
+
+        :param list args_device_duty: Arguments to pass to the Device Duty worker.
+        :param list args_arc_flash: Arguments to pass to the Arc Flash worker.
+        """
+        if self.device_duty_checkbox.isChecked():
+            self.dd_worker = DeviceDutyWorker(*args_device_duty)
             self.dd_worker.error_occurred.connect(self.handle_error)
             self.dd_worker.process_finished.connect(self.handle_finished)
-            run_arc_flash = lambda: self.run_arc_flash(*arg_list_arc_flash)
+            run_arc_flash = lambda: self.run_arc_flash(args_arc_flash)
             self.dd_worker.start_arc_flash_process.connect(run_arc_flash)
             self.dd_worker.start()
-        else:
-            self.run_arc_flash(*arg_list_arc_flash)
 
-    def run_arc_flash(self, *args) -> None:
+    def run_arc_flash(self, args_arc_flash: list) -> None:
         """
         Runs the Arc Flash worker if the Arc Flash checkbox is checked.
 
-        :param args: Arguments to pass to the Arc Flash worker.
+        :param list args_arc_flash: Arguments to pass to the Arc Flash worker.
         """
         if self.arc_flash_checkbox.isChecked():
-            self.af_worker = ArcFlashWorker(*args)
+            self.af_worker = ArcFlashWorker(*args_arc_flash)
             self.af_worker.error_occurred.connect(self.handle_error)
             self.af_worker.process_finished.connect(self.handle_finished)
             self.af_worker.start()
@@ -135,14 +198,16 @@ class Interface(QMainWindow, Ui_MainWindow):
 
         :param str text: The error message to display.
         """
-        self.show_message('Runtime Error', text, QMessageBox.Critical)
+        self.show_message('Runtime Error', text, icon=QMessageBox.Critical)
 
-    def show_message(self, title: str, message: str, icon: QMessageBox.Icon = QMessageBox.Warning) -> None:
+    def show_message(self, title: str, message: str, description: str = '',
+                     icon: QMessageBox.Icon = QMessageBox.Warning) -> None:
         """
         Displays a message box with the given title, message, and icon.
 
         :param str title: The title of the message box.
         :param str message: The message to display.
+        :param str description: Additional description for the message box.
         :param QMessageBox.Icon icon: The icon to display in the message box.
         """
         message_box = QMessageBox()
@@ -150,6 +215,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         message_box.setIcon(icon)
         message_box.setText(message)
         message_box.setWindowTitle(title)
+        message_box.setInformativeText(description)
         message_box.setStandardButtons(QMessageBox.Ok)
         message_box.exec_()
 
@@ -172,10 +238,13 @@ class Interface(QMainWindow, Ui_MainWindow):
         port = self.port.text()
         input_dir_path = self.etap_dir.text()
         output_dir_path = self.output_dir.text()
+
         port_required = (self.create_scenarios_checkbox.isChecked() or
                          self.series_rating_checkbox.isChecked() or
                          self.mark_assumed_checkbox.isChecked())
-        if not self.device_duty_checkbox.isChecked() and not self.arc_flash_checkbox.isChecked():
+
+        if not self.device_duty_checkbox.isChecked() and not self.arc_flash_checkbox.isChecked() and \
+                not self.short_circuit_checkbox.isChecked():
             self.show_message(self.INPUT_ERROR_TITLE, self.RUNTIME_ERROR_MSG)
             return False
         if not self.create_reports_checkbox.isChecked() and not self.create_scenarios_checkbox.isChecked():
@@ -205,8 +274,11 @@ class Interface(QMainWindow, Ui_MainWindow):
             self.run_scenarios_checkbox
         ]
         if not is_checked and not any(option.isChecked() for option in options_group):
+            # self.etap_dir.setDisabled(False)
             self.datahub_note.setVisible(False)
         else:
+            # self.etap_dir.clear()
+            # self.etap_dir.setDisabled(True)
             self.datahub_note.setVisible(True)
 
     def add_connections(self) -> None:
@@ -218,6 +290,26 @@ class Interface(QMainWindow, Ui_MainWindow):
         self.mark_assumed_checkbox.toggled['bool'].connect(self.handle_options_toggle)
         self.series_rating_checkbox.toggled['bool'].connect(self.handle_options_toggle)
         self.etap_dir_checkbox.clicked['bool'].connect(self.set_default_output_dir)
+        self.action_save_port.triggered.connect(lambda: self.save_port_number(self.default_path / self.PORT_FILE))
+        self.action_load_port.triggered.connect(lambda: self.load_port_number(self.default_path / self.PORT_FILE))
+
+    def save_port_number(self, save_file):
+        try:
+            save_file.parent.mkdir(exist_ok=True)
+            with open(save_file, 'wb') as f:
+                save_obj = self.port.text()
+                pickle.dump(save_obj, f, protocol=pickle.HIGHEST_PROTOCOL)
+        except Exception as ex:
+            self.show_message('Save Failed', 'Unable to Save Port Number', str(ex))
+
+    def load_port_number(self, load_file):
+        if load_file.is_file():
+            try:
+                with open(load_file, 'rb') as f:
+                    data_obj = pickle.load(f)
+                    self.port.setText(data_obj)
+            except Exception as ex:
+                self.show_message('Load Failed', 'Unable to Load Port Number', str(ex))
 
     @staticmethod
     def split_tags(tags: str, delimiter: str = ';') -> list:
@@ -244,6 +336,12 @@ class Interface(QMainWindow, Ui_MainWindow):
             revisions = self.include_revisions_input.text()
             return self.split_tags(revisions)
 
+    def get_exclude_except(self) -> list:
+        is_exclude_except_checked = self.exclude_except_radio.isChecked()
+        if is_exclude_except_checked:
+            return self.split_tags(self.exclude_except_input.text())
+        return []
+
     def clear_all_inputs(self) -> None:
         """
         Clears all input fields and resets checkboxes to their default state.
@@ -266,15 +364,12 @@ class Interface(QMainWindow, Ui_MainWindow):
             self.etap_dir,
             self.output_dir,
             self.exclude_start_input,
-            self.exclude_contain_input
+            self.exclude_contain_input,
+            self.exclude_except_input
         ]
-
         self.include_base_radio.setChecked(True)
-
+        self.exclude_all_radio.setChecked(True)
         for line in lines:
             line.clear()
-
         for checkbox in checkboxes:
             checkbox.setChecked(False)
-
-

@@ -20,7 +20,8 @@ class ArcFlashParser:
         self.sql_ansi_af_info = "SELECT Output, Config FROM IAFStudyCase"
         self.sql_ansi_af_bus = (
             "SELECT IDBus, NomlkV, EqType, Orientation, WDistance, FixedBoundary, ResBoundary, "
-            "IEnergy, PBoundary, FCT, FCTPD, ArcVaria, ArcI, FCTPDIa, FaultI, FCTPDIf FROM BusArcFlash"
+            "IEnergy, PBoundary, FCT, FCTPD, ArcVaria, ArcI, FCTPDIa, FaultI, FCTPDIf "
+            "FROM BusArcFlash WHERE EqType <> 'Cable Bus'"
         )
         self.sql_ansi_af_pd = (
             "SELECT ID, NomlkV, Type, Orientation, WDistance, FixedBoundary, ResBoundary, "
@@ -92,7 +93,8 @@ class ArcFlashParser:
             if _id not in self.ansi_af_data or _energy > self.ansi_af_data[_id][indices['ie']]:
                 self.ansi_af_data[_id] = _data
 
-    def parse_ansi_af_data(self, use_si_units: bool, exclude_startswith: list[str], exclude_contains: list[list]):
+    def parse_ansi_af_data(self, use_si_units: bool, exclude_startswith: list[str],
+                           exclude_contains: list[str], exclude_except: list[str]):
         """
         Parses and processes the extracted ANSI arc flash data, applying filtering and formatting.
 
@@ -102,12 +104,15 @@ class ArcFlashParser:
         :param bool use_si_units: A flag to determine whether to convert some columns to SI units.
         :param list[str] exclude_startswith: List of string prefixes to exclude from the parsed data.
         :param list[str] exclude_contains: List of strings to exclude if contained in entry IDs.
+        :param list[str] exclude_except: List of strings to not exclude if contained in entry IDs.
         """
         def filter_func(pair):
             _id, value = pair
-            if any(word in _id for word in exclude_contains):
+            if (any(word in _id for word in exclude_contains)
+                    and all(word not in _id for word in exclude_except)):
                 return False
-            if any(_id.startswith(word) for word in exclude_startswith):
+            if (any(_id.startswith(word) for word in exclude_startswith)
+                    and all(not _id.startswith(word) for word in exclude_except)):
                 return False
             return True
 

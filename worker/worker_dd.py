@@ -1,7 +1,5 @@
 from pathlib import Path
-
 from PyQt5.QtCore import pyqtSignal
-
 from worker.worker import Worker
 from parser.parser_dd import DeviceDutyParser
 from exporter.exporter_dd import DeviceDutyExporter
@@ -18,20 +16,21 @@ class DeviceDutyWorker(Worker):
 
     start_arc_flash_process = pyqtSignal()
 
-    def __init__(self, port: int, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
-                 run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str], create_table: bool,
-                 add_switches: bool, use_all_sw_configs: bool, add_series_ratings: bool, mark_assumed: bool,
-                 *args, **kwargs):
+    def __init__(self, url: str, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
+                 run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str],
+                 exclude_except: list[str], create_table: bool, add_switches: bool, use_all_sw_configs: bool,
+                 add_series_ratings: bool, mark_assumed: bool, *args, **kwargs):
         """
         Initializes the DeviceDutyWorker with parameters specific to device duty analysis.
 
-        :param int port: Port number for connecting to the datahub.
+        :param str url: local URL for connecting to ETAP datahub.
         :param Path input_dir_path: Path to the directory containing input data files.
         :param Path output_dir_path: Path to the directory where output files will be saved.
         :param bool create_scenarios: Flag to indicate whether scenarios should be created.
         :param bool run_scenarios: Flag to indicate whether scenarios should be executed.
-        :param list exclude_startswith: List of prefixes for files to exclude from parsing.
-        :param list exclude_contains: List of substrings; files containing these will be excluded.
+        :param list exclude_startswith: List of prefixes for elements to exclude from parsing.
+        :param list exclude_contains: List of substrings; elements containing these will be excluded.
+        :param list exclude_except: List of substrings; elements containing these will not be excluded.
         :param bool create_table: A flag to determine whether to create an Excel table.
         :param bool add_switches: Flag to indicate whether to add switches to the Device Duty report.
         :param bool use_all_sw_configs: Flag to indicate whether to use all available switching configurations.
@@ -41,13 +40,13 @@ class DeviceDutyWorker(Worker):
         :param kwargs: Additional keyword arguments for Worker initialization.
         """
         super().__init__(input_dir_path, output_dir_path, create_scenarios, run_scenarios, exclude_startswith,
-                         exclude_contains, create_table, *args, **kwargs)
-        self.datahub_port = port
+                         exclude_contains, exclude_except, create_table, *args, **kwargs)
+        self.datahub_url = url
         self.add_switches = add_switches
         self.use_all_sw_configs = use_all_sw_configs
         self.add_series_ratings = add_series_ratings
         self.mark_assumed = mark_assumed
-        self.scenario_class = lambda: DeviceDutyScenario(port)
+        self.scenario_class = lambda: DeviceDutyScenario(url, use_all_sw_configs)
 
     def execute_data_parsing(self) -> None:
         """
@@ -57,11 +56,12 @@ class DeviceDutyWorker(Worker):
         """
         dd_parser = DeviceDutyParser(self.input_dir_path)
         dd_parser.extract_ansi_data(self.use_all_sw_configs)
-        dd_parser.parse_ansi_data(self.exclude_startswith, self.exclude_contains, self.add_switches)
+        dd_parser.parse_ansi_data(self.exclude_startswith, self.exclude_contains,
+                                  self.exclude_except, self.add_switches)
         dd_parser.extract_iec_data()
-        dd_parser.parse_iec_data(self.exclude_startswith, self.exclude_contains)
+        dd_parser.parse_iec_data(self.exclude_startswith, self.exclude_contains, self.exclude_except)
         if self.add_series_ratings or self.mark_assumed:
-            dd_parser.connect_to_etap(self.datahub_port)
+            dd_parser.connect_to_etap(self.datahub_url)
             if self.add_series_ratings:
                 dd_parser.process_series_rated_equipment()
             if self.mark_assumed:

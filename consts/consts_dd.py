@@ -17,11 +17,7 @@ MODES = {
 
 CONFIG_MAP = {
     'PRES': 'Present',
-    'PRES-A': 'Present A',
-    'PRES-B': 'Present B',
     'ULT': 'Ultimate',
-    'ULT-A': 'Ultimate A',
-    'ULT-B': 'Ultimate B',
     'GEN': 'Generator',
     'MAX': 'Maximum',
     'MIN': 'Minimum'

@@ -3,8 +3,8 @@ import etap.api
 from pathlib import Path
 import xml.etree.ElementTree as ET
 from sqlite3 import Error, OperationalError
-from consts.consts_dd import MV_SWITCHGEAR_MULTIPLIER, LV_SWITCHGEAR_MULTIPLIER, CONFIG_MAP
-from consts.consts_dd import MODES, MULTIPLIER, ANSI_EXT, IEC_EXT, ANSI_SP_EXT, IEC_SP_EXT
+from consts.consts_dd import MV_SWITCHGEAR_MULTIPLIER, LV_SWITCHGEAR_MULTIPLIER, DD_STUDY_TAG
+from consts.consts_dd import MODES, ANSI_EXT, IEC_EXT, ANSI_SP_EXT, IEC_SP_EXT
 
 
 class DeviceDutyParser:
@@ -47,13 +47,13 @@ class DeviceDutyParser:
         self.iec_filepaths = self.get_filepaths(etap_dir, IEC_EXT)
         self.iec_sp_filepaths = self.get_filepaths(etap_dir, IEC_SP_EXT)
 
-    def connect_to_etap(self, port: int):
+    def connect_to_etap(self, url: str):
         """
-        Connects to an ETAP project via the given port and retrieves the project data as XML.
+        Connects to an ETAP project via the given url and retrieves the project data as XML.
 
-        :param int port: The port number to connect to the ETAP API.
+        :param str url: local URL for connecting to the datahub.
         """
-        e = etap.api.connect(f'http://localhost:{port}')
+        e = etap.api.connect(url)
         self.tree = ET.fromstring(e.projectdata.getxml())
 
     def extract_ansi_data(self, use_all_sw_configs: bool):
@@ -152,13 +152,15 @@ class DeviceDutyParser:
                 self.iec_data[config][self.mode_int] = []
             self.iec_data[config][self.mode_int] += int_data
 
-    def parse_ansi_data(self, exclude_startswith: list[str], exclude_contains: list[str], add_switches: bool):
+    def parse_ansi_data(self, exclude_startswith: list[str], exclude_contains: list[str],
+                        exclude_except: list[str], add_switches: bool):
         """
         Parses the extracted ANSI data based on specified criteria, such as excluding specific IDs or
         calculating asymmetrical and symmetrical current values.
 
         :param list[str] exclude_startswith: List of strings that, if an ID starts with, should exclude the entry.
         :param list[str] exclude_contains: List of substrings that, if present in an ID, should exclude the entry.
+        :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
         :param bool add_switches: Flag to indicate whether to add switches to the parsed data.
         """
         for config, modes in self.ansi_data.items():
@@ -166,26 +168,29 @@ class DeviceDutyParser:
             config_id = config_tags[1]
             for mode, entries in modes.items():
                 if mode == self.mode_mom:
-                    self.parse_ansi_mom_entries(entries, config_id, exclude_startswith, exclude_contains, add_switches)
+                    self.parse_ansi_mom_entries(entries, config_id, exclude_startswith,
+                                                exclude_contains, exclude_except, add_switches)
                 if mode == self.mode_int:
-                    self.parse_ansi_int_entries(entries, config_id, exclude_startswith, exclude_contains)
+                    self.parse_ansi_int_entries(entries, config_id, exclude_startswith,
+                                                exclude_contains, exclude_except)
 
-    def parse_iec_data(self, exclude_startswith: list[str], exclude_contains: list[str]):
+    def parse_iec_data(self, exclude_startswith: list[str], exclude_contains: list[str], exclude_except: list[str]):
         """
         Parses the extracted IEC data based on specified criteria, such as excluding specific IDs.
 
         :param list[str] exclude_startswith: List of strings that, if an ID starts with, should exclude the entry.
         :param list[str] exclude_contains: List of substrings that, if present in an ID, should exclude the entry.
+        :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
         """
         for config, modes in self.iec_data.items():
             config_tags = config.split('_')
             config_id = config_tags[1]
             for mode, entries in modes.items():
                 if mode == self.mode_int:
-                    self.parse_iec_int_entries(entries, config_id, exclude_startswith, exclude_contains)
+                    self.parse_iec_int_entries(entries, config_id, exclude_startswith, exclude_contains, exclude_except)
 
     def parse_ansi_mom_entries(self, entries: list, config: str, exclude_startswith: list[str],
-                               exclude_contains: list[str], add_switches: bool = True):
+                               exclude_contains: list[str], exclude_except: list[str], add_switches: bool = True):
         """
         Parses ANSI momentary duty data entries based on specified criteria and calculates necessary values.
 
@@ -193,6 +198,7 @@ class DeviceDutyParser:
         :param str config: Configuration identifier.
         :param list[str] exclude_startswith: List of strings that, if an ID starts with, should exclude the entry.
         :param list[str] exclude_contains: List of substrings that, if present in an ID, should exclude the entry.
+        :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
         :param bool add_switches: Flag to indicate whether to add switches to the parsed data.
         """
         valid_types = ['Panelboard', 'Switchboard', 'Switchgear']
@@ -207,10 +213,12 @@ class DeviceDutyParser:
             if _type.strip() not in valid_types:
                 continue
 
-            if any(word in _id for word in exclude_contains):
+            if (any(word in _id for word in exclude_contains)
+                    and all(word not in _id for word in exclude_except)):
                 continue
 
-            if any(_id.startswith(word) for word in exclude_startswith):
+            if (any(_id.startswith(word) for word in exclude_startswith)
+                    and all(not _id.startswith(word) for word in exclude_except)):
                 continue
 
             if _type.endswith('Switch'):
@@ -246,7 +254,7 @@ class DeviceDutyParser:
                                                            key=lambda item: item[1]['Type']))
 
     def parse_ansi_int_entries(self, entries: list, config: str, exclude_startswith: list[str],
-                               exclude_contains: list[str]):
+                               exclude_contains: list[str], exclude_except: list[str]):
         """
         Parses ANSI interrupting duty data entries based on specified criteria.
 
@@ -254,6 +262,7 @@ class DeviceDutyParser:
         :param str config: Configuration identifier.
         :param list[str] exclude_startswith: List of strings that, if an ID starts with, should exclude the entry.
         :param list[str] exclude_contains: List of substrings that, if present in an ID, should exclude the entry.
+        :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
         """
         for entry in entries:
             _id = entry[0]
@@ -261,10 +270,12 @@ class DeviceDutyParser:
             _bus = entry[2]
             _device = entry[3]
 
-            if any(word in _id for word in exclude_contains):
+            if (any(word in _id for word in exclude_contains)
+                    and all(word not in _id for word in exclude_except)):
                 continue
 
-            if any(_id.startswith(word) for word in exclude_startswith):
+            if (any(_id.startswith(word) for word in exclude_startswith)
+                    and all(not _id.startswith(word) for word in exclude_except)):
                 continue
 
             if _id in self.parsed_ansi_data[self.mode_int]:
@@ -283,7 +294,7 @@ class DeviceDutyParser:
                                                            key=lambda item: item[1]['Bus']))
 
     def parse_iec_int_entries(self, entries: list, config: str, exclude_startswith: list[str],
-                              exclude_contains: list[str]):
+                              exclude_contains: list[str], exclude_except: list[str]):
         """
         Parses IEC interrupting duty data entries based on specified criteria.
 
@@ -291,6 +302,7 @@ class DeviceDutyParser:
         :param str config: Configuration identifier.
         :param list[str] exclude_startswith: List of strings that, if an ID starts with, should exclude the entry.
         :param list[str] exclude_contains: List of substrings that, if present in an ID, should exclude the entry.
+        :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
         """
         for entry in entries:
             _id = entry[0]
@@ -301,10 +313,12 @@ class DeviceDutyParser:
             if _device.strip() not in ['CB', 'FUSE']:
                 continue
 
-            if any(word in _id for word in exclude_contains):
+            if (any(word in _id for word in exclude_contains)
+                    and all(word not in _id for word in exclude_except)):
                 continue
 
-            if any(_id.startswith(word) for word in exclude_startswith):
+            if (any(_id.startswith(word) for word in exclude_startswith)
+                    and all(not _id.startswith(word) for word in exclude_except)):
                 continue
 
             if _id in self.parsed_iec_data[self.mode_int]:
@@ -415,7 +429,7 @@ class DeviceDutyParser:
     def filter_filepaths(self):
         def filter_func(path_str):
             filename = Path(path_str).stem
-            if filename.split('_')[-1] in CONFIG_MAP:
+            if filename.split('_')[0] in DD_STUDY_TAG:
                 return True
             return False
 

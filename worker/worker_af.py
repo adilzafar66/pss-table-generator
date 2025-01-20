@@ -12,20 +12,21 @@ class ArcFlashWorker(Worker):
     Inherits from Worker class and overrides specific methods for arc flash data processing.
     """
 
-    def __init__(self, port: int, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
-                 run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str], create_table: bool,
-                 use_si_units: bool, high_energy: float, low_energy: float, revisions: list[str] | None = None,
-                 *args, **kwargs):
+    def __init__(self, url: str, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool,
+                 run_scenarios: bool, exclude_startswith: list[str], exclude_contains: list[str],
+                 exclude_except: list[str], create_table: bool, use_si_units: bool, high_energy: float,
+                 low_energy: float, revisions: list[str] | None = None, *args, **kwargs):
         """
         Initializes the ArcFlashWorker with specific parameters for arc flash processing.
 
-        :param int port: Port number for datahub connection.
+        :param str url: local URL for connecting to ETAP datahub.
         :param Path input_dir_path: Path to the input directory containing data.
         :param Path output_dir_path: Path to the output directory for saving results.
         :param bool create_scenarios: Flag to indicate if scenarios should be created.
         :param bool run_scenarios: Flag to indicate if scenarios should be run.
-        :param list exclude_startswith: List of strings; files starting with these prefixes will be excluded.
-        :param list exclude_contains: List of strings; files containing these substrings will be excluded.
+        :param list exclude_startswith: List of strings; elements starting with these prefixes will be excluded.
+        :param list exclude_contains: List of strings; elements containing these substrings will be excluded.
+        :param list exclude_except: List of substrings; elements containing these will not be excluded.
         :param bool create_table: A flag to determine whether to create an Excel table.
         :param bool use_si_units: A flag to determine whether to convert some columns to SI units.
         :param float high_energy: Threshold value for high energy highlighting.
@@ -35,12 +36,12 @@ class ArcFlashWorker(Worker):
         :param kwargs: Additional keyword arguments for Worker initialization.
         """
         super().__init__(input_dir_path, output_dir_path, create_scenarios, run_scenarios, exclude_startswith,
-                         exclude_contains, create_table, *args, **kwargs)
+                         exclude_contains, exclude_except, create_table, *args, **kwargs)
         self.use_si_units = use_si_units
         self.high_energy = high_energy
         self.low_energy = low_energy
         self.revisions = revisions
-        self.scenario_class = lambda: ArcFlashScenario(port, revisions)
+        self.scenario_class = lambda: ArcFlashScenario(url, revisions)
 
     def execute_data_parsing(self) -> None:
         """
@@ -49,7 +50,8 @@ class ArcFlashWorker(Worker):
         """
         af_parser = ArcFlashParser(self.input_dir_path)
         af_parser.extract_ansi_af_data()
-        af_parser.parse_ansi_af_data(self.use_si_units, self.exclude_startswith, self.exclude_contains)
+        af_parser.parse_ansi_af_data(self.use_si_units, self.exclude_startswith,
+                                     self.exclude_contains, self.exclude_except)
         self.parsed_ansi_data = af_parser.ansi_af_data
 
     def execute_data_export(self) -> Path:

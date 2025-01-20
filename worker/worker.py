@@ -16,7 +16,8 @@ class Worker(QThread):
     process_finished = pyqtSignal(str)
 
     def __init__(self, input_dir_path: Path, output_dir_path: Path, create_scenarios: bool, run_scenarios: bool,
-                 exclude_startswith: list, exclude_contains: list, create_table: bool, *args, **kwargs):
+                 exclude_startswith: list, exclude_contains: list, exclude_except: list[str], create_table: bool,
+                 *args, **kwargs):
         """
         Initializes the Worker with required parameters for data processing tasks.
 
@@ -24,8 +25,9 @@ class Worker(QThread):
         :param Path output_dir_path: The directory path for output data.
         :param bool create_scenarios: A flag to determine whether to create scenarios.
         :param bool run_scenarios: A flag to determine whether to run scenarios.
-        :param list exclude_startswith: List of strings to exclude files that start with specified prefixes.
-        :param list exclude_contains: List of strings to exclude files that contain specified substrings.
+        :param list exclude_startswith: List of strings to exclude elements that start with specified prefixes.
+        :param list exclude_contains: List of strings to exclude elements that contain specified substrings.
+        :param list exclude_except: List of substrings; elements containing these will not be excluded.
         :param bool create_table: A flag to determine whether to create an Excel table.
         """
         super().__init__(*args, **kwargs)
@@ -35,6 +37,7 @@ class Worker(QThread):
         self.run_scenarios = run_scenarios
         self.exclude_startswith = exclude_startswith
         self.exclude_contains = exclude_contains
+        self.exclude_except = exclude_except
         self.create_table = create_table
         self.scenario_class = None
         self.parsed_ansi_data = None

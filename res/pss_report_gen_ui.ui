@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>475</width>
-    <height>859</height>
+    <height>849</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -54,6 +54,9 @@
           <property name="text">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;PSS Table Generator&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
          </widget>
         </item>
        </layout>
@@ -75,7 +78,7 @@
               </size>
              </property>
              <property name="text">
-              <string>65358</string>
+              <string/>
              </property>
              <property name="maxLength">
               <number>5</number>
@@ -97,6 +100,23 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radio_etap22">
+             <property name="text">
+              <string>ETAP 22</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radio_etap24">
+             <property name="text">
+              <string>ETAP 24</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -185,10 +205,10 @@
              <item row="1" column="0">
               <widget class="QCheckBox" name="short_circuit_checkbox">
                <property name="text">
-                <string>Short Circuit (Dummy)</string>
+                <string>Short Circuit</string>
                </property>
                <property name="checked">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -209,16 +229,6 @@
           <layout class="QVBoxLayout" name="verticalLayout_10">
            <item>
             <layout class="QGridLayout" name="device_duty_grid">
-             <item row="1" column="1">
-              <widget class="QCheckBox" name="mark_assumed_checkbox">
-               <property name="text">
-                <string>Mark Assumed Equipment *</string>
-               </property>
-               <property name="checked">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
              <item row="1" column="0">
               <widget class="QCheckBox" name="series_rating_checkbox">
                <property name="text">
@@ -229,13 +239,13 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="0">
-              <widget class="QCheckBox" name="sw_checkbox">
+             <item row="1" column="1">
+              <widget class="QCheckBox" name="mark_assumed_checkbox">
                <property name="text">
-                <string>Include Switches</string>
+                <string>Mark Assumed Equipment *</string>
                </property>
                <property name="checked">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -243,6 +253,16 @@
               <widget class="QCheckBox" name="use_all_checkbox">
                <property name="text">
                 <string>Use All Switching Configs</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="sw_checkbox">
+               <property name="text">
+                <string>Include Switches</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -429,58 +449,94 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <layout class="QVBoxLayout" name="exclude_start_layout">
-           <item>
+          <layout class="QGridLayout" name="exclude_grid">
+           <item row="0" column="0">
             <widget class="QLabel" name="exclude_start_label">
              <property name="text">
               <string>Element ID Starting With:</string>
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="exclude_start_input">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>BUS;</string>
-           </property>
-           <property name="clearButtonEnabled">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="exclude_contain_layout">
-           <item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="exclude_start_input">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>BUS;</string>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
             <widget class="QLabel" name="exclude_contain_label">
              <property name="text">
               <string>Element ID Containing:</string>
              </property>
             </widget>
            </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="exclude_contain_input">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>BCH;FORTIS;</string>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <layout class="QHBoxLayout" name="exclude_radio_layout">
+             <property name="rightMargin">
+              <number>12</number>
+             </property>
+             <item>
+              <widget class="QRadioButton" name="exclude_all_radio">
+               <property name="text">
+                <string>All</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="exclude_except_radio">
+               <property name="text">
+                <string>Except</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="exclude_except_input">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="exclude_contain_input">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>BCH;FORTIS;</string>
-           </property>
-           <property name="clearButtonEnabled">
-            <bool>true</bool>
-           </property>
-          </widget>
          </item>
         </layout>
        </widget>
@@ -690,6 +746,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="action_save_port"/>
+    <addaction name="action_load_port"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -706,6 +764,16 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_save_port">
+   <property name="text">
+    <string>Save Port Number</string>
+   </property>
+  </action>
+  <action name="action_load_port">
+   <property name="text">
+    <string>Load Port Number</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>
@@ -717,43 +785,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>451</x>
-     <y>803</y>
+     <y>816</y>
     </hint>
     <hint type="destinationlabel">
      <x>309</x>
      <y>54</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>create_scenarios_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>run_scenarios_checkbox</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>414</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>414</x>
-     <y>182</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>create_scenarios_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>run_scenarios_checkbox</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>414</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>414</x>
-     <y>182</y>
     </hint>
    </hints>
   </connection>
@@ -765,11 +801,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>228</x>
-     <y>595</y>
+     <y>745</y>
     </hint>
     <hint type="destinationlabel">
-     <x>252</x>
-     <y>568</y>
+     <x>314</x>
+     <y>718</y>
     </hint>
    </hints>
   </connection>
@@ -781,11 +817,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>228</x>
-     <y>595</y>
+     <y>745</y>
     </hint>
     <hint type="destinationlabel">
      <x>106</x>
-     <y>598</y>
+     <y>748</y>
     </hint>
    </hints>
   </connection>
@@ -800,8 +836,8 @@
      <y>152</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>515</y>
+     <x>155</x>
+     <y>665</y>
     </hint>
    </hints>
   </connection>
@@ -813,11 +849,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>297</x>
-     <y>372</y>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
-     <x>171</x>
-     <y>401</y>
+     <x>331</x>
+     <y>435</y>
     </hint>
    </hints>
   </connection>
@@ -832,8 +868,8 @@
      <y>149</y>
     </hint>
     <hint type="destinationlabel">
-     <x>176</x>
-     <y>370</y>
+     <x>206</x>
+     <y>402</y>
     </hint>
    </hints>
   </connection>
@@ -848,8 +884,8 @@
      <y>153</y>
     </hint>
     <hint type="destinationlabel">
-     <x>230</x>
-     <y>376</y>
+     <x>246</x>
+     <y>402</y>
     </hint>
    </hints>
   </connection>
@@ -864,8 +900,8 @@
      <y>149</y>
     </hint>
     <hint type="destinationlabel">
-     <x>282</x>
-     <y>372</y>
+     <x>297</x>
+     <y>402</y>
     </hint>
    </hints>
   </connection>
@@ -880,8 +916,8 @@
      <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>215</x>
-     <y>335</y>
+     <x>241</x>
+     <y>375</y>
     </hint>
    </hints>
   </connection>
@@ -896,8 +932,8 @@
      <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>323</x>
-     <y>337</y>
+     <x>347</x>
+     <y>375</y>
     </hint>
    </hints>
   </connection>
@@ -912,8 +948,8 @@
      <y>198</y>
     </hint>
     <hint type="destinationlabel">
-     <x>350</x>
-     <y>543</y>
+     <x>392</x>
+     <y>759</y>
     </hint>
    </hints>
   </connection>
@@ -924,8 +960,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>133</x>
-     <y>182</y>
+     <x>166</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
      <x>141</x>
@@ -940,8 +976,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>106</x>
-     <y>159</y>
+     <x>139</x>
+     <y>182</y>
     </hint>
     <hint type="destinationlabel">
      <x>103</x>
@@ -1008,8 +1044,8 @@
      <y>158</y>
     </hint>
     <hint type="destinationlabel">
-     <x>345</x>
-     <y>396</y>
+     <x>442</x>
+     <y>435</y>
     </hint>
    </hints>
   </connection>
@@ -1024,24 +1060,40 @@
      <y>155</y>
     </hint>
     <hint type="destinationlabel">
-     <x>284</x>
-     <y>465</y>
+     <x>346</x>
+     <y>624</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>create_reports_checkbox</sender>
+   <sender>create_scenarios_checkbox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>use_all_checkbox</receiver>
+   <receiver>run_scenarios_checkbox</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>391</x>
-     <y>198</y>
+     <x>414</x>
+     <y>159</y>
     </hint>
     <hint type="destinationlabel">
-     <x>272</x>
-     <y>261</y>
+     <x>414</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exclude_except_radio</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exclude_except_input</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>101</x>
+     <y>551</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>177</x>
+     <y>547</y>
     </hint>
    </hints>
   </connection>

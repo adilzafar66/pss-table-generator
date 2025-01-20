@@ -1,5 +1,5 @@
 import json
-from consts.consts import BASE_REVISION
+from consts.consts import BASE_REVISION, DEFAULT_SW_CONFIGS
 from scenario.scenario import Scenario
 from consts.consts_dd import CONFIG_MAP_INV, DD_STUDY_TAG, DD_STUDY_MODE, DD_STUDY_CASE, DD_STUDY_CASE_IEC, \
     DD_STUDY_MODE_IEC
@@ -12,13 +12,14 @@ class DeviceDutyScenario(Scenario):
     configurations related to device duty studies.
     """
 
-    def __init__(self, port: int = 65358):
+    def __init__(self, url: str, use_all_sw_configs: bool):
         """
         Initializes a DeviceDutyScenario instance with the specified ETAP connection port.
 
-        :param port: The port number for connecting to the ETAP Datahub (default is 65358).
+        :param str url: local URL for connecting to ETAP datahub.
         """
-        super().__init__(port)
+        super().__init__(url)
+        self.use_all_sw_configs = use_all_sw_configs
 
     def create_scenarios(self) -> None:
         """
@@ -34,9 +35,14 @@ class DeviceDutyScenario(Scenario):
 
         study_cases = {DD_STUDY_MODE: DD_STUDY_CASE}
         etap_study_cases = json.loads(self.etap.projectdata.getstudycasenames())['NonDefault']
+
         if DD_STUDY_CASE_IEC in etap_study_cases:
             study_cases.update({DD_STUDY_MODE_IEC: DD_STUDY_CASE_IEC})
+
         switching_configs = json.loads(self.etap.projectdata.getconfigurations())
+
+        if not self.use_all_sw_configs:
+            switching_configs = list(filter(self.filter_switching_configs, switching_configs))
 
         for study_mode, study_case in study_cases.items():
             # Iterate over each switching configuration to create scenarios
@@ -56,3 +62,7 @@ class DeviceDutyScenario(Scenario):
 
         # Write the updated scenarios to the XML file
         self.write_scenario_xml()
+
+    @staticmethod
+    def filter_switching_configs(switching_config):
+        return True if switching_config in DEFAULT_SW_CONFIGS else False

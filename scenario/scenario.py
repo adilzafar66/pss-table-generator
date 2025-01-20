@@ -11,21 +11,34 @@ class Scenario:
     within the ETAP environment using an XML configuration file.
     """
 
-    def __init__(self, port: int = 65358):
+    def __init__(self, url: str):
         """
         Initializes a Scenario instance with the specified study mode and ETAP connection port.
 
-        :param int port: The port number for connecting to the ETAP Datahub (default is 65358).
+        :param str url: local URL for connecting to ETAP datahub.
         """
-        self.etap = etap.api.connect(f'http://localhost:{port}')
         self.scenario_ids = []
-        self.scenario_xml = ET.parse(self.get_scenario_xml_path())
-        self.scenario_root = self.scenario_xml.getroot()
+        self.etap = etap.api.connect(url)
+        self.scenario_xml_path = self.get_scenario_xml_path()
+        self.scenario_xml = self.get_scenario_xml()
         self.presentation = json.loads(self.etap.application.getactivescenario())['Presentation']
+
+    def get_scenario_xml(self):
+        try:
+            return ET.parse(self.scenario_xml_path)
+        except FileNotFoundError:
+            self.create_scenario_xml()
+            return self.get_scenario_xml()
+
+    def create_scenario_xml(self):
+        root = ET.Element('scenarios')
+        root.set('LastRunScenario', '')
+        root.set('Version', '1')
+        ET.ElementTree(root).write(self.scenario_xml_path)
 
     def run_scenarios(self):
         """
-        Runs all scenarios listed in self.scenario_ids by invoking ETAP's scenario run method.
+        Runs all scenarios listed in self.scenario_ids by invoking ETAP scenario run method.
         """
         for scenario_id in self.scenario_ids:
             self.etap.scenario.run(scenario_id)
@@ -75,8 +88,10 @@ class Scenario:
         :param str revision: The revision configuration for the scenario.
         :param str output: The output file name for the scenario results.
         """
+        scenario_root = self.scenario_xml.getroot()
+
         # Check if the scenario already exists
-        if self.scenario_root.findall(f'./Scenario[@ID="{scenario_id}"]'):
+        if scenario_root.findall(f'./Scenario[@ID="{scenario_id}"]'):
             return
 
         # Remove all % characters from scenario ID
@@ -131,5 +146,5 @@ class Scenario:
         scenario_element.set('UseArchivedConfig', "False")
 
         # Append the new scenario element to the root of the XML tree
-        self.scenario_root.append(scenario_element)
+        scenario_root.append(scenario_element)
 
