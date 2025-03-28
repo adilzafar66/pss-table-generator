@@ -69,20 +69,6 @@ class DeviceDutyExporter:
                 return col[0].column - 1
 
     @staticmethod
-    def get_col_heading_from_index(sheet: Worksheet, index: int) -> str:
-        """
-        Gets the column heading from a specified column index.
-
-        :param Worksheet sheet: The worksheet object.
-        :param int index: The column index.
-        :return: The heading of the column at the specified index.
-        :rtype: str
-        """
-        for col in sheet.iter_cols(1, sheet.max_column):
-            if col[0].column == index:
-                return col[0].value
-
-    @staticmethod
     def rearrange_list(target_list: list, reference_list: list) -> list:
         """
         Rearranges a target list based on the order of a reference list.
