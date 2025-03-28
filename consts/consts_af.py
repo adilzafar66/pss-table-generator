@@ -7,6 +7,7 @@ VCBB_CONFIG = 'VCBB'
 ROUND_DIGITS = 2
 FT_M_MULTIPLIER = 0.3048
 FILE_NAME_SUFFIX = 'Arc Flash Report.xlsx'
+AF_TABLE_NAME = 'ANSI Arc Flash Table'
 
 indices = {
     'ecf': 2,
