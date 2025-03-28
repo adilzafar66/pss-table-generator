@@ -102,9 +102,9 @@
             </spacer>
            </item>
            <item>
-            <widget class="QRadioButton" name="radio_etap22">
+            <widget class="QRadioButton" name="radio_etap24">
              <property name="text">
-              <string>ETAP 22</string>
+              <string>ETAP 24</string>
              </property>
              <property name="checked">
               <bool>true</bool>
@@ -112,9 +112,12 @@
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radio_etap24">
+            <widget class="QRadioButton" name="radio_etap22">
              <property name="text">
-              <string>ETAP 24</string>
+              <string>ETAP 22</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -188,7 +191,7 @@
                 <string>Arc Flash</string>
                </property>
                <property name="checked">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -198,7 +201,7 @@
                 <string>Device Duty</string>
                </property>
                <property name="checked">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -208,7 +211,7 @@
                 <string>Short Circuit</string>
                </property>
                <property name="checked">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>

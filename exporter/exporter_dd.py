@@ -300,6 +300,8 @@ class DeviceDutyExporter:
             last_col_index = self.get_col_index(sheet_index, TOP_COLS[1])
             for j in range(len(cap_vals)):
                 row[last_col_index + j].value = round(cap_vals[j], 2) or '--'
+                # if values[i].get('Assumed') and round(cap_vals[j], 2):
+                #     row[last_col_index + j].value = str(row[last_col_index + j].value) + '*'
                 self.highlight_series_rated(row[last_col_index + j], values[i].get('SeriesRated', False))
 
     def insert_fault_data(self, sheet_index: int, row: tuple[Cell, ...], values: dict, cap_val: float, offset: int = 0):

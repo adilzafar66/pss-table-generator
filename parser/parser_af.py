@@ -2,6 +2,7 @@ import sqlite3
 from pathlib import Path
 from sqlite3 import Error, OperationalError
 from consts.consts_af import indices, ROUND_DIGITS, FT_M_MULTIPLIER
+from consts.sql_queries import *
 
 
 class ArcFlashParser:
@@ -17,17 +18,6 @@ class ArcFlashParser:
         :param Path etap_dir: Path to the directory containing the arc flash study files (AAFS files).
         """
         self.ansi_af_data = {}
-        self.sql_ansi_af_info = "SELECT Output, Config FROM IAFStudyCase"
-        self.sql_ansi_af_bus = (
-            "SELECT IDBus, NomlkV, EqType, Orientation, WDistance, FixedBoundary, ResBoundary, "
-            "IEnergy, PBoundary, FCT, FCTPD, ArcVaria, ArcI, FCTPDIa, FaultI, FCTPDIf "
-            "FROM BusArcFlash WHERE EqType <> 'Cable Bus'"
-        )
-        self.sql_ansi_af_pd = (
-            "SELECT ID, NomlkV, Type, Orientation, WDistance, FixedBoundary, ResBoundary, "
-            "IEnergy, PBoundary, EnFCT, FCTPD, ArcVaria, EnIa, FCTPDIa, EnIf, FCTPDIf "
-            "FROM PDArcFlash WHERE ID <> '' AND Type = 'SPST Switch'"
-        )
         self.filepaths = self.get_filepaths(etap_dir, 'AAFS')
 
     def extract_ansi_af_data(self):
@@ -53,7 +43,7 @@ class ArcFlashParser:
 
         :param sqlite3.Cursor cur: Cursor object for executing SQL queries on the database.
         """
-        cur.execute(self.sql_ansi_af_info)
+        cur.execute(ANSI_AF_INFO_QUERY)
         af_info = cur.fetchone()
 
         if af_info:
@@ -64,7 +54,8 @@ class ArcFlashParser:
                 af_data[i].insert(indices['con'] + 1, af_info[1])
             self._update_ansi_af_data(af_data)
 
-    def _fetch_all_data(self, cur: sqlite3.Cursor) -> list:
+    @staticmethod
+    def _fetch_all_data(cur: sqlite3.Cursor) -> list:
         """
         Fetches all arc flash data from the database for both buses and protective devices.
 
@@ -73,9 +64,9 @@ class ArcFlashParser:
         :rtype: list
         """
         af_data = []
-        cur.execute(self.sql_ansi_af_bus)
+        cur.execute(ANSI_AF_BUS_QUERY)
         af_data.extend([list(elem) for elem in cur.fetchall()])
-        cur.execute(self.sql_ansi_af_pd)
+        cur.execute(ANSI_AF_PD_QUERY)
         af_data.extend([list(elem) for elem in cur.fetchall()])
         return af_data
 

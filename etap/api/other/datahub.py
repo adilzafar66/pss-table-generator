@@ -24,7 +24,6 @@ import json
 import os
 import re
 import signal
-import socket
 import subprocess
 import urllib.parse
 import urllib.request
@@ -34,9 +33,10 @@ import requests
 requests.packages.urllib3.disable_warnings()
 from requests.exceptions import RequestException
 import sys
+
 from .. import settings
 
-__version__ = "2022.0.0"
+__version__ = "24.0.0"
 
 def get(urlAbsolute: str, token=None) -> str:
     """Makes an http GET call against ETAP DataHub using the given absolute URL
@@ -50,11 +50,11 @@ def get(urlAbsolute: str, token=None) -> str:
     # if url.startswith('/') is False:
     #    url = '/' + url
     if token:
-        resp = requests.request("GET", urlAbsolute, verify=not(settings.https_enable), headers={"Authorization":"Bearer " + token})
+        resp = requests.request("GET", urlAbsolute, verify=not(settings.https_enable), headers={"Authorization": token})
     else:
         resp = requests.request("GET", urlAbsolute, verify=not(settings.https_enable))
     
-    resp.raise_for_status()
+    # resp.raise_for_status()
     return resp.text
 
 
@@ -68,11 +68,11 @@ def get_file(urlAbsolute:str, writeFullPath:str, token=None):
         writeFullPath (str):     Full path to where file should be written to
     """
     if token:
-        resp = requests.get(urlAbsolute, allow_redirects=True, verify=not(settings.https_enable), headers={"Authorization":"Bearer " + token})
+        resp = requests.get(urlAbsolute, allow_redirects=True, verify=not(settings.https_enable), headers={"Authorization": token})
     else:
         resp = requests.get(urlAbsolute, allow_redirects=True, verify=not(settings.https_enable))
         
-    resp.raise_for_status()
+    # resp.raise_for_status()
     f = open(writeFullPath, 'wb')
     f.write(resp.content)
     f.close()
@@ -91,10 +91,10 @@ def get_file_progressbar(urlAbsolute:str, writeFullPath:str, token=None):
     with open(writeFullPath, "wb") as f:
         print("Downloading %s" % os.path.basename(writeFullPath))
         if token:
-            response = requests.get(urlAbsolute, stream=True, allow_redirects=True, verify=not(settings.https_enable), headers={"Authorization":"Bearer " + token})
+            response = requests.get(urlAbsolute, stream=True, allow_redirects=True, verify=not(settings.https_enable), headers={"Authorization": token})
         else:
             response = requests.get(urlAbsolute, stream=True, allow_redirects=True, verify=not(settings.https_enable))
-        response.raise_for_status()
+        # response.raise_for_status()
         total_length = response.headers.get('content-length')
 
         if total_length is None: # no content length header
@@ -113,7 +113,7 @@ def get_file_progressbar(urlAbsolute:str, writeFullPath:str, token=None):
                 sys.stdout.flush()
 
 
-def post(urlAbsolute: str, someDict, token=None) -> str:
+def post(urlAbsolute: str, someDict, token=None, headers=None) -> str:
     """Makes an http POST call against ETAP DataHub using the given absolute URL
     Args:
         urlAbsolute (str):  Absolute URL
@@ -123,12 +123,15 @@ def post(urlAbsolute: str, someDict, token=None) -> str:
     """
 
     if token:
-        resp = requests.post(urlAbsolute, json=someDict, verify=not(settings.https_enable), headers={"Authorization":"Bearer " + token})
+        resp = requests.post(urlAbsolute, json=someDict, verify=not(settings.https_enable), headers={"Authorization": token})
     else:
-        resp = requests.post(urlAbsolute, json=someDict, verify=not(settings.https_enable))
-    resp.raise_for_status()
+        if headers:
+            resp = requests.post(urlAbsolute, json=someDict, verify=not(settings.https_enable), headers=headers)
+        else:
+            resp = requests.post(urlAbsolute, json=someDict, verify=not(settings.https_enable))
+            
+    # resp.raise_for_status()
     return resp.text
-
 
 
 
@@ -144,7 +147,7 @@ class DataHubClient():
             ipAddressOrComputerName (str): DataHub IP address or hostname
             portNumber (int): DataHub port number
         """        
-        self.baseAddress = f"http://{ipAddressOrComputerName}:{str(portNumber)}"
+        self.baseAddress = f"https://{ipAddressOrComputerName}:{str(portNumber)}"
 
     def httpGet(self, relativeUrl: str) -> str:
         """Makes an http GET call against ETAP DataHub using the relative URL
@@ -158,7 +161,7 @@ class DataHubClient():
 
         relativeUrl = f"{self.baseAddress}{relativeUrl}"
         resp = requests.request("GET", relativeUrl, verify=not(settings.https_enable))
-        resp.raise_for_status()
+        # resp.raise_for_status()
         return resp.text
 
     def getBaseAddress(self) -> str:

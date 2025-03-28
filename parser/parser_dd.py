@@ -1,10 +1,13 @@
+import json
 import sqlite3
 import etap.api
 from pathlib import Path
 import xml.etree.ElementTree as ET
 from sqlite3 import Error, OperationalError
-from consts.consts_dd import MV_SWITCHGEAR_MULTIPLIER, LV_SWITCHGEAR_MULTIPLIER, DD_STUDY_TAG
+from consts.consts import TYPE_MAP
+from consts.consts_dd import MV_SWITCHGEAR_MULTIPLIER, LV_SWITCHGEAR_MULTIPLIER, DD_STUDY_TAG, COMMENT_VAR, BUS
 from consts.consts_dd import MODES, ANSI_EXT, IEC_EXT, ANSI_SP_EXT, IEC_SP_EXT
+from consts.sql_queries import *
 
 
 class DeviceDutyParser:
@@ -22,26 +25,14 @@ class DeviceDutyParser:
         :param Path etap_dir: The directory containing ETAP project files.
         """
         self.tree = None
+        self._etap = None
+        self.comments = {}
         self.ansi_data = {}
         self.iec_data = {}
         self.mode_mom = MODES['Momentary']
         self.mode_int = MODES['Interrupt']
         self.parsed_ansi_data = {self.mode_mom: {}, self.mode_int: {}}
         self.parsed_iec_data = {self.mode_int: {}}
-
-        self.sql_ansi_int = (r"SELECT PDID, kVnom, FaultedBus, PDType, AdjSym, CapAdjInt "
-                             r"FROM SCDSumInt WHERE TRIM(PDID) <> '' ORDER BY PDID ASC")
-        self.sql_ansi_mom = (r"SELECT PDID, kVnom, PDType, kASymm, kAASymm, CapSym, CapAsym "
-                             r"FROM SCDSumMom WHERE TRIM(PDID) <> '' ORDER BY PDID ASC")
-        self.sql_ansi_int_sp = (r"SELECT PDID, kVnom, FaultedBus, PDType, AdjSym, CapAdjInt "
-                                r"FROM SCDSumInt1Ph WHERE TRIM(PDID) <> '' ORDER BY PDID ASC")
-        self.sql_ansi_mom_sp = (r"SELECT PDID, kVnom, PDType, kASymm, kAASymm, CapSym, CapAsym "
-                                r"FROM SCDSumMom1Ph WHERE TRIM(PDID) <> '' ORDER BY PDID ASC")
-        self.sql_iec_int = (r"SELECT DeviceID, kVnom, FaultedBus, DeviceType, Ibsymm, Ibasymm, DeviceIbsymm, "
-                            r"DeviceIbasym FROM SCIEC3phSum WHERE TRIM(DeviceID) <> '' ORDER BY DeviceID ASC")
-        self.sql_iec_int_sp = (r"SELECT DeviceID, kVnom, FaultedBus, DeviceType, Ibsymm, Ibasymm, DeviceIbsymm, "
-                               r"DeviceIbasym FROM SCIEC1phSum WHERE TRIM(DeviceID) <> '' ORDER BY DeviceID ASC")
-
         self.ansi_filepaths = self.get_filepaths(etap_dir, ANSI_EXT)
         self.ansi_sp_filepaths = self.get_filepaths(etap_dir, ANSI_SP_EXT)
         self.iec_filepaths = self.get_filepaths(etap_dir, IEC_EXT)
@@ -53,8 +44,10 @@ class DeviceDutyParser:
 
         :param str url: local URL for connecting to the datahub.
         """
-        e = etap.api.connect(url)
-        self.tree = ET.fromstring(e.projectdata.getxml())
+        self._etap = etap.api.connect(url)
+        version = json.loads(self._etap.application.version())['Version']
+        if version.startswith('22'):
+            self.tree = ET.fromstring(self._etap.projectdata.getxml())
 
     def extract_ansi_data(self, use_all_sw_configs: bool):
         """
@@ -73,12 +66,12 @@ class DeviceDutyParser:
                 continue
             cur = conn.cursor()
             try:
-                cur.execute(self.sql_ansi_int)
+                cur.execute(ANSI_INT_QUERY)
                 int_data = cur.fetchall()
             except OperationalError:
                 int_data = []
             try:
-                cur.execute(self.sql_ansi_mom)
+                cur.execute(ANSI_MOM_QUERY)
                 mom_data = cur.fetchall()
             except OperationalError:
                 mom_data = []
@@ -96,12 +89,12 @@ class DeviceDutyParser:
                 continue
             cur = conn.cursor()
             try:
-                cur.execute(self.sql_ansi_int_sp)
+                cur.execute(ANSI_INT_SP_QUERY)
                 int_data = cur.fetchall()
             except OperationalError:
                 int_data = []
             try:
-                cur.execute(self.sql_ansi_mom_sp)
+                cur.execute(ANSI_MOM_SP_QUERY)
                 mom_data = cur.fetchall()
             except OperationalError:
                 mom_data = []
@@ -125,7 +118,7 @@ class DeviceDutyParser:
                 continue
             cur = conn.cursor()
             try:
-                cur.execute(self.sql_iec_int)
+                cur.execute(IEC_INT_QUERY)
                 int_data = cur.fetchall()
             except OperationalError:
                 int_data = []
@@ -142,7 +135,7 @@ class DeviceDutyParser:
                 continue
             cur = conn.cursor()
             try:
-                cur.execute(self.sql_iec_int)
+                cur.execute(IEC_INT_QUERY)
                 int_data = cur.fetchall()
             except OperationalError:
                 int_data = []
@@ -201,7 +194,7 @@ class DeviceDutyParser:
         :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
         :param bool add_switches: Flag to indicate whether to add switches to the parsed data.
         """
-        valid_types = ['Panelboard', 'Switchboard', 'Switchgear']
+        valid_types = ['Panelboard', 'Switchboard', 'Switchgear', 'MCC']
         if add_switches:
             valid_types += ['SPST Switch', 'SPDT Switch']
 
@@ -310,7 +303,7 @@ class DeviceDutyParser:
             _bus = entry[2]
             _device = entry[3]
 
-            if _device.strip() not in ['CB', 'FUSE']:
+            if _device.strip() not in ['CB', 'Fuse']:
                 continue
 
             if (any(word in _id for word in exclude_contains)
@@ -339,35 +332,27 @@ class DeviceDutyParser:
         self.parsed_iec_data[self.mode_int] = dict(sorted(self.parsed_iec_data[self.mode_int].items(),
                                                           key=lambda item: item[1]['Bus']))
 
-    def is_series_rated(self, element_id: str) -> bool:
+    def is_series_rated(self, element_id: str, element_type: str) -> bool:
         """
         Checks if the element with the given ID is series-rated by examining its comment text.
 
         :param str element_id: The ID of the element to check.
+        :param str element_type: The type of the element to check for.
         :return bool: Returns True if the element is series-rated, otherwise False.
-        :raises AttributeError: If the element with the given ID is not found.
         """
-        if not self.tree:
-            return False
-        element = self.tree.find(f'.//LAYOUT//*[@ID="{element_id}"]')
-        if element is None:
-            raise AttributeError(f'No element with ID {element_id} found')
-        return True if 'sr' in element.get('CommentText').lower() else False
+        element_comment = self.get_element_comment(element_id, element_type)
+        return True if element_comment and 'sr' in element_comment else False
 
-    def is_assumed(self, element_id: str) -> bool:
+    def is_assumed(self, element_id: str, element_type: str) -> bool:
         """
         Checks if the element with the given ID is assumed by examining its comment text.
 
         :param str element_id: The ID of the element to check.
+        :param str element_type: The type of the element to check for.
         :return bool: Returns True if the element is assumed, otherwise False.
-        :raises AttributeError: If the element with the given ID is not found.
         """
-        if not self.tree:
-            return False
-        element = self.tree.find(f'.//LAYOUT//*[@ID="{element_id}"]')
-        if element is None:
-            raise AttributeError(f'No element with ID {element_id} found')
-        return True if 'assumed' in element.get('CommentText').lower() else False
+        element_comment = self.get_element_comment(element_id, element_type)
+        return True if element_comment and 'assumed' in element_comment else False
 
     def add_series_rated_ratings(self, entries: dict, cap_tag: str, is_mom: bool = False):
         """
@@ -379,7 +364,8 @@ class DeviceDutyParser:
         """
         ansi_mom = self.parsed_ansi_data[self.mode_mom]
         for _id, device_data in entries.items():
-            is_series_rated = self.is_series_rated(_id)
+            element_type = device_data.get('Type') or device_data.get('Device')
+            is_series_rated = self.is_series_rated(_id, element_type)
             device_data['SeriesRated'] = is_series_rated
             if is_series_rated and not is_mom:
                 device_bus = device_data['Bus']
@@ -394,8 +380,37 @@ class DeviceDutyParser:
         :param dict entries: Dictionary of device entries to update with the 'Assumed' status.
         """
         for _id, device_data in entries.items():
-            if self.is_assumed(_id):
+            element_type = device_data.get('Type') or device_data.get('Device')
+            if self.is_assumed(_id, element_type):
                 device_data['Assumed'] = True
+
+    def get_element_comment(self, element_id: str, element_type: str):
+        """
+        Gets the comment text attribute of an element.
+
+        :param str element_id: The ID of the element to check.
+        :param str element_type: The type of the element to check for.
+        :return bool: Returns the value of the comment text attribute in lowercase.
+        :raises AttributeError: If the element with the given ID is not found.
+        """
+        if self.comments.get(element_id):
+            return self.comments.get(element_id)
+
+        if not self.tree:
+            elem_type = TYPE_MAP.get(element_type, BUS)
+            get_element_prop = self._etap.projectdata.getelementprop
+            value = json.loads(get_element_prop(elem_type, element_id, COMMENT_VAR))
+            if value.get('Value') == 'Invalid element name':
+                raise AttributeError(f'No element with ID {element_id} found')
+            comment = value.get('Value') and value.get('Value').lower()
+        else:
+            element = self.tree.find(f'.//LAYOUT//*[@ID="{element_id}"]')
+            if element is None:
+                raise AttributeError(f'No element with ID {element_id} found')
+            comment = element.get('CommentText').lower()
+
+        self.comments.update({element_id: comment})
+        return comment
 
     def process_series_rated_equipment(self):
         """
@@ -412,11 +427,9 @@ class DeviceDutyParser:
         """
         Processes all parsed ANSI and IEC data to mark assumed equipment.
         """
-        process_data = [self.parsed_ansi_data[self.mode_mom],
-                        self.parsed_ansi_data[self.mode_int],
-                        self.parsed_iec_data[self.mode_int]]
-        for data in process_data:
-            self.mark_assumed_equipment(data)
+        self.mark_assumed_equipment(self.parsed_ansi_data[self.mode_mom])
+        self.mark_assumed_equipment(self.parsed_ansi_data[self.mode_int])
+        self.mark_assumed_equipment(self.parsed_iec_data[self.mode_int])
 
     @staticmethod
     def get_filepaths(input_dir, ext):
@@ -432,5 +445,4 @@ class DeviceDutyParser:
             if filename.split('_')[0] in DD_STUDY_TAG:
                 return True
             return False
-
         self.ansi_filepaths = list(filter(filter_func, self.ansi_filepaths))

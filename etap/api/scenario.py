@@ -11,6 +11,7 @@
 # ***********************
 
 
+import requests
 from .other import datahub as datahub
 from .other import api_constants as apiconstants
 import urllib.request
@@ -40,8 +41,13 @@ class Scenario:
         httpLocation = f'{self._baseAddress}{apiconstants.scenario_run}?'
         params = "id={0}&getOnlineData={1}".format(id, getOnlineData)
         address = httpLocation + urllib.parse.quote(params, safe='&=')
-
-        return datahub.post(address, whatIfCommands, token=self._token)
+    
+        try:
+            result = datahub.post(address, whatIfCommands, token=self._token)
+            return result
+        except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+            print(exception.response.text)
+            raise
 
     def createscenario(self, scenarioID: str, system: str, presentation: str, revisionName: str, configName: str, studyMode: str, studyType: str, studyCase: str, outputReport: str, whatIfCommands=None) -> str:
         """Creates the specified scenario.  Returns boolean True or False."""
@@ -70,7 +76,12 @@ class Scenario:
         params = "id={0}&getOnlineData={1}".format(id, getOnlineData)
         address = httpLocation + urllib.parse.quote(params, safe='&=')
 
-        return datahub.post(address, whatIfCommands, token=self._token)
+        try:
+            result = datahub.post(address, whatIfCommands,token=self._token)
+            return result
+        except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+            print(exception.response.text)
+            raise
 
     class WhatifCommands:
 
@@ -85,8 +96,13 @@ class Scenario:
             httpLocation = f'{self._baseAddress}{apiconstants.scenario_whatif_buskvar}?'
             params = "id={0}".format(id)
             address = httpLocation + urllib.parse.quote(params, safe='&=')
-
-            return datahub.post(address, whatIfCommands, token=self._token)
+        
+            try:
+                result = datahub.post(address, whatIfCommands,token=self._token)
+                return result
+            except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+                print(exception.response.text)
+                raise
 
         def buskw(self, id: str, whatIfCommands) -> str:
             """Runs the specified whatifcommand.  Alerts are returned."""
@@ -94,8 +110,13 @@ class Scenario:
             httpLocation = f'{self._baseAddress}{apiconstants.scenario_whatif_buskw}?'
             params = "id={0}".format(id)
             address = httpLocation + urllib.parse.quote(params, safe='&=')
-
-            return datahub.post(address, whatIfCommands, token=self._token)
+        
+            try:
+                result = datahub.post(address, whatIfCommands,token=self._token)
+                return result
+            except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+                print(exception.response.text)
+                raise
 
         def close(self, id: str, whatIfCommands) -> str:
             """Runs the specified whatifcommand.  Alerts are returned."""
@@ -103,8 +124,13 @@ class Scenario:
             httpLocation = f'{self._baseAddress}{apiconstants.scenario_whatif_close}?'
             params = "id={0}".format(id)
             address = httpLocation + urllib.parse.quote(params, safe='&=')
-
-            return datahub.post(address, whatIfCommands, token=self._token)
+        
+            try:
+                result = datahub.post(address, whatIfCommands,token=self._token)
+                return result
+            except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+                print(exception.response.text)
+                raise
 
         def open(self, id: str, whatIfCommands) -> str:
             """Runs the specified whatifcommand.  Alerts are returned."""
@@ -112,5 +138,81 @@ class Scenario:
             httpLocation = f'{self._baseAddress}{apiconstants.scenario_whatif_open}?'
             params = "id={0}".format(id)
             address = httpLocation + urllib.parse.quote(params, safe='&=')
+        
+            try:
+                result = datahub.post(address, whatIfCommands,token=self._token)
+                return result
+            except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+                print(exception.response.text)
+                raise
+            
+        def genopmwadd(self, id: str, whatIfCommands) -> str:
+            """Runs the specified whatifcommand.  Alerts are returned."""
 
-            return datahub.post(address, whatIfCommands, token=self._token)
+            httpLocation = f'{self._baseAddress}{apiconstants.scenario_whatif_genopmwadd}?'
+            params = "id={0}".format(id)
+            address = httpLocation + urllib.parse.quote(params, safe='&=')
+            
+            try:
+                result = datahub.post(address, whatIfCommands,token=self._token)
+                return result
+            except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+                print(exception.response.text)
+                raise
+        
+        def genopmvaradd(self, id: str, whatIfCommands) -> str:
+            """Runs the specified whatifcommand.  Alerts are returned."""
+
+            httpLocation = f'{self._baseAddress}{apiconstants.scenario_whatif_genopmvaradd}?'
+            params = "id={0}".format(id)
+            address = httpLocation + urllib.parse.quote(params, safe='&=')
+
+            try:
+                result = datahub.post(address, whatIfCommands,token=self._token)
+                return result
+            except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+                print(exception.response.text)
+                raise
+        
+        def genopermode(self, id: str, whatIfCommands) -> str:
+            """Runs the specified whatifcommand.  Alerts are returned."""
+
+            httpLocation = f'{self._baseAddress}{apiconstants.scenario_whatif_genopermode}?'
+            params = "id={0}".format(id)
+            address = httpLocation + urllib.parse.quote(params, safe='&=')
+
+            try:
+                result = datahub.post(address, whatIfCommands,token=self._token)
+                return result
+            except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+                print(exception.response.text)
+                raise
+        
+        #Disabled for ETAP 24.0 - 05/24/2024
+        # def opload(self, id: str, whatIfCommands) -> str:
+        #     """Runs the specified whatifcommand.  Alerts are returned."""
+
+        #     httpLocation = f'{self._baseAddress}{apiconstants.scenario_whatif_opload}?'
+        #     params = "id={0}".format(id)
+        #     address = httpLocation + urllib.parse.quote(params, safe='&=')
+
+        #     try:
+        #         result = datahub.post(address, whatIfCommands,token=self._token)
+        #         return result
+        #     except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+        #         print(exception.response.text)
+        #         raise
+        
+        # def importdata(self, id: str, whatIfCommands) -> str:
+        #     """Runs the specified whatifcommand.  Alerts are returned."""
+
+        #     httpLocation = f'{self._baseAddress}{apiconstants.scenario_whatif_importdata}?'
+        #     params = "id={0}".format(id)
+        #     address = httpLocation + urllib.parse.quote(params, safe='&=')
+
+        #     try:
+        #         result = datahub.post(address, whatIfCommands,token=self._token)
+        #         return result
+        #     except (requests.exceptions.HTTPError, ValueError, NameError) as exception:
+        #         print(exception.response.text)
+        #         raise

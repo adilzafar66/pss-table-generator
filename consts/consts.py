@@ -16,3 +16,10 @@ DEFAULT_SW_CONFIGS = [
 ]
 HTTP = 'http'
 HTTPS = 'https'
+
+TYPE_MAP = {
+    'Fuse': 'FUSE',
+    'SPDT Switch': 'DOUBLESWITCH',
+    'SPST Switch': 'SINGLESWITCH',
+    'Molded Case': 'LVCB'
+}

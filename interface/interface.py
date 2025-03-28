@@ -45,6 +45,8 @@ class Interface(QMainWindow, Ui_MainWindow):
         self.load_port_number(self.default_path / self.PORT_FILE)
         self.include_revisions_input.setVisible(False)
         self.datahub_note.setVisible(False)
+        self.device_duty_group.setDisabled(True)
+        self.arc_flash_layout.setDisabled(True)
         self.setMinimumWidth(475)
         self.adjustSize()
         self.show()

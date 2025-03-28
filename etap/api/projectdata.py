@@ -65,6 +65,11 @@ class ProjectData:
         """Returns XML for the current project.  The first time this function is called
         the response takes longer than usual.  Response time may also be affected by model size."""
         return datahub.get(f'{self._baseAddress}{apiconstants.projectdata_getxml}', token=self._token)
+    
+    # def getxmlflat(self) -> str:
+    #     """Returns Flat XML for the current project.  The first time this function is called
+    #     the response takes longer than usual.  Response time may also be affected by model size."""
+    #     return datahub.get(f'{self._baseAddress}{apiconstants.projectdata_getxmlflat}', token=self._token)
 
     def getelementprop(self, elementType: str, elementName: str, fieldName: str) -> str:
         """Get value of a field of the property of an element
@@ -142,18 +147,18 @@ class ProjectData:
         result = datahub.post(address, emptyDict, token=self._token)
         return result
 
-    def sendpdexml(self, xmlElement) -> str:
-        """Send XML to ETAP PDE
+    # def sendpdexml(self, xmlElement) -> str:
+    #     """Send XML to ETAP PDE
 
-        Args:
-            xmlElement: xml str
+    #     Args:
+    #         xmlElement: xml str
 
-        Returns:
-            str: 'True' for success
-        """       
-        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_sendpdexml}'
-        result = datahub.post(httpLocation, xmlElement, token=self._token)
-        return result
+    #     Returns:
+    #         str: 'True' for success
+    #     """       
+    #     httpLocation = f'{self._baseAddress}{apiconstants.projectdata_sendpdexml}'
+    #     result = datahub.post(httpLocation, xmlElement, token=self._token)
+    #     return result
 
     # def createelementinold(self, elementType: str, elementName: str, compositeNetwork=None, locationX=None, locationY=None) -> str:
     def createelementinold(self, elementType: str, elementName: str, compositeNetwork="", locationX="", locationY="") -> str:
@@ -293,6 +298,10 @@ class ProjectData:
     def getstudycasenames(self) -> str:
         """Returns a list of study case names (IDs).."""
         return datahub.get(f'{self._baseAddress}{apiconstants.projectdata_getstudycasenames}', token=self._token)
+    
+    def getstudymodesandcases(self) -> str:
+        """Returns a dictionary of study modes and their corresponding study cases"""
+        return datahub.get(f'{self._baseAddress}{apiconstants.projectdata_getstudymodesandcases}', token=self._token)
 
     def getstudycase(self, studyCaseId:str) -> str:
         """Returns a study case by ID."""
@@ -339,18 +348,29 @@ class ProjectData:
         result = datahub.get(address, token=self._token)
         return result
     
-    def xmldownload(self, filePathAsBase64: str, writeFullPath:str):
-        """Download XML file for the current ETAP project.
+    # def xmldownload(self, filePathAsBase64: str, writeFullPath:str):
+    #     """Download XML file for the current ETAP project.
         
-        ArgsL
-           filePathAsBase64 (str):     Encrypted full path to where file should be written to
-           writeFullPath (str):        Full path to where file should be written to"""
-        # return datahub.get_file(f'{self._baseAddress}{apiconstants.projectdata_xmldownload}/{filePathAsBase64}', writeFullPath, token=self._token)
-        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_xmldownload}?fullPathToFileAsBase64='
-        params = filePathAsBase64
-        address = httpLocation + urllib.parse.quote(params)
-        # return datahub.get_file(f'{self._baseAddress}{apiconstants.projectdata_xmldownload}/{filePathAsBase64}', writeFullPath, token=self._token)
-        return datahub.get_file(address, writeFullPath, token=self._token)
+    #     ArgsL
+    #        filePathAsBase64 (str):     Encrypted full path to where file should be written to
+    #        writeFullPath (str):        Full path to where file should be written to"""
+    #     # return datahub.get_file(f'{self._baseAddress}{apiconstants.projectdata_xmldownload}/{filePathAsBase64}', writeFullPath, token=self._token)
+    #     httpLocation = f'{self._baseAddress}{apiconstants.projectdata_xmldownload}?fullPathToFileAsBase64='
+    #     params = filePathAsBase64
+    #     address = httpLocation + urllib.parse.quote(params)
+    #     # return datahub.get_file(f'{self._baseAddress}{apiconstants.projectdata_xmldownload}/{filePathAsBase64}', writeFullPath, token=self._token)
+    #     return datahub.get_file(address, writeFullPath, token=self._token)
+    
+    # def xmldownloadflat(self, filePathAsBase64: str, writeFullPath:str):
+    #     """Download Flat XML file for the current ETAP project.
+        
+    #     ArgsL
+    #        filePathAsBase64 (str):     Encrypted full path to where file should be written to
+    #        writeFullPath (str):        Full path to where file should be written to"""
+    #     httpLocation = f'{self._baseAddress}{apiconstants.projectdata_xmldownloadflat}?fullPathToFileAsBase64='
+    #     params = filePathAsBase64
+    #     address = httpLocation + urllib.parse.quote(params)
+    #     return datahub.get_file(address, writeFullPath, token=self._token)
 
     def activateelement(self, presentation: str, component: str) -> str:
 
@@ -400,3 +420,125 @@ class ProjectData:
         address = httpLocation + params
         result = datahub.post(address, MultipleElementJson, token=self._token)
         return result
+
+    def getprotectedelements(self, relayName:str) -> str:
+        """Returns the list of protected elements given a relay name"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_getprotectedelements}?relayName='
+        params = relayName
+        address = httpLocation + urllib.parse.quote(params)
+        return datahub.get(address, token=self._token)
+    
+    def getreferencebus(self, relayName:str) -> str:
+        """Returns reference bus given a relay name"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_getreferencebus}?relayName='
+        params = relayName
+        address = httpLocation + urllib.parse.quote(params)
+        return datahub.get(address, token=self._token)
+    
+    def gettiebuses(self, busName:str) -> str:
+        """Returns the list of tie buses given a bus name"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_gettiebuses}?busName='
+        params = busName
+        address = httpLocation + urllib.parse.quote(params)
+        return datahub.get(address, token=self._token)
+    
+    def iselementtransformer(self, elementName:str) -> str:
+        """Returns TRUE if element is a transformer or FALSE if element is not a transformer"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_iselementtransformer}?elementName='
+        params = elementName
+        address = httpLocation + urllib.parse.quote(params)
+        return datahub.get(address, token=self._token)
+    
+    def iselementdoubleline(self, elementName:str) -> str:
+        """Returns TRUE if element is a doubleline or FALSE if element is not a doubleline"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_iselementdoubleline}?elementName='
+        params = elementName
+        address = httpLocation + urllib.parse.quote(params)
+        return datahub.get(address, token=self._token)
+    
+    def getshortestremotelineimp(self, branchName:str, refBusName:str) -> str:
+        """Returns shortest remote line impedance"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_getshortestremotelineimp}'
+       
+        params = f"?branchName={branchName}&refBusName={refBusName}"
+        address = httpLocation + params
+        return datahub.get(address, token=self._token)
+    
+    def getlongestremotelineimp(self, branchName:str, refBusName:str) -> str:
+        """Returns longest remote line impedance"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_getlongestremotelineimp}'
+       
+        params = f"?branchName={branchName}&refBusName={refBusName}"
+        address = httpLocation + params
+        return datahub.get(address, token=self._token)
+    
+    def getbranchimpedance(self, branchName:str, refBusName:str, remoteBusName:str, seriesCapFlag=None) -> str:
+        """Returns the list of branch impedance"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_getbranchimpedance}'
+       
+        params = f"?branchName={branchName}&refBusName={refBusName}&remoteBusName={remoteBusName}&seriesCapFlag={seriesCapFlag}"
+        address = httpLocation + params
+        return datahub.get(address, token=self._token)
+    
+    def getratedkv(self, elementName:str) -> str:
+        """Returns the following attached bus kV information for the specified element ID.
+
+            primaryKv - From bus kV for branch elements and attached bus kV for non-branch elements.
+
+            secondaryKv – To bus kV for branch elements and empty string for non-branch elements.
+
+            teritiaryKv – Tertiary bus kV for 3-winding transformers and empty string for other elements.
+
+            Note: Branch elements corresponds lines, cables, transformers"""
+            
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_getratedkv}?elementName='
+        params = elementName
+        address = httpLocation + urllib.parse.quote(params)
+        return datahub.get(address, token=self._token)
+    
+    def getadjacentelements(self, branchName:str, remoteBusName:str) -> str:
+        """Returns the list of adjacent elements"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_getadjacentelements}'
+       
+        params = f"?branchName={branchName}&remoteBusName={remoteBusName}"
+        address = httpLocation + params
+        return datahub.get(address, token=self._token)
+
+    def getbusinfo(self, branchName:str) -> str:
+        """Returns the following attached bus ID for the specified element ID
+
+        fromBus - From bus for branch elements and attached bus for non-branch elements.
+
+        toBus – To bus for branch elements and empty string for non-branch elements.
+
+        teritiary – Tertiary bus for 3-winding transformers and empty string for other elements.
+
+        Note: Branch elements corresponds lines, cables, transformers"""
+            
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_getbusinfo}?branchName='
+        params = branchName
+        address = httpLocation + urllib.parse.quote(params)
+        return datahub.get(address, token=self._token)
+    
+    def getrelaycts(self, relayName:str) -> str:
+        """Returns relay CTs"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_getrelaycts}?relayName='
+        params = relayName
+        address = httpLocation + urllib.parse.quote(params)
+        return datahub.get(address, token=self._token)
+    
+    def getrelaypts(self, relayName:str) -> str:
+        """Returns relay PTs"""
+        httpLocation = f'{self._baseAddress}{apiconstants.projectdata_getrelaypts}?relayName='
+        params = relayName
+        address = httpLocation + urllib.parse.quote(params)
+        return datahub.get(address, token=self._token)
+    
+    def getrtsleaccuracy(self) -> str:
+        """Returns the ETAP real-time accuracy of the single-line editor (e.g., alerts, alarms, warnings, etc.)"""
+        return datahub.get(f'{self._baseAddress}{apiconstants.projectdata_getrtsleaccuracy}', token=self._token)
+    
+    
+    def getrtstatus(self) -> str:
+        """Returns the ETAP real-time status (online or offline)"""
+        return datahub.get(f'{self._baseAddress}{apiconstants.projectdata_getrtsleaccuracy}', token=self._token)
