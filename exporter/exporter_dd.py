@@ -265,8 +265,18 @@ class DeviceDutyExporter:
         """
         for i in range(3, sheet.max_row + 1):
             for cell in sheet[i]:
-                fill = ((cell.row % 2 == 0 and not cell.fill.patternType) and FILL_ALT) or None
+                fill = self._get_row_cell_fill(cell)
                 self._apply_cell_format(cell, FONT_DATA, ALIGN, BORDER, fill)
+
+    @staticmethod
+    def _get_row_cell_fill(cell: Cell):
+        """
+        Applies fill to a single row cell.
+
+        :param Cell cell: The cell to apply fill to.
+        """
+        if cell.row % 2 == 0 and not cell.fill.patternType:
+            return FILL_ALT
 
     @staticmethod
     def _set_column_widths(sheet: Worksheet, const_cols_len: int, alt_cols_len: int, col_width: float):
