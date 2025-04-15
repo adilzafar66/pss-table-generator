@@ -4,7 +4,8 @@ from worker.worker import Worker
 from parser.parser_dd import DeviceDutyParser
 from exporters.exporter_dd import DeviceDutyExporter
 from scenario.scenario_dd import DeviceDutyScenario
-from consts.consts_dd import MODES, FILE_NAME_SUFFIX
+from consts.filenames import DD_FILENAME
+from consts.tags import MOM_TAG, INT_TAG
 from consts.keys import KEYS_DD_MOM, KEYS_DD_INT, KEYS_DD_INT_IEC
 from consts.columns import DD_MOM_CONST_COLS, DD_INT_CONST_COLS, DD_MOM_VAR_COLS, DD_INT_VAR_COLS, DD_INT_IEC_VAR_COLS
 
@@ -90,9 +91,9 @@ class DeviceDutyWorker(Worker):
         dd_exporter.create_headers(2, DD_INT_CONST_COLS, DD_INT_IEC_VAR_COLS, 'Interrupting Duty')
 
         # Insert data into the sheets
-        dd_exporter.insert_data(0, MODES['Momentary'], KEYS_DD_MOM)
-        dd_exporter.insert_data(1, MODES['Interrupt'], KEYS_DD_INT)
-        dd_exporter.insert_data(2, MODES['Interrupt'], KEYS_DD_INT_IEC, 'iec')
+        dd_exporter.insert_data(0, MOM_TAG, KEYS_DD_MOM)
+        dd_exporter.insert_data(1, INT_TAG, KEYS_DD_INT)
+        dd_exporter.insert_data(2, INT_TAG, KEYS_DD_INT_IEC, 'iec')
 
         # Format headers for each sheet
         dd_exporter.format_headers(0)
@@ -106,7 +107,7 @@ class DeviceDutyWorker(Worker):
 
         # Save the workbook
         project_number = self.input_dir_path.stem
-        filename = f'{project_number}_{FILE_NAME_SUFFIX}'
+        filename = f'{project_number}_{DD_FILENAME}'
         wb_path = Path(self.output_dir_path, filename)
         dd_exporter.save_workbook(wb_path)
         return wb_path

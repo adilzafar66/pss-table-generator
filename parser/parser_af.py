@@ -1,5 +1,5 @@
 import sqlite3
-import utils
+from parser import utils
 from pathlib import Path
 from sqlite3 import Error, OperationalError
 from consts.common import ROUND_DIGITS
