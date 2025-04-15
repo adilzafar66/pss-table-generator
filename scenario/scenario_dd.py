@@ -1,8 +1,8 @@
 import json
-from consts.consts import BASE_REVISION, DEFAULT_SW_CONFIGS
 from scenario.scenario import Scenario
-from consts.consts_dd import CONFIG_MAP_INV, DD_STUDY_TAG, DD_STUDY_MODE, DD_STUDY_CASE, DD_STUDY_CASE_IEC, \
-    DD_STUDY_MODE_IEC
+from consts.common import INV_CONFIG_MAP, DEFAULT_SW_CONFIGS
+from consts.tags import DD_STUDY_MODE, DD_STUDY_CASE, DD_STUDY_CASE_IEC, DD_STUDY_MODE_IEC
+from consts.tags import DD_TAG, IEC_TAG, BASE_REVISION
 
 
 class DeviceDutyScenario(Scenario):
@@ -45,16 +45,16 @@ class DeviceDutyScenario(Scenario):
             switching_configs = list(filter(self.filter_switching_configs, switching_configs))
 
         for study_mode, study_case in study_cases.items():
-            # Iterate over each switching configuration to create scenarios
             for switching_config in switching_configs:
+
                 # Map the switching configuration to its corresponding name
-                switching_config_name = CONFIG_MAP_INV.get(switching_config, switching_config)
+                switching_config_name = INV_CONFIG_MAP.get(switching_config, switching_config)
 
                 # Get the standard of the current study (ANSI or IEC)
                 standard = study_mode.split()[0]
 
                 # Construct the scenario identifier using the study tag and switching configuration name
-                scenario_id = DD_STUDY_TAG + '_' + switching_config_name + ('_IEC' if standard == 'IEC' else '')
+                scenario_id = DD_TAG + '_' + switching_config_name + (f'_{IEC_TAG}' if standard == IEC_TAG else '')
 
                 # Create the scenario and add its ID to the list
                 self.create_scenario(scenario_id, switching_config, study_mode, study_case, BASE_REVISION, scenario_id)

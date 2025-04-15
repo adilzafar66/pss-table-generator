@@ -1,0 +1,192 @@
+import sqlite3
+from parser import utils
+from pathlib import Path
+from sqlite3 import Error, OperationalError
+from consts.filenames import SC_ANSI_EXT
+from consts.queries import ANSI_SC_FAULT_QUERY, ANSI_SC_IMP_QUERY
+from consts.tags import FAULT_TAG, IMP_TAG
+
+
+class ShortCircuitParser:
+    def __init__(self, etap_dir: Path):
+        self.ansi_sc_data = {}
+        self.parsed_sc_data = {FAULT_TAG: {}, IMP_TAG: {}}
+        self.filepaths = utils.get_filepaths(etap_dir, SC_ANSI_EXT)
+
+    def extract_ansi_data(self):
+        """
+        Extracts ANSI arc flash data from each SQLite database in the specified directory.
+
+        It attempts to connect to each database, execute the relevant queries, and fetch data
+        for further processing. Any errors during database access are logged.
+        """
+        for filepath in self.filepaths:
+            try:
+                conn = sqlite3.connect(filepath)
+                cur = conn.cursor()
+                self._fetch_data(cur, filepath)
+                conn.close()
+            except (Error, OperationalError) as e:
+                print(f"Error with file {filepath}: {e}")
+
+    def _fetch_data(self, cur: sqlite3.Cursor, filepath):
+        """
+        Fetches study case information and arc flash data from the given database cursor,
+        and processes the fetched data to include additional metadata.
+
+        :param sqlite3.Cursor cur: Cursor object for executing SQL queries on the database.
+        """
+        cur.execute(ANSI_SC_FAULT_QUERY)
+        fault_data = cur.fetchall()
+        cur.execute(ANSI_SC_IMP_QUERY)
+        imp_data = cur.fetchall()
+        config = Path(filepath).stem
+        self.ansi_sc_data.update({
+            config: {
+                FAULT_TAG: fault_data,
+                IMP_TAG: imp_data
+            }
+        })
+
+    def parse_ansi_data(self, exclude_startswith: list[str], exclude_contains: list[str], exclude_except: list[str]):
+        """
+        Parses the extracted ANSI data based on specified criteria, such as excluding specific IDs or
+        calculating asymmetrical and symmetrical current values.
+
+        :param list[str] exclude_startswith: List of strings that, if an ID starts with, should exclude the entry.
+        :param list[str] exclude_contains: List of substrings that, if present in an ID, should exclude the entry.
+        :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
+        """
+        for config, modes in self.ansi_sc_data.items():
+            config_tags = config.split('_')
+            config_id = config_tags[1]
+            for mode, entries in modes.items():
+                if mode == FAULT_TAG:
+                    self.parse_fault_entries(entries, config_id, exclude_startswith,
+                                                exclude_contains, exclude_except)
+                if mode == IMP_TAG:
+                    self.parse_imp_entries(entries, config_id, exclude_startswith,
+                                                exclude_contains, exclude_except)
+
+
+    def parse_fault_entries(self, entries: list, config: str, exclude_startswith: list[str],
+                            exclude_contains: list[str], exclude_except: list[str]):
+        """
+        Parses ANSI momentary duty data entries based on specified criteria and calculates necessary values.
+
+        :param list entries: List of entries to parse.
+        :param str config: Configuration identifier.
+        :param list[str] exclude_startswith: List of strings that, if an ID starts with, should exclude the entry.
+        :param list[str] exclude_contains: List of substrings that, if present in an ID, should exclude the entry.
+        :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
+        """
+        for entry in entries:
+            _id = entry[0]
+
+            if (any(word in _id for word in exclude_contains)
+                    and all(word not in _id for word in exclude_except)):
+                continue
+
+            if (any(_id.startswith(word) for word in exclude_startswith)
+                    and all(not _id.startswith(word) for word in exclude_except)):
+                continue
+
+            _voltage = entry[1]
+            _real_3ph = entry[2]
+            _ima_3ph = entry[3]
+            _mag_3ph = entry[4]
+            _real_lg = entry[5]
+            _ima_lg = entry[6]
+            _mag_lg = entry[7]
+            _real_ll = entry[8]
+            _ima_ll = entry[9]
+            _mag_ll = entry[10]
+            _real_llg = entry[11]
+            _ima_llg = entry[12]
+            _mag_llg = entry[13]
+
+            if _id in self.parsed_sc_data[FAULT_TAG]:
+                self.parsed_sc_data[FAULT_TAG][_id]['Real3Ph'].update({config: _real_3ph})
+                self.parsed_sc_data[FAULT_TAG][_id]['Imag3Ph'].update({config: _ima_3ph})
+                self.parsed_sc_data[FAULT_TAG][_id]['Mag3Ph'].update({config: _mag_3ph})
+                self.parsed_sc_data[FAULT_TAG][_id]['RealLG'].update({config: _real_lg})
+                self.parsed_sc_data[FAULT_TAG][_id]['ImagLG'].update({config: _ima_lg})
+                self.parsed_sc_data[FAULT_TAG][_id]['MagLG'].update({config: _mag_lg})
+                self.parsed_sc_data[FAULT_TAG][_id]['RealLL'].update({config: _real_ll})
+                self.parsed_sc_data[FAULT_TAG][_id]['ImagLL'].update({config: _ima_ll})
+                self.parsed_sc_data[FAULT_TAG][_id]['MagLL'].update({config: _mag_ll})
+                self.parsed_sc_data[FAULT_TAG][_id]['RealLLG'].update({config: _real_llg})
+                self.parsed_sc_data[FAULT_TAG][_id]['ImagLLG'].update({config: _ima_llg})
+                self.parsed_sc_data[FAULT_TAG][_id]['MagLLG'].update({config: _mag_llg})
+                continue
+
+            entry_data = {
+                'Voltage': _voltage,
+                'Real3Ph': {config: _real_3ph},
+                'Imag3Ph': {config: _ima_3ph},
+                'Mag3Ph': {config: _mag_3ph},
+                'RealLG': {config: _real_lg},
+                'ImagLG': {config: _ima_lg},
+                'MagLG': {config: _mag_lg},
+                'RealLL': {config: _real_ll},
+                'ImagLL': {config: _ima_ll},
+                'MagLL': {config: _mag_ll},
+                'RealLLG': {config: _real_llg},
+                'ImagLLG': {config: _ima_llg},
+                'MagLLG': {config: _mag_llg},
+            }
+            self.parsed_sc_data[FAULT_TAG].update({_id: entry_data})
+
+    def parse_imp_entries(self, entries: list, config: str, exclude_startswith: list[str],
+                          exclude_contains: list[str], exclude_except: list[str]):
+        for entry in entries:
+            _id = entry[0]
+
+            if (any(word in _id for word in exclude_contains)
+                    and all(word not in _id for word in exclude_except)):
+                continue
+
+            if (any(_id.startswith(word) for word in exclude_startswith)
+                    and all(not _id.startswith(word) for word in exclude_except)):
+                continue
+
+            _voltage = entry[1]
+            _r_pos = entry[2]
+            _x_pos = entry[3]
+            _z_pos = entry[4]
+            _r_neg = entry[5]
+            _x_neg = entry[6]
+            _z_neg = entry[7]
+            _r_zero = entry[8]
+            _x_zero = entry[9]
+            _z_zero = entry[10]
+
+            entry_data = {
+                'RPosOhm': _r_pos,
+                'XPosOhm': _x_pos,
+                'ZPosOhm': _z_pos,
+                'RNegOhm': _r_neg,
+                'XNegOhm': _x_neg,
+                'ZNegOhm': _z_neg,
+                'RZeroOhm': _r_zero,
+                'XZeroOhm': _x_zero,
+                'ZZeroOhm': _z_zero
+            }
+
+            self.parsed_sc_data[IMP_TAG].update({config: entry_data})
+
+
+    # def filter_filepaths(self):
+    #     def filter_func(path_str):
+    #         filename = Path(path_str).stem
+    #         if filename.split('_')[0] in SC_STUDY_TAG:
+    #             return True
+    #         return False
+    #     self.ansi_filepaths = list(filter(filter_func, self.ansi_filepaths))
+#
+# sc = ShortCircuitParser(Path(r"/Users/adil/Downloads/Table Gen Test"))
+# sc.extract_ansi_data()
+# sc.parse_ansi_data([],[],[])
+#
+# for _id, values in sc.parsed_sc_data[FAULT].items():
+#     print(_id, values)

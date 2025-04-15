@@ -4,10 +4,12 @@ import etap.api
 from pathlib import Path
 import xml.etree.ElementTree as ET
 from sqlite3 import Error, OperationalError
-from consts.consts import TYPE_MAP
-from consts.consts_dd import MV_SWITCHGEAR_MULTIPLIER, LV_SWITCHGEAR_MULTIPLIER, DD_STUDY_TAG, COMMENT_VAR, BUS
-from consts.consts_dd import MODES, ANSI_EXT, IEC_EXT, ANSI_SP_EXT, IEC_SP_EXT
-from consts.sql_queries import *
+from consts.common import TYPE_MAP
+from consts.filenames import DD_ANSI_EXT, DD_ANSI_SP_EXT, DD_IEC_EXT, DD_IEC_SP_EXT
+from consts.multipliers import MV_SWITCHGEAR_MULTIPLIER, LV_SWITCHGEAR_MULTIPLIER
+from consts.tags import MOM_TAG, INT_TAG, DD_TAG, COMMENT_VAR, BUS_TAG
+from parser import utils
+from consts.queries import *
 
 
 class DeviceDutyParser:
@@ -29,14 +31,14 @@ class DeviceDutyParser:
         self.comments = {}
         self.ansi_data = {}
         self.iec_data = {}
-        self.mode_mom = MODES['Momentary']
-        self.mode_int = MODES['Interrupt']
-        self.parsed_ansi_data = {self.mode_mom: {}, self.mode_int: {}}
+        self.mode_mom = MOM_TAG
+        self.mode_int = INT_TAG
         self.parsed_iec_data = {self.mode_int: {}}
-        self.ansi_filepaths = self.get_filepaths(etap_dir, ANSI_EXT)
-        self.ansi_sp_filepaths = self.get_filepaths(etap_dir, ANSI_SP_EXT)
-        self.iec_filepaths = self.get_filepaths(etap_dir, IEC_EXT)
-        self.iec_sp_filepaths = self.get_filepaths(etap_dir, IEC_SP_EXT)
+        self.parsed_ansi_data = {self.mode_mom: {}, self.mode_int: {}}
+        self.ansi_filepaths = utils.get_filepaths(etap_dir, DD_ANSI_EXT)
+        self.ansi_sp_filepaths = utils.get_filepaths(etap_dir, DD_ANSI_SP_EXT)
+        self.iec_filepaths = utils.get_filepaths(etap_dir, DD_IEC_EXT)
+        self.iec_sp_filepaths = utils.get_filepaths(etap_dir, DD_IEC_SP_EXT)
 
     def connect_to_etap(self, url: str):
         """
@@ -397,7 +399,7 @@ class DeviceDutyParser:
             return self.comments.get(element_id)
 
         if not self.tree:
-            elem_type = TYPE_MAP.get(element_type, BUS)
+            elem_type = TYPE_MAP.get(element_type, BUS_TAG)
             get_element_prop = self._etap.projectdata.getelementprop
             value = json.loads(get_element_prop(elem_type, element_id, COMMENT_VAR))
             if value.get('Value') == 'Invalid element name':
@@ -431,18 +433,10 @@ class DeviceDutyParser:
         self.mark_assumed_equipment(self.parsed_ansi_data[self.mode_int])
         self.mark_assumed_equipment(self.parsed_iec_data[self.mode_int])
 
-    @staticmethod
-    def get_filepaths(input_dir, ext):
-        filepaths = []
-        for path in input_dir.iterdir():
-            if path.is_file() and path.suffix == f'.{ext}':
-                filepaths.append(str(path))
-        return filepaths
-
     def filter_filepaths(self):
         def filter_func(path_str):
             filename = Path(path_str).stem
-            if filename.split('_')[0] in DD_STUDY_TAG:
+            if filename.split('_')[0] in DD_TAG:
                 return True
             return False
         self.ansi_filepaths = list(filter(filter_func, self.ansi_filepaths))

@@ -1,7 +1,7 @@
 import json
-from consts.consts import BASE_REVISION
 from scenario.scenario import Scenario
-from consts.consts_af import AF_STUDY_TAG, CONFIG_MAP, AF_STUDY_MODE, VCB_CONFIG, VCBB_CONFIG
+from consts.common import BASE_REVISION, INV_CONFIG_MAP
+from consts.tags import AF_VCB_CONFIG, AF_VCBB_CONFIG, AF_TAG, AF_STUDY_MODE
 
 
 class ArcFlashScenario(Scenario):
@@ -13,7 +13,7 @@ class ArcFlashScenario(Scenario):
 
     def __init__(self, url: str, revisions: list[str] | None = None):
         """
-        Initializes an ArcFlashScenario instance with the specified ETAP connection port.
+        Initializes an ArcFlashScenario instance with the specified ETAP datahub connection port.
 
         :param str url: local URL for connecting to ETAP datahub.
         :param list[str] | None revisions: List of revisions to be included in arc flash scenario creation.
@@ -48,27 +48,27 @@ class ArcFlashScenario(Scenario):
             if not self.revisions:
                 self.revisions = [BASE_REVISION]
 
-        if 'Ultimate' in switching_configs:
-            switching_configs.remove('Ultimate')
-        if 'ULT' in switching_configs:
-            switching_configs.remove('ULT')
+        # Remove ultimate switching configuration
+        for item in ['Ultimate', 'ULT']:
+            switching_configs.discard(item)
 
         # Define electrode configurations for arc flash studies
-        electrode_configs = [VCB_CONFIG, VCBB_CONFIG]
+        electrode_configs = [AF_VCB_CONFIG, AF_VCBB_CONFIG]
 
         # Iterate over electrode, switching, and revision configurations to create scenarios
         for electrode_config in electrode_configs:
             for switching_config in switching_configs:
                 for revision in self.revisions:
+
                     # Construct the study case name and scenario identifier
-                    study_case = AF_STUDY_TAG + '_' + electrode_config
+                    study_case = AF_TAG + '_' + electrode_config
                     rev_config_name = ('_' + revision) if revision != BASE_REVISION else ''
-                    switching_config_name = CONFIG_MAP.get(switching_config, switching_config)
+                    switching_config_name = INV_CONFIG_MAP.get(switching_config, switching_config)
                     scenario_id = study_case + '_' + switching_config_name + rev_config_name
 
                     # Create the scenario and add its ID to the list
-                    self.create_scenario(scenario_id, switching_config, AF_STUDY_MODE, study_case,
-                                         revision, scenario_id)
+                    self.create_scenario(scenario_id, switching_config, AF_STUDY_MODE,
+                                         study_case, revision, scenario_id)
                     self.scenario_ids.append(scenario_id)
 
         # Write the updated scenarios to the XML file

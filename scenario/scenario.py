@@ -1,8 +1,8 @@
-import etap.api
 import json
+import etap.api
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from consts.consts import SYSTEM
+from consts.tags import SYSTEM
 
 
 class Scenario:
@@ -13,7 +13,7 @@ class Scenario:
 
     def __init__(self, url: str):
         """
-        Initializes a Scenario instance with the specified study mode and ETAP connection port.
+        Initializes a Scenario instance with the specified study mode and ETAP datahub connection port.
 
         :param str url: local URL for connecting to ETAP datahub.
         """
@@ -24,6 +24,10 @@ class Scenario:
         self.presentation = json.loads(self.etap.application.getactivescenario())['Presentation']
 
     def get_scenario_xml(self):
+        """
+        Returns the xml contents of the scenario xml file. If it does not exist, a new scenario xml file is
+        created and returned.
+        """
         try:
             return ET.parse(self.scenario_xml_path)
         except FileNotFoundError:
@@ -31,6 +35,9 @@ class Scenario:
             return self.get_scenario_xml()
 
     def create_scenario_xml(self):
+        """
+        Creates and initializes a scenario xml file at the given path.
+        """
         root = ET.Element('scenarios')
         root.set('LastRunScenario', '')
         root.set('Version', '1')

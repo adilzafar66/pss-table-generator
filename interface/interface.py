@@ -4,7 +4,7 @@ from pathlib import Path
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
 
-from consts.consts import HTTPS, HTTP
+from consts.common import HTTPS, HTTP
 from worker.worker_af import ArcFlashWorker
 from worker.worker_dd import DeviceDutyWorker
 from worker.worker_sc import ShortCircuitWorker
@@ -22,7 +22,7 @@ class Interface(QMainWindow, Ui_MainWindow):
     INVALID_OUTPUT_DIR_MSG = 'Please enter a valid output file directory path.'
     PORT_FILE = 'port_number.pickle'
 
-    def __init__(self, app_path: str, *args, **kwargs):
+    def __init__(self, app_path: Path, *args, **kwargs):
         """
         Initializes the interface with the given application path and optional arguments.
 

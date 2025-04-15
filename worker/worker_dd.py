@@ -2,10 +2,11 @@ from pathlib import Path
 from PyQt5.QtCore import pyqtSignal
 from worker.worker import Worker
 from parser.parser_dd import DeviceDutyParser
-from exporter.exporter_dd import DeviceDutyExporter
+from exporters.exporter_dd import DeviceDutyExporter
 from scenario.scenario_dd import DeviceDutyScenario
-from consts.consts_dd import mom_const_cols, mom_alt_cols, int_const_cols, int_alt_cols, spec_keys_iec_int
-from consts.consts_dd import int_iec_alt_cols, spec_keys_mom, spec_keys_int, MODES, FILE_NAME_SUFFIX
+from consts.consts_dd import MODES, FILE_NAME_SUFFIX
+from consts.keys import KEYS_DD_MOM, KEYS_DD_INT, KEYS_DD_INT_IEC
+from consts.columns import DD_MOM_CONST_COLS, DD_INT_CONST_COLS, DD_MOM_VAR_COLS, DD_INT_VAR_COLS, DD_INT_IEC_VAR_COLS
 
 
 class DeviceDutyWorker(Worker):
@@ -84,14 +85,14 @@ class DeviceDutyWorker(Worker):
         dd_exporter.set_iec_data(self.parsed_iec_data)
 
         # Create headers for ANSI momentary, ANSI interrupting, and IEC interrupting sheets
-        dd_exporter.create_headers(0, mom_const_cols, mom_alt_cols, 'Momentary Duty')
-        dd_exporter.create_headers(1, int_const_cols, int_alt_cols, 'Interrupting Duty')
-        dd_exporter.create_headers(2, int_const_cols, int_iec_alt_cols, 'Interrupting Duty')
+        dd_exporter.create_headers(0, DD_MOM_CONST_COLS, DD_MOM_VAR_COLS, 'Momentary Duty')
+        dd_exporter.create_headers(1, DD_INT_CONST_COLS, DD_INT_VAR_COLS, 'Interrupting Duty')
+        dd_exporter.create_headers(2, DD_INT_CONST_COLS, DD_INT_IEC_VAR_COLS, 'Interrupting Duty')
 
         # Insert data into the sheets
-        dd_exporter.insert_data(0, MODES['Momentary'], spec_keys_mom)
-        dd_exporter.insert_data(1, MODES['Interrupt'], spec_keys_int)
-        dd_exporter.insert_data(2, MODES['Interrupt'], spec_keys_iec_int, 'iec')
+        dd_exporter.insert_data(0, MODES['Momentary'], KEYS_DD_MOM)
+        dd_exporter.insert_data(1, MODES['Interrupt'], KEYS_DD_INT)
+        dd_exporter.insert_data(2, MODES['Interrupt'], KEYS_DD_INT_IEC, 'iec')
 
         # Format headers for each sheet
         dd_exporter.format_headers(0)
@@ -99,9 +100,9 @@ class DeviceDutyWorker(Worker):
         dd_exporter.format_headers(2)
 
         # Apply formatting to each sheet
-        dd_exporter.format_sheet(0, len(mom_const_cols), len(mom_alt_cols), 16)
-        dd_exporter.format_sheet(1, len(int_const_cols), len(int_alt_cols), 22)
-        dd_exporter.format_sheet(2, len(int_const_cols), len(int_iec_alt_cols), 16)
+        dd_exporter.format_sheet(0, len(DD_MOM_CONST_COLS), len(DD_MOM_VAR_COLS), 16)
+        dd_exporter.format_sheet(1, len(DD_INT_CONST_COLS), len(DD_INT_VAR_COLS), 22)
+        dd_exporter.format_sheet(2, len(DD_INT_CONST_COLS), len(DD_INT_IEC_VAR_COLS), 16)
 
         # Save the workbook
         project_number = self.input_dir_path.stem

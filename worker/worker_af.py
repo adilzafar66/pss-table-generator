@@ -1,7 +1,7 @@
 from pathlib import Path
 from consts.consts_af import FILE_NAME_SUFFIX
 from parser.parser_af import ArcFlashParser
-from exporter.exporter_af import ArcFlashExporter
+from exporters.exporter_af import ArcFlashExporter
 from scenario.scenario_af import ArcFlashScenario
 from worker.worker import Worker
 

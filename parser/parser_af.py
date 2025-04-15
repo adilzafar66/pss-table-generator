@@ -1,8 +1,12 @@
 import sqlite3
+import utils
 from pathlib import Path
 from sqlite3 import Error, OperationalError
-from consts.consts_af import indices, ROUND_DIGITS, FT_M_MULTIPLIER
-from consts.sql_queries import *
+from consts.common import ROUND_DIGITS
+from consts.columns import AF_COL_INDICES
+from consts.filenames import AF_ANSI_EXT
+from consts.queries import AF_INFO_QUERY, AF_BUS_QUERY, AF_PD_QUERY
+
 
 
 class ArcFlashParser:
@@ -18,7 +22,7 @@ class ArcFlashParser:
         :param Path etap_dir: Path to the directory containing the arc flash study files (AAFS files).
         """
         self.ansi_af_data = {}
-        self.filepaths = self.get_filepaths(etap_dir, 'AAFS')
+        self.filepaths = utils.get_filepaths(etap_dir, AF_ANSI_EXT)
 
     def extract_ansi_af_data(self):
         """
@@ -43,15 +47,15 @@ class ArcFlashParser:
 
         :param sqlite3.Cursor cur: Cursor object for executing SQL queries on the database.
         """
-        cur.execute(ANSI_AF_INFO_QUERY)
+        cur.execute(AF_INFO_QUERY)
         af_info = cur.fetchone()
 
         if af_info:
             af_info = list(af_info)
             af_data = self._fetch_all_data(cur)
             for i in range(len(af_data)):
-                af_data[i].insert(indices['rep'] + 1, Path(af_info[0]).stem)
-                af_data[i].insert(indices['con'] + 1, af_info[1])
+                af_data[i].insert(AF_COL_INDICES['rep'] + 1, Path(af_info[0]).stem)
+                af_data[i].insert(AF_COL_INDICES['con'] + 1, af_info[1])
             self._update_ansi_af_data(af_data)
 
     @staticmethod
@@ -64,9 +68,9 @@ class ArcFlashParser:
         :rtype: list
         """
         af_data = []
-        cur.execute(ANSI_AF_BUS_QUERY)
+        cur.execute(AF_BUS_QUERY)
         af_data.extend([list(elem) for elem in cur.fetchall()])
-        cur.execute(ANSI_AF_PD_QUERY)
+        cur.execute(AF_PD_QUERY)
         af_data.extend([list(elem) for elem in cur.fetchall()])
         return af_data
 
@@ -80,8 +84,8 @@ class ArcFlashParser:
         for entry in af_data:
             _id = entry[0]
             _data = entry[1:]
-            _energy = entry[indices['ie'] + 1]
-            if _id not in self.ansi_af_data or _energy > self.ansi_af_data[_id][indices['ie']]:
+            _energy = entry[AF_COL_INDICES['ie'] + 1]
+            if _id not in self.ansi_af_data or _energy > self.ansi_af_data[_id][AF_COL_INDICES['ie']]:
                 self.ansi_af_data[_id] = _data
 
     def parse_ansi_af_data(self, use_si_units: bool, exclude_startswith: list[str],
@@ -107,14 +111,14 @@ class ArcFlashParser:
                 return False
             return True
 
-        conversion_func = self._convert_to_m if use_si_units else self._convert_to_ft
+        conversion_func = utils.convert_to_m if use_si_units else utils.convert_to_ft
         for key, data in self.ansi_af_data.items():
-            data[indices['lab']] = conversion_func(data[indices['lab']])
-            data[indices['rab']] = conversion_func(data[indices['rab']])
-            data[indices['afb']] = conversion_func(data[indices['afb']])
-            data[indices['ecf']] = self._map_electrode_config(data[indices['ecf']])
-            data[indices['fct']] = self._convert_cycle_to_sec(data[indices['fct']])
-            data[indices['la_var']] = self._calculate_la_var(data[indices['la_var']])
+            data[AF_COL_INDICES['lab']] = conversion_func(data[AF_COL_INDICES['lab']])
+            data[AF_COL_INDICES['rab']] = conversion_func(data[AF_COL_INDICES['rab']])
+            data[AF_COL_INDICES['afb']] = conversion_func(data[AF_COL_INDICES['afb']])
+            data[AF_COL_INDICES['ecf']] = utils.map_electrode_config(data[AF_COL_INDICES['ecf']])
+            data[AF_COL_INDICES['fct']] = utils.convert_cycle_to_sec(data[AF_COL_INDICES['fct']])
+            data[AF_COL_INDICES['la_var']] = utils.calculate_la_var(data[AF_COL_INDICES['la_var']])
 
             for i in range(1, len(data)):
                 if isinstance(data[i], float):
@@ -123,82 +127,5 @@ class ArcFlashParser:
 
         self.ansi_af_data = dict(filter(filter_func, self.ansi_af_data.items()))
         self.ansi_af_data = dict(sorted(self.ansi_af_data.items(),
-                                        key=lambda item: item[1][indices['ie']],
+                                        key=lambda item: item[1][AF_COL_INDICES['ie']],
                                         reverse=True))
-
-    @staticmethod
-    def _calculate_la_var(value: int) -> int:
-        """
-        Calculates the LaVar (Low Arc Voltage Variation) based on the input value.
-
-        :param int value: Input value for calculation.
-        :return: 100 minus the value if it's non-zero, otherwise None.
-        :rtype: int
-        """
-        return None if int(value) == 0 else 100 - value
-
-    @staticmethod
-    def _convert_to_ft(value: float) -> str:
-        """
-        Converts a numeric value in feet and inches to a formatted string.
-
-        :param float value: The value to convert.
-        :return: A string in the format "X'Y"", where X is feet and Y is inches.
-        :rtype: str
-        """
-        ft = int(value)
-        inch = round((value - ft) * 12)
-        if inch == 12:
-            ft += 1
-            inch = 0
-        return f"{ft}'{inch}\""
-
-    @staticmethod
-    def _convert_to_m(value: float) -> float:
-        """
-        Converts a numeric value in feet and inches to meters.
-
-        :param float value: The value to convert.
-        :return: value in meters.
-        :rtype: float
-        """
-        return value * FT_M_MULTIPLIER
-
-    @staticmethod
-    def _convert_cycle_to_sec(value: float) -> float:
-        """
-        Converts a time value from cycles to seconds.
-
-        :param float value: The time value in cycles.
-        :return: The time value in seconds.
-        :rtype: float
-        """
-        return value / 60
-
-    @staticmethod
-    def _map_electrode_config(index: int) -> str:
-        """
-        Maps an electrode configuration index to its corresponding name.
-
-        :param int index: The index representing an electrode configuration.
-        :return: The corresponding electrode configuration name.
-        :rtype: str
-        """
-        electrode_configs = ['VCB', 'VCBB', 'HCB']
-        return electrode_configs[index] if 0 <= index < len(electrode_configs) else 'Unknown'
-
-    @staticmethod
-    def get_filepaths(input_dir: Path, ext: str) -> list[str]:
-        """
-        Retrieves all file paths with the specified extension from the given directory.
-
-        :param Path input_dir: Path to the directory to search.
-        :param str ext: File extension to filter by.
-        :return: List of file paths with the given extension.
-        :rtype: list[str]
-        """
-        filepaths = []
-        for path in input_dir.iterdir():
-            if path.is_file() and path.suffix == f'.{ext}':
-                filepaths.append(str(path))
-        return filepaths

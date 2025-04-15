@@ -1,7 +1,9 @@
 from pathlib import Path
 from openpyxl import Workbook
+from consts import styles
 from openpyxl.utils import get_column_letter
-from consts.consts_af import COLUMN_NAMES, SPECS, COLUMN_NAMES_SI, AF_TABLE_NAME
+from consts.worksheets import WS_ARC_FLASH
+from consts.columns import AF_SI_CONST_COLS, AF_CONST_COLS
 
 
 class ArcFlashExporter:
@@ -20,7 +22,7 @@ class ArcFlashExporter:
         """
         self.wb = Workbook()
         self.ws = self.wb.active
-        self.ws.title = AF_TABLE_NAME
+        self.ws.title = WS_ARC_FLASH
 
     def _apply_row_formatting(self):
         """
@@ -29,11 +31,11 @@ class ArcFlashExporter:
         """
         for i in range(2, self.ws.max_row + 1):
             for cell in self.ws[i]:
-                cell.border = SPECS['border']
-                cell.font = SPECS['font_data']
-                cell.alignment = SPECS['align']
+                cell.border = styles.BORDER_ALL
+                cell.font = styles.FONT_ENTRIES
+                cell.alignment = styles.ALIGNMENT
                 if cell.row % 2 != 0 and not cell.fill.patternType:
-                    cell.fill = SPECS['fill_alt']
+                    cell.fill = styles.FILL_ROW_BLUE
 
     def _format_numbers(self):
         """
@@ -43,9 +45,9 @@ class ArcFlashExporter:
         for i in range(1, self.ws.max_column + 1):
             for column in self.ws.iter_cols(i, i):
                 for cell in column:
-                    cell.number_format = '0.00#'
+                    cell.number_format = styles.NUMBER_FORMAT
 
-    def _get_col_index(self, heading: str) -> int:
+    def _get_col_index(self, heading: str) -> int | None:
         """
         Gets the column index for a given column heading.
 
@@ -63,7 +65,7 @@ class ArcFlashExporter:
         based on predefined specifications.
         """
         for i in range(1, self.ws.max_column + 1):
-            self.ws.column_dimensions[get_column_letter(i)].width = SPECS['col_width_lrg']
+            self.ws.column_dimensions[get_column_letter(i)].width = styles.WIDTH_COL_LRG
 
     def add_data(self, af_data: dict):
         """
@@ -82,14 +84,14 @@ class ArcFlashExporter:
 
         :param bool use_si_units: A flag to determine whether to use column headings with SI units.
         """
-        column_names = COLUMN_NAMES_SI if use_si_units else COLUMN_NAMES
+        column_names = AF_SI_CONST_COLS if use_si_units else AF_CONST_COLS
         for index, col_name in enumerate(column_names):
             cell = self.ws.cell(1, index + 1)
             cell.value = col_name
-            cell.fill = SPECS['fill_header']
-            cell.font = SPECS['font_header']
-            cell.alignment = SPECS['align']
-            cell.border = SPECS['border']
+            cell.fill = styles.FILL_HEADER
+            cell.font = styles.FONT_HEADER
+            cell.alignment = styles.ALIGNMENT
+            cell.border = styles.BORDER_ALL
 
     def format_sheet(self):
         """
@@ -112,9 +114,9 @@ class ArcFlashExporter:
         for column in self.ws.iter_cols(energy_col, energy_col, min_row=2):
             for cell in column:
                 if max_energy < cell.value < crit_energy:
-                    cell.fill = SPECS['fill_cmp_low']
+                    cell.fill = styles.FILL_ROW_ORANGE
                 elif cell.value > crit_energy:
-                    cell.fill = SPECS['fill_cmp_high']
+                    cell.fill = styles.FILL_ROW_RED
 
     def save_workbook(self, wb_path: Path):
         """

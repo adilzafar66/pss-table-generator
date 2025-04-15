@@ -1,3 +1,10 @@
+# SHORT CIRCUIT QUERIES
+ANSI_SC_FAULT_QUERY = (r"SELECT FaultedBus, kVnom, Real3ph, Imag3ph, Mag3ph, RealLG, ImagLG, MagLG, RealLL, ImagLL, "
+                       r"MagLL, RealLLG, ImagLLG, MagLLG FROM SCLGSum1")
+ANSI_SC_IMP_QUERY = (r"SELECT FaultedBus, kVnom, RPosOhm, XPosOhm, ZPosOhm, RNegOhm, XNegOhm, ZNegOhm, "
+                     r"RZeroOhm, XZeroOhm, ZZeroOhm FROM SCLGSum2")
+
+# DEVICE DUTY QUERIES
 ANSI_INT_QUERY = (r"SELECT PDID, kVnom, FaultedBus, PDType, AdjSym, CapAdjInt "
                   r"FROM SCDSumInt WHERE TRIM(PDID) <> '' ORDER BY PDID ASC")
 ANSI_MOM_QUERY = (r"SELECT PDID, kVnom, PDType, kASymm, kAASymm, CapSym, CapAsym "
@@ -11,13 +18,14 @@ IEC_INT_QUERY = (r"SELECT DeviceID, kVnom, FaultedBus, DeviceType, Ibsymm, Ibasy
 IEC_INT_SP_QUERY = (r"SELECT DeviceID, kVnom, FaultedBus, DeviceType, Ibsymm, Ibasymm, DeviceIbsymm, "
                     r"DeviceIbasym FROM SCIEC1phSum WHERE TRIM(DeviceID) <> '' ORDER BY DeviceID ASC")
 
-ANSI_AF_INFO_QUERY = "SELECT Output, Config FROM IAFStudyCase"
-ANSI_AF_BUS_QUERY = (
+# ARC FLASH QUERIES
+AF_INFO_QUERY = "SELECT Output, Config FROM IAFStudyCase"
+AF_BUS_QUERY = (
     "SELECT IDBus, NomlkV, EqType, Orientation, WDistance, FixedBoundary, ResBoundary, "
     "IEnergy, PBoundary, FCT, FCTPD, ArcVaria, ArcI, FCTPDIa, FaultI, FCTPDIf "
     "FROM BusArcFlash WHERE EqType <> 'Cable Bus'"
 )
-ANSI_AF_PD_QUERY = (
+AF_PD_QUERY = (
     "SELECT ID, NomlkV, Type, Orientation, WDistance, FixedBoundary, ResBoundary, "
     "IEnergy, PBoundary, EnFCT, FCTPD, ArcVaria, EnIa, FCTPDIa, EnIf, FCTPDIf "
     "FROM PDArcFlash WHERE ID <> '' AND Type = 'SPST Switch'"

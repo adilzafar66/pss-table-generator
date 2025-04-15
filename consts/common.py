@@ -1,38 +1,54 @@
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
-DD_STUDY_TAG = 'DD'
-DD_STUDY_CASE = 'SC'
-DD_STUDY_CASE_IEC = 'SC_IEC'
-DD_STUDY_MODE = 'ANSI DEVICE DUTY'
-DD_STUDY_MODE_IEC = 'IEC DEVICE DUTY'
-DD_STUDY_MODE_IEC_1P = 'IEC_1PHASE_DEVICE_DUTY'
-DD_STUDY_MODE_1P = 'ANSI_1PHASE_DEVICE_DUTY'
+
+ROUND_DIGITS = 2
+FILE_NAME_SUFFIX = 'Arc Flash Report.xlsx'
+
 SYSTEM = 'Network Analysis'
 PRESENTATION = 'OLV1'
+BASE_REVISION = 'Base'
+SC_STUDY_TAG = 'SC'
+SC_STUDY_CASE = 'SC'
+SC_STUDY_MODE = 'ANSI ALL FAULT MOMENTARY'
 
-MODES = {
-    'Momentary': 'MOM',
-    'Interrupt': 'INT'
+DEFAULT_SW_CONFIGS = [
+    'Normal',
+    'Present',
+    'PRES',
+    'Ultimate',
+    'ULT',
+    'Generator',
+    'GEN'
+]
+HTTP = 'http'
+HTTPS = 'https'
+
+TYPE_MAP = {
+    'Fuse': 'FUSE',
+    'SPDT Switch': 'DOUBLESWITCH',
+    'SPST Switch': 'SINGLESWITCH',
+    'Molded Case': 'LVCB'
 }
+
+SHORT_CIRCUIT_SHEET = 'Short Circuit'
+SEQUENCE_IMP_SHEET = 'Sequence Impedance'
 
 CONFIG_MAP = {
     'PRES': 'Present',
+    'STBY': 'Standby',
     'ULT': 'Ultimate',
     'GEN': 'Generator',
     'MAX': 'Maximum',
-    'MIN': 'Minimum'
+    'MIN': 'Minimum',
 }
 
-CONFIG_MAP_INV = {
+INV_CONFIG_MAP = {
+    'Present': 'PRES',
     'Normal': 'PRES',
+    'Standby': 'STBY',
     'Ultimate': 'ULT',
     'Generator': 'GEN'
 }
-
-DD_CONST_HEADERS = [
-    'Device',
-    'Device Capability'
-]
 
 SPECS = {
     'header_row': 1,
@@ -59,45 +75,3 @@ SPECS = {
                           top=Side(style=None),
                           bottom=Side(style=None))
 }
-
-mom_const_cols = ['ID', 'Nominal kV', 'Type']
-mom_alt_cols = ['Symm. kA rms', 'Asymm. kA rms']
-int_const_cols = ['ID', 'Voltage', 'Bus', 'Device']
-int_alt_cols = ['Int. Adj. Symm. kA']
-int_iec_alt_cols = ['Ib Sym. kA', 'Ib Asym. kA']
-
-spec_keys_mom = {
-    'Type': 'Type',
-    'fault_head': ['Sym', 'Asym'],
-    'cap_fault_head': ['CapSym', 'CapAsym']
-}
-
-spec_keys_int = {
-    'Type': 'Bus',
-    'fault_head': ['AdjSym'],
-    'cap_fault_head': ['CapAdjSym']
-}
-
-spec_keys_iec_int = {
-    'Type': 'Bus',
-    'fault_head': ['LbSym', 'LbAsym'],
-    'cap_fault_head': ['CapLbSym', 'CapLbAsym']
-}
-
-ANSI_MOM_SHEET = 'ANSI Momentary Table'
-ANSI_INT_SHEET = 'ANSI Interrupting Table'
-IEC_INT_SHEET = 'IEC Interrupting Table'
-
-DD_WS_NAMES = [ANSI_MOM_SHEET, ANSI_INT_SHEET, IEC_INT_SHEET]
-
-ANSI_EXT = 'SA1S'
-ANSI_SP_EXT = 'SA4S'
-IEC_EXT = 'SI1S'
-IEC_SP_EXT = 'SI4S'
-MULTIPLIER = 1.246
-MV_SWITCHGEAR_MULTIPLIER = 1.55
-LV_SWITCHGEAR_MULTIPLIER = 1.33
-FILE_NAME_SUFFIX = 'Device Duty Report.xlsx'
-COMMENT_VAR = 'CommentText'
-BUS = 'BUS'
-LVCB = 'LVCB'

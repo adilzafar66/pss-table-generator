@@ -1,6 +1,6 @@
 import json
-from consts.consts import BASE_REVISION, SC_STUDY_TAG, SC_STUDY_MODE, SC_STUDY_CASE, DEFAULT_SW_CONFIGS
-from consts.consts_dd import CONFIG_MAP_INV
+from consts.common import INV_CONFIG_MAP, DEFAULT_SW_CONFIGS
+from consts.tags import SC_TAG, SC_STUDY_MODE, SC_STUDY_CASE, BASE_REVISION
 from scenario.scenario import Scenario
 
 
@@ -30,8 +30,8 @@ class ShortCircuitScenario(Scenario):
         switching_configs = json.loads(self.etap.projectdata.getconfigurations())
         switching_configs = list(filter(self.filter_switching_configs, switching_configs))
         for switching_config in switching_configs:
-            switching_config_name = CONFIG_MAP_INV.get(switching_config, switching_config)
-            scenario_id = SC_STUDY_TAG + '_' + switching_config_name
+            switching_config_name = INV_CONFIG_MAP.get(switching_config, switching_config)
+            scenario_id = SC_TAG + '_' + switching_config_name
             self.create_scenario(scenario_id, switching_config, SC_STUDY_MODE, SC_STUDY_CASE, BASE_REVISION,
                                  scenario_id)
             self.scenario_ids.append(scenario_id)
