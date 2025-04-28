@@ -1,6 +1,24 @@
 from pathlib import Path
+from sqlite3 import Error, OperationalError, Connection, connect
 from consts.multipliers import FT_M_MULTIPLIER
 from consts.tags import AF_VCB_CONFIG, AF_VCBB_CONFIG, AF_HCB_CONFIG
+
+
+def connect_to_sql_file(filepath):
+    try:
+        conn = connect(filepath)
+    except Error:
+        raise Error
+    return conn.cursor()
+
+
+def fetch_sql_data(conn: Connection, query):
+    cur = conn.cursor()
+    try:
+        cur.execute(query)
+        return cur.fetchall()
+    except OperationalError:
+        return []
 
 
 def calculate_la_var(value: int) -> int:

@@ -8,7 +8,6 @@ from consts.filenames import AF_ANSI_EXT
 from consts.queries import AF_INFO_QUERY, AF_BUS_QUERY, AF_PD_QUERY
 
 
-
 class ArcFlashParser:
     """
     The ArcFlashParser class is responsible for extracting, parsing, and processing arc flash data
@@ -101,16 +100,6 @@ class ArcFlashParser:
         :param list[str] exclude_contains: List of strings to exclude if contained in entry IDs.
         :param list[str] exclude_except: List of strings to not exclude if contained in entry IDs.
         """
-        def filter_func(pair):
-            _id, value = pair
-            if (any(word in _id for word in exclude_contains)
-                    and all(word not in _id for word in exclude_except)):
-                return False
-            if (any(_id.startswith(word) for word in exclude_startswith)
-                    and all(not _id.startswith(word) for word in exclude_except)):
-                return False
-            return True
-
         conversion_func = utils.convert_to_m if use_si_units else utils.convert_to_ft
         for key, data in self.parsed_ansi_data.items():
             data[AF_COL_INDICES['lab']] = conversion_func(data[AF_COL_INDICES['lab']])
@@ -124,6 +113,16 @@ class ArcFlashParser:
                 if isinstance(data[i], float):
                     data[i] = round(data[i], ROUND_DIGITS)
             data[0] = round(data[0], ROUND_DIGITS + 1)
+
+        def filter_func(pair):
+            _id, value = pair
+            if (any(word in _id for word in exclude_contains)
+                    and all(word not in _id for word in exclude_except)):
+                return False
+            if (any(_id.startswith(word) for word in exclude_startswith)
+                    and all(not _id.startswith(word) for word in exclude_except)):
+                return False
+            return True
 
         self.parsed_ansi_data = dict(filter(filter_func, self.parsed_ansi_data.items()))
         self.parsed_ansi_data = dict(sorted(self.parsed_ansi_data.items(),

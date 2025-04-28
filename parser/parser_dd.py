@@ -58,21 +58,9 @@ class DeviceDutyParser:
         """
         self.filter_filepaths()
         for filepath in self.ansi_filepaths:
-            try:
-                conn = sqlite3.connect(filepath)
-            except Error:
-                continue
-            cur = conn.cursor()
-            try:
-                cur.execute(ANSI_INT_QUERY)
-                int_data = cur.fetchall()
-            except OperationalError:
-                int_data = []
-            try:
-                cur.execute(ANSI_MOM_QUERY)
-                mom_data = cur.fetchall()
-            except OperationalError:
-                mom_data = []
+            conn = utils.connect_to_sql_file(filepath)
+            mom_data = utils.fetch_sql_data(conn, ANSI_MOM_QUERY)
+            int_data = utils.fetch_sql_data(conn, ANSI_INT_QUERY)
             config = Path(filepath).stem
             self.ansi_data.update({
                 config: {
@@ -81,21 +69,9 @@ class DeviceDutyParser:
                 }
             })
         for filepath in self.ansi_sp_filepaths:
-            try:
-                conn = sqlite3.connect(filepath)
-            except Error:
-                continue
-            cur = conn.cursor()
-            try:
-                cur.execute(ANSI_INT_SP_QUERY)
-                int_data = cur.fetchall()
-            except OperationalError:
-                int_data = []
-            try:
-                cur.execute(ANSI_MOM_SP_QUERY)
-                mom_data = cur.fetchall()
-            except OperationalError:
-                mom_data = []
+            conn = utils.connect_to_sql_file(filepath)
+            mom_data = utils.fetch_sql_data(conn, ANSI_MOM_SP_QUERY)
+            int_data = utils.fetch_sql_data(conn, ANSI_INT_SP_QUERY)
             config = Path(filepath).stem
             if config not in self.ansi_data:
                 self.ansi_data[config] = {}
@@ -110,16 +86,8 @@ class DeviceDutyParser:
         It processes interrupting duties for both three-phase and single-phase systems.
         """
         for filepath in self.iec_filepaths:
-            try:
-                conn = sqlite3.connect(filepath)
-            except Error:
-                continue
-            cur = conn.cursor()
-            try:
-                cur.execute(IEC_INT_QUERY)
-                int_data = cur.fetchall()
-            except OperationalError:
-                int_data = []
+            conn = utils.connect_to_sql_file(filepath)
+            int_data = utils.fetch_sql_data(conn, IEC_INT_QUERY)
             config = Path(filepath).stem
             self.iec_data.update({
                 config: {
@@ -127,16 +95,8 @@ class DeviceDutyParser:
                 }
             })
         for filepath in self.iec_sp_filepaths:
-            try:
-                conn = sqlite3.connect(filepath)
-            except Error:
-                continue
-            cur = conn.cursor()
-            try:
-                cur.execute(IEC_INT_QUERY)
-                int_data = cur.fetchall()
-            except OperationalError:
-                int_data = []
+            conn = utils.connect_to_sql_file(filepath)
+            int_data = utils.fetch_sql_data(conn, IEC_INT_QUERY)
             config = Path(filepath).stem
             if config not in self.iec_data:
                 self.iec_data[config] = {}

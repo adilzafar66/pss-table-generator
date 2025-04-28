@@ -1,6 +1,7 @@
 import traceback
 from pathlib import Path
 from PyQt5.QtCore import QThread, pyqtSignal
+from consts.errors import DATAHUB_RUNNING_CHECK, LATEST_REPORTS_CHECK, SAME_NAME_OPEN
 
 
 class Worker(QThread):
@@ -90,13 +91,13 @@ class Worker(QThread):
             self.start_next_process()
 
         except ConnectionError as ce:
-            prompt = '. Please make sure ETAP Datahub is up and running.'
+            prompt = f'. {DATAHUB_RUNNING_CHECK}'
             self.error_occurred.emit(str(ce.args[0]) + prompt)
         except AttributeError as ae:
-            prompt = '. Please make sure that the Device Duty files are up to date.'
+            prompt = f'. {LATEST_REPORTS_CHECK}'
             self.error_occurred.emit(str(ae.args[0]) + prompt)
         except PermissionError as pe:
-            prompt = '. Please make sure that the file with the same name is closed.'
+            prompt = f'. {SAME_NAME_OPEN}'
             self.error_occurred.emit(str(pe) + prompt)
         except Exception as e:
             print(traceback.format_exc())

@@ -62,12 +62,9 @@ class ShortCircuitParser:
             config_id = config_tags[1]
             for mode, entries in modes.items():
                 if mode == FAULT_TAG:
-                    self.parse_fault_entries(entries, config_id, exclude_startswith,
-                                                exclude_contains, exclude_except)
+                    self.parse_fault_entries(entries, config_id, exclude_startswith, exclude_contains, exclude_except)
                 if mode == IMP_TAG:
-                    self.parse_imp_entries(entries, config_id, exclude_startswith,
-                                                exclude_contains, exclude_except)
-
+                    self.parse_imp_entries(entries, config_id, exclude_startswith, exclude_contains, exclude_except)
 
     def parse_fault_entries(self, entries: list, config: str, exclude_startswith: list[str],
                             exclude_contains: list[str], exclude_except: list[str]):
@@ -174,7 +171,6 @@ class ShortCircuitParser:
             }
 
             self.parsed_ansi_data[IMP_TAG].update({config: entry_data})
-
 
     # def filter_filepaths(self):
     #     def filter_func(path_str):
