@@ -1,19 +1,25 @@
-from pathlib import Path
 from openpyxl.cell import Cell
-from consts.columns import SC_CONST_HEADERS
-from consts.common import CONFIG_MAP, SHORT_CIRCUIT_SHEET, SEQUENCE_IMP_SHEET
+from consts.common import CONFIG_MAP
 from consts.keys import KEYS_SC_FAULT
+from consts.columns import SC_CONST_HEADERS
+from consts.sheets import WS_SHORT_CIRCUIT, WS_SEQ_IMP
 from exporters.exporter import Exporter, SUBHEAD_ROW
-from parser.parser_sc import ShortCircuitParser, FAULT_TAG
 
 
 class ShortCircuitExporter(Exporter):
+    """
+    A class to export Short Circuit data to an Excel workbook using the openpyxl library.
+
+    Attributes:
+        ansi_data (dict): Data specific to ANSI standards.
+        wb (Workbook): The Excel workbook.
+    """
     def __init__(self):
         """
-        Initializes a new instance of the DeviceDutyExporter class,
+        Initializes a new instance of the ShortCircuitExporter class,
         creating a new workbook and setting up the worksheets.
         """
-        sc_ws_names = [SHORT_CIRCUIT_SHEET, SEQUENCE_IMP_SHEET]
+        sc_ws_names = [WS_SHORT_CIRCUIT, WS_SEQ_IMP]
         super().__init__(sc_ws_names, SC_CONST_HEADERS)
 
     def insert_data(self, ws_index: int, data_type: str):
@@ -64,36 +70,36 @@ class ShortCircuitExporter(Exporter):
                 cell.value = round(fault_val, 2)
 
 
-def execute_data_export() -> Path:
-    """
-    Executes the export of parsed device duty data to an Excel workbook.
-    Creates headers, inserts data, and formats the sheets for ANSI momentary, ANSI interrupting, and IEC interrupting data.
-    Saves the workbook to the output directory.
-
-    :return: The path to the saved Excel workbook.
-    :rtype: Path
-    """
-    sc = ShortCircuitParser(Path(r"/Users/adil/Downloads/Table Gen Test"))
-    sc.extract_ansi_data()
-    sc.parse_ansi_data([], [], [])
-
-    sc_exporter = ShortCircuitExporter()
-    sc_exporter.set_ansi_data(sc.parsed_sc_data)
-
-    # Create headers for ANSI momentary, ANSI interrupting, and IEC interrupting sheets
-    sc_exporter.create_headers(0, ['Bus', 'kV'], ['3ph', 'LG', 'LL', 'LLG'], 'Configuration')
-
-    # Insert data into the sheets
-    sc_exporter.insert_data(0, FAULT_TAG)
-
-    # Format headers for each sheet
-    sc_exporter.format_headers(0)
-
-    # Apply formatting to each sheet
-    sc_exporter.format_sheet(0, len(['Bus', 'kV']), len(['3ph', 'LG', 'LL', 'LLG']), 16)
-
-    wb_path = Path(r"/Users/adil/Downloads/Table Gen Test", 'TEST.xlsx')
-    sc_exporter.save_workbook(wb_path)
-    return wb_path
-
-execute_data_export()
+# def execute_data_export() -> Path:
+#     """
+#     Executes the export of parsed device duty data to an Excel workbook.
+#     Creates headers, inserts data, and formats the sheets for ANSI momentary, ANSI interrupting, and IEC interrupting data.
+#     Saves the workbook to the output directory.
+#
+#     :return: The path to the saved Excel workbook.
+#     :rtype: Path
+#     """
+#     sc = ShortCircuitParser(Path(r"/Users/adil/Downloads/Table Gen Test"))
+#     sc.extract_ansi_data()
+#     sc.parse_ansi_data([], [], [])
+#
+#     sc_exporter = ShortCircuitExporter()
+#     sc_exporter.set_ansi_data(sc.parsed_ansi_data)
+#
+#     # Create headers for ANSI momentary, ANSI interrupting, and IEC interrupting sheets
+#     sc_exporter.create_headers(0, ['Bus', 'kV'], ['3ph', 'LG', 'LL', 'LLG'], 'Configuration')
+#
+#     # Insert data into the sheets
+#     sc_exporter.insert_data(0, FAULT_TAG)
+#
+#     # Format headers for each sheet
+#     sc_exporter.format_headers(0)
+#
+#     # Apply formatting to each sheet
+#     sc_exporter.format_sheet(0, len(['Bus', 'kV']), len(['3ph', 'LG', 'LL', 'LLG']), 16)
+#
+#     wb_path = Path(r"/Users/adil/Downloads/Table Gen Test", 'TEST.xlsx')
+#     sc_exporter.save_workbook(wb_path)
+#     return wb_path
+#
+# execute_data_export()

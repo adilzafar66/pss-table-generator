@@ -1,7 +1,8 @@
 import json
-from consts.common import INV_CONFIG_MAP, DEFAULT_SW_CONFIGS
-from consts.tags import SC_TAG, SC_STUDY_MODE, SC_STUDY_CASE, BASE_REVISION
 from scenario.scenario import Scenario
+from consts.common import INV_CONFIG_MAP
+from consts.tags import SC_TAG, SC_STUDY_MODE, SC_STUDY_CASE, BASE_REVISION
+from scenario import utils
 
 
 class ShortCircuitScenario(Scenario):
@@ -11,13 +12,14 @@ class ShortCircuitScenario(Scenario):
     configurations and scenarios related to short circuit studies.
     """
 
-    def __init__(self, url: str):
+    def __init__(self, url: str, use_all_sw_configs: bool):
         """
         Initializes a ShortCircuitScenario instance with the specified ETAP connection port.
 
         :param str url: local URL for connecting to ETAP datahub.
         """
         super().__init__(url)
+        self.use_all_sw_configs = use_all_sw_configs
 
     def create_scenarios(self) -> None:
         """
@@ -28,7 +30,10 @@ class ShortCircuitScenario(Scenario):
         - Switching configurations: Derived from the ETAP project configurations.
         """
         switching_configs = json.loads(self.etap.projectdata.getconfigurations())
-        switching_configs = list(filter(self.filter_switching_configs, switching_configs))
+
+        if not self.use_all_sw_configs:
+            switching_configs = list(filter(utils.filter_switching_configs, switching_configs))
+
         for switching_config in switching_configs:
             switching_config_name = INV_CONFIG_MAP.get(switching_config, switching_config)
             scenario_id = SC_TAG + '_' + switching_config_name
@@ -36,7 +41,3 @@ class ShortCircuitScenario(Scenario):
                                  scenario_id)
             self.scenario_ids.append(scenario_id)
         self.write_scenario_xml()
-
-    @staticmethod
-    def filter_switching_configs(switching_config):
-        return True if switching_config in DEFAULT_SW_CONFIGS else False

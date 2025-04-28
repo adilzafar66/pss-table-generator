@@ -45,7 +45,6 @@ class DeviceDutyWorker(Worker):
                          exclude_contains, exclude_except, create_table, *args, **kwargs)
         self.datahub_url = url
         self.add_switches = add_switches
-        self.use_all_sw_configs = use_all_sw_configs
         self.add_series_ratings = add_series_ratings
         self.mark_assumed = mark_assumed
         self.scenario_class = lambda: DeviceDutyScenario(url, use_all_sw_configs)
@@ -57,7 +56,7 @@ class DeviceDutyWorker(Worker):
         assumed equipment if specified.
         """
         dd_parser = DeviceDutyParser(self.input_dir_path)
-        dd_parser.extract_ansi_data(self.use_all_sw_configs)
+        dd_parser.extract_ansi_data()
         dd_parser.parse_ansi_data(self.exclude_startswith, self.exclude_contains,
                                   self.exclude_except, self.add_switches)
         dd_parser.extract_iec_data()

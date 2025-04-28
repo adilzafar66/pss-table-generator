@@ -1,7 +1,7 @@
 import json
 from scenario.scenario import Scenario
-from consts.common import BASE_REVISION, INV_CONFIG_MAP
-from consts.tags import AF_VCB_CONFIG, AF_VCBB_CONFIG, AF_TAG, AF_STUDY_MODE
+from consts.common import INV_CONFIG_MAP, CONFIG_MAP
+from consts.tags import AF_VCB_CONFIG, AF_VCBB_CONFIG, AF_TAG, AF_STUDY_MODE, BASE_REVISION
 
 
 class ArcFlashScenario(Scenario):
@@ -49,7 +49,7 @@ class ArcFlashScenario(Scenario):
                 self.revisions = [BASE_REVISION]
 
         # Remove ultimate switching configuration
-        for item in ['Ultimate', 'ULT']:
+        for item in [CONFIG_MAP.get('ULT'), 'ULT']:
             switching_configs.discard(item)
 
         # Define electrode configurations for arc flash studies

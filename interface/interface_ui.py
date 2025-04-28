@@ -10,6 +10,8 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from consts.common import PROGRAM_TITLE
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -364,7 +366,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "PSS Table Generator"))
+        MainWindow.setWindowTitle(_translate("MainWindow", PROGRAM_TITLE))
         self.title.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:11pt;\">PSS Table Generator</span></p></body></html>"))
         self.port_group.setTitle(_translate("MainWindow", "Datahub Port"))
         self.radio_etap24.setText(_translate("MainWindow", "ETAP 24"))

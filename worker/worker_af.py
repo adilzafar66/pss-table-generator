@@ -1,5 +1,8 @@
 from pathlib import Path
-from consts.consts_af import FILE_NAME_SUFFIX
+
+from consts.columns import AF_CONST_COLS
+from consts.filenames import AF_FILENAME
+from consts.styles import WIDTH_COL_LRG
 from parser.parser_af import ArcFlashParser
 from exporters.exporter_af import ArcFlashExporter
 from scenario.scenario_af import ArcFlashScenario
@@ -52,7 +55,7 @@ class ArcFlashWorker(Worker):
         af_parser.extract_ansi_af_data()
         af_parser.parse_ansi_af_data(self.use_si_units, self.exclude_startswith,
                                      self.exclude_contains, self.exclude_except)
-        self.parsed_ansi_data = af_parser.ansi_af_data
+        self.parsed_ansi_data = af_parser.parsed_ansi_data
 
     def execute_data_export(self) -> Path:
         """
@@ -66,10 +69,10 @@ class ArcFlashWorker(Worker):
         af_exporter = ArcFlashExporter()
         af_exporter.create_headers(self.use_si_units)
         af_exporter.add_data(self.parsed_ansi_data)
-        af_exporter.format_sheet()
+        af_exporter.format_sheet(0, len(AF_CONST_COLS), 0, WIDTH_COL_LRG)
         af_exporter.highlight_high_energy(self.low_energy, self.high_energy)
         project_number = self.input_dir_path.stem
-        filename = f'{project_number}_{FILE_NAME_SUFFIX}'
+        filename = f'{project_number}_{AF_FILENAME}'
         wb_path = Path(self.output_dir_path, filename)
         af_exporter.save_workbook(wb_path)
         return wb_path

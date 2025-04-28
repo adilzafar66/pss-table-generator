@@ -3,7 +3,7 @@ from openpyxl.cell import Cell
 from consts.columns import DD_CONST_HEADERS
 from consts.common import CONFIG_MAP
 from consts.styles import FILL_ROW_RED, FILL_ROW_ORANGE
-from consts.worksheets import WS_ANSI_MOM, WS_ANSI_INT, WS_IEC_INT
+from consts.sheets import WS_ANSI_MOM, WS_ANSI_INT, WS_IEC_INT
 from exporters.exporter import Exporter, SUBHEAD_ROW
 
 
@@ -15,7 +15,6 @@ class DeviceDutyExporter(Exporter):
         ansi_data (dict): Data specific to ANSI standards.
         iec_data (dict): Data specific to IEC standards.
         wb (Workbook): The Excel workbook.
-        configs (list): Sorted list of configurations used in headers.
     """
 
     def __init__(self):

@@ -51,16 +51,12 @@ class DeviceDutyParser:
         if version.startswith('22'):
             self.tree = ET.fromstring(self._etap.projectdata.getxml())
 
-    def extract_ansi_data(self, use_all_sw_configs: bool):
+    def extract_ansi_data(self):
         """
         Extracts ANSI data from SQLite databases and populates the `ansi_data` attribute.
         It processes both momentary and interrupting duties for three-phase and single-phase systems.
-
-        :param bool use_all_sw_configs: Flag to indicate whether to use all non-default switching configuration files.
         """
-        if not use_all_sw_configs:
-            self.filter_filepaths()
-
+        self.filter_filepaths()
         for filepath in self.ansi_filepaths:
             try:
                 conn = sqlite3.connect(filepath)

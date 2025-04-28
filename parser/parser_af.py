@@ -21,7 +21,7 @@ class ArcFlashParser:
 
         :param Path etap_dir: Path to the directory containing the arc flash study files (AAFS files).
         """
-        self.ansi_af_data = {}
+        self.parsed_ansi_data = {}
         self.filepaths = utils.get_filepaths(etap_dir, AF_ANSI_EXT)
 
     def extract_ansi_af_data(self):
@@ -85,8 +85,8 @@ class ArcFlashParser:
             _id = entry[0]
             _data = entry[1:]
             _energy = entry[AF_COL_INDICES['ie'] + 1]
-            if _id not in self.ansi_af_data or _energy > self.ansi_af_data[_id][AF_COL_INDICES['ie']]:
-                self.ansi_af_data[_id] = _data
+            if _id not in self.parsed_ansi_data or _energy > self.parsed_ansi_data[_id][AF_COL_INDICES['ie']]:
+                self.parsed_ansi_data[_id] = _data
 
     def parse_ansi_af_data(self, use_si_units: bool, exclude_startswith: list[str],
                            exclude_contains: list[str], exclude_except: list[str]):
@@ -112,7 +112,7 @@ class ArcFlashParser:
             return True
 
         conversion_func = utils.convert_to_m if use_si_units else utils.convert_to_ft
-        for key, data in self.ansi_af_data.items():
+        for key, data in self.parsed_ansi_data.items():
             data[AF_COL_INDICES['lab']] = conversion_func(data[AF_COL_INDICES['lab']])
             data[AF_COL_INDICES['rab']] = conversion_func(data[AF_COL_INDICES['rab']])
             data[AF_COL_INDICES['afb']] = conversion_func(data[AF_COL_INDICES['afb']])
@@ -125,7 +125,7 @@ class ArcFlashParser:
                     data[i] = round(data[i], ROUND_DIGITS)
             data[0] = round(data[0], ROUND_DIGITS + 1)
 
-        self.ansi_af_data = dict(filter(filter_func, self.ansi_af_data.items()))
-        self.ansi_af_data = dict(sorted(self.ansi_af_data.items(),
-                                        key=lambda item: item[1][AF_COL_INDICES['ie']],
-                                        reverse=True))
+        self.parsed_ansi_data = dict(filter(filter_func, self.parsed_ansi_data.items()))
+        self.parsed_ansi_data = dict(sorted(self.parsed_ansi_data.items(),
+                                            key=lambda item: item[1][AF_COL_INDICES['ie']],
+                                            reverse=True))

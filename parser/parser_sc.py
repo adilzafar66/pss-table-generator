@@ -10,7 +10,7 @@ from consts.tags import FAULT_TAG, IMP_TAG
 class ShortCircuitParser:
     def __init__(self, etap_dir: Path):
         self.ansi_sc_data = {}
-        self.parsed_sc_data = {FAULT_TAG: {}, IMP_TAG: {}}
+        self.parsed_ansi_data = {FAULT_TAG: {}, IMP_TAG: {}}
         self.filepaths = utils.get_filepaths(etap_dir, SC_ANSI_EXT)
 
     def extract_ansi_data(self):
@@ -105,19 +105,19 @@ class ShortCircuitParser:
             _ima_llg = entry[12]
             _mag_llg = entry[13]
 
-            if _id in self.parsed_sc_data[FAULT_TAG]:
-                self.parsed_sc_data[FAULT_TAG][_id]['Real3Ph'].update({config: _real_3ph})
-                self.parsed_sc_data[FAULT_TAG][_id]['Imag3Ph'].update({config: _ima_3ph})
-                self.parsed_sc_data[FAULT_TAG][_id]['Mag3Ph'].update({config: _mag_3ph})
-                self.parsed_sc_data[FAULT_TAG][_id]['RealLG'].update({config: _real_lg})
-                self.parsed_sc_data[FAULT_TAG][_id]['ImagLG'].update({config: _ima_lg})
-                self.parsed_sc_data[FAULT_TAG][_id]['MagLG'].update({config: _mag_lg})
-                self.parsed_sc_data[FAULT_TAG][_id]['RealLL'].update({config: _real_ll})
-                self.parsed_sc_data[FAULT_TAG][_id]['ImagLL'].update({config: _ima_ll})
-                self.parsed_sc_data[FAULT_TAG][_id]['MagLL'].update({config: _mag_ll})
-                self.parsed_sc_data[FAULT_TAG][_id]['RealLLG'].update({config: _real_llg})
-                self.parsed_sc_data[FAULT_TAG][_id]['ImagLLG'].update({config: _ima_llg})
-                self.parsed_sc_data[FAULT_TAG][_id]['MagLLG'].update({config: _mag_llg})
+            if _id in self.parsed_ansi_data[FAULT_TAG]:
+                self.parsed_ansi_data[FAULT_TAG][_id]['Real3Ph'].update({config: _real_3ph})
+                self.parsed_ansi_data[FAULT_TAG][_id]['Imag3Ph'].update({config: _ima_3ph})
+                self.parsed_ansi_data[FAULT_TAG][_id]['Mag3Ph'].update({config: _mag_3ph})
+                self.parsed_ansi_data[FAULT_TAG][_id]['RealLG'].update({config: _real_lg})
+                self.parsed_ansi_data[FAULT_TAG][_id]['ImagLG'].update({config: _ima_lg})
+                self.parsed_ansi_data[FAULT_TAG][_id]['MagLG'].update({config: _mag_lg})
+                self.parsed_ansi_data[FAULT_TAG][_id]['RealLL'].update({config: _real_ll})
+                self.parsed_ansi_data[FAULT_TAG][_id]['ImagLL'].update({config: _ima_ll})
+                self.parsed_ansi_data[FAULT_TAG][_id]['MagLL'].update({config: _mag_ll})
+                self.parsed_ansi_data[FAULT_TAG][_id]['RealLLG'].update({config: _real_llg})
+                self.parsed_ansi_data[FAULT_TAG][_id]['ImagLLG'].update({config: _ima_llg})
+                self.parsed_ansi_data[FAULT_TAG][_id]['MagLLG'].update({config: _mag_llg})
                 continue
 
             entry_data = {
@@ -135,7 +135,7 @@ class ShortCircuitParser:
                 'ImagLLG': {config: _ima_llg},
                 'MagLLG': {config: _mag_llg},
             }
-            self.parsed_sc_data[FAULT_TAG].update({_id: entry_data})
+            self.parsed_ansi_data[FAULT_TAG].update({_id: entry_data})
 
     def parse_imp_entries(self, entries: list, config: str, exclude_startswith: list[str],
                           exclude_contains: list[str], exclude_except: list[str]):
@@ -173,7 +173,7 @@ class ShortCircuitParser:
                 'ZZeroOhm': _z_zero
             }
 
-            self.parsed_sc_data[IMP_TAG].update({config: entry_data})
+            self.parsed_ansi_data[IMP_TAG].update({config: entry_data})
 
 
     # def filter_filepaths(self):

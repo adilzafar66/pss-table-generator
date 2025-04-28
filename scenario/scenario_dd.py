@@ -1,6 +1,7 @@
 import json
+from scenario import utils
 from scenario.scenario import Scenario
-from consts.common import INV_CONFIG_MAP, DEFAULT_SW_CONFIGS
+from consts.common import INV_CONFIG_MAP
 from consts.tags import DD_STUDY_MODE, DD_STUDY_CASE, DD_STUDY_CASE_IEC, DD_STUDY_MODE_IEC
 from consts.tags import DD_TAG, IEC_TAG, BASE_REVISION
 
@@ -34,7 +35,7 @@ class DeviceDutyScenario(Scenario):
         """
 
         study_cases = {DD_STUDY_MODE: DD_STUDY_CASE}
-        etap_study_cases = json.loads(self.etap.projectdata.getstudycasenames())['NonDefault']
+        etap_study_cases = utils.get_study_cases(self.etap)
 
         if DD_STUDY_CASE_IEC in etap_study_cases:
             study_cases.update({DD_STUDY_MODE_IEC: DD_STUDY_CASE_IEC})
@@ -42,7 +43,7 @@ class DeviceDutyScenario(Scenario):
         switching_configs = json.loads(self.etap.projectdata.getconfigurations())
 
         if not self.use_all_sw_configs:
-            switching_configs = list(filter(self.filter_switching_configs, switching_configs))
+            switching_configs = list(filter(utils.filter_switching_configs, switching_configs))
 
         for study_mode, study_case in study_cases.items():
             for switching_config in switching_configs:
@@ -62,7 +63,3 @@ class DeviceDutyScenario(Scenario):
 
         # Write the updated scenarios to the XML file
         self.write_scenario_xml()
-
-    @staticmethod
-    def filter_switching_configs(switching_config):
-        return True if switching_config in DEFAULT_SW_CONFIGS else False
