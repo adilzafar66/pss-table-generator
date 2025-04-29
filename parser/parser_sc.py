@@ -80,12 +80,7 @@ class ShortCircuitParser:
         for entry in entries:
             _id = entry[0]
 
-            if (any(word in _id for word in exclude_contains)
-                    and all(word not in _id for word in exclude_except)):
-                continue
-
-            if (any(_id.startswith(word) for word in exclude_startswith)
-                    and all(not _id.startswith(word) for word in exclude_except)):
+            if utils.is_exclusion(_id, exclude_startswith, exclude_contains, exclude_except):
                 continue
 
             _voltage = entry[1]

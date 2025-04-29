@@ -29,7 +29,7 @@ class ShortCircuitScenario(Scenario):
 
         - Switching configurations: Derived from the ETAP project configurations.
         """
-        switching_configs = json.loads(self.etap.projectdata.getconfigurations())
+        switching_configs = json.loads(self._etap.projectdata.getconfigurations())
 
         if not self.use_all_sw_configs:
             switching_configs = list(filter(utils.filter_switching_configs, switching_configs))

@@ -1,18 +1,3 @@
-#***********************
-#
-# Copyright (c) 2021-2023, Operation Technology, Inc.
-#
-# THIS PROGRAM IS CONFIDENTIAL AND PROPRIETARY TO OPERATION TECHNOLOGY, INC. 
-# ANY USE OF THIS PROGRAM IS SUBJECT TO THE PROGRAM SOFTWARE LICENSE AGREEMENT, 
-# EXCEPT THAT THE USER MAY MODIFY THE PROGRAM FOR ITS OWN USE. 
-# HOWEVER, THE PROGRAM MAY NOT BE REPRODUCED, PUBLISHED, OR DISCLOSED TO OTHERS 
-# WITHOUT THE PRIOR WRITTEN CONSENT OF OPERATION TECHNOLOGY, INC.
-#
-#***********************
-
-
-
-__version__ = "2022.0.0"
 
 # APPLICATION
 application_filepaths       = "/etap/api/v1/application/filepaths" 
@@ -89,8 +74,6 @@ projectdata_activateelement = "/etap/api/v1/projectdata/activateelement"
 projectdata_isprojectauthenticationrequired = "/etap/api/v1/projectdata/isprojectauthenticationrequired"
 projectdata_setelementsprops = "/etap/api/v1/projectdata/setelementsprops"
 
-
-
 # SCENARIO XML
 scenario_getxmlfilepath = "/etap/api/v1/scenario/getxmlfilepath"
 scenario_getxml = "/etap/api/v1/scenario/getxml"
@@ -116,7 +99,7 @@ studies_runstarsqop = "/etap/api/v1/studies/runstarsqop"
 studies_runsc = "/etap/api/v1/studies/runsc"
 studies_runstarz = "/etap/api/v1/studies/runstarz"
 studies_runstarzasync = "/etap/api/v1/studies/runstarzasync"
-# studies_runaf = "/etap/api/v1/studies/runaf"
+studies_runaf = "/etap/api/v1/studies/runaf"
 studies_runca = "/etap/api/v1/studies/runca"
 studies_runso = "/etap/api/v1/studies/runso"
 studies_runubsc = "/etap/api/v1/studies/runubsc"

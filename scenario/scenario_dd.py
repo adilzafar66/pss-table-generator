@@ -35,12 +35,12 @@ class DeviceDutyScenario(Scenario):
         """
 
         study_cases = {DD_STUDY_MODE: DD_STUDY_CASE}
-        etap_study_cases = utils.get_study_cases(self.etap)
+        etap_study_cases = utils.get_study_cases(self._etap)
 
         if DD_STUDY_CASE_IEC in etap_study_cases:
             study_cases.update({DD_STUDY_MODE_IEC: DD_STUDY_CASE_IEC})
 
-        switching_configs = json.loads(self.etap.projectdata.getconfigurations())
+        switching_configs = json.loads(self._etap.projectdata.getconfigurations())
 
         if not self.use_all_sw_configs:
             switching_configs = list(filter(utils.filter_switching_configs, switching_configs))

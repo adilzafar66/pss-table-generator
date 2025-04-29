@@ -1,5 +1,5 @@
 from pathlib import Path
-from sqlite3 import Error, OperationalError, Connection, connect
+from sqlite3 import Error, OperationalError, Cursor, connect
 from consts.multipliers import FT_M_MULTIPLIER
 from consts.tags import AF_VCB_CONFIG, AF_VCBB_CONFIG, AF_HCB_CONFIG
 
@@ -12,13 +12,22 @@ def connect_to_sql_file(filepath):
     return conn.cursor()
 
 
-def fetch_sql_data(conn: Connection, query):
-    cur = conn.cursor()
+def fetch_sql_data(cur: Cursor, query):
     try:
         cur.execute(query)
         return cur.fetchall()
     except OperationalError:
         return []
+
+
+def is_exclusion(_id, exclude_startswith, exclude_contains, exclude_except):
+    if (any(word in _id for word in exclude_contains)
+            and all(word not in _id for word in exclude_except)):
+        return True
+
+    if (any(_id.startswith(word) for word in exclude_startswith)
+            and all(not _id.startswith(word) for word in exclude_except)):
+        return True
 
 
 def calculate_la_var(value: int) -> int:

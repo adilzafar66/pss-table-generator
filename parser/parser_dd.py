@@ -1,9 +1,7 @@
 import json
-import sqlite3
 import etap.api
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from sqlite3 import Error, OperationalError
 from consts.common import TYPE_MAP
 from consts.filenames import DD_ANSI_EXT, DD_ANSI_SP_EXT, DD_IEC_EXT, DD_IEC_SP_EXT
 from consts.multipliers import MV_SWITCHGEAR_MULTIPLIER, LV_SWITCHGEAR_MULTIPLIER
@@ -49,7 +47,7 @@ class DeviceDutyParser:
         self._etap = etap.api.connect(url)
         version = json.loads(self._etap.application.version())['Version']
         if version.startswith('22'):
-            self.tree = ET.fromstring(self._etap.projectdata.getxml())
+            self.tree = ET.fromstring(self._etap.projectdata.get_xml())
 
     def extract_ansi_data(self):
         """
@@ -58,9 +56,9 @@ class DeviceDutyParser:
         """
         self.filter_filepaths()
         for filepath in self.ansi_filepaths:
-            conn = utils.connect_to_sql_file(filepath)
-            mom_data = utils.fetch_sql_data(conn, ANSI_MOM_QUERY)
-            int_data = utils.fetch_sql_data(conn, ANSI_INT_QUERY)
+            cur = utils.connect_to_sql_file(filepath)
+            mom_data = utils.fetch_sql_data(cur, ANSI_MOM_QUERY)
+            int_data = utils.fetch_sql_data(cur, ANSI_INT_QUERY)
             config = Path(filepath).stem
             self.ansi_data.update({
                 config: {
@@ -69,9 +67,9 @@ class DeviceDutyParser:
                 }
             })
         for filepath in self.ansi_sp_filepaths:
-            conn = utils.connect_to_sql_file(filepath)
-            mom_data = utils.fetch_sql_data(conn, ANSI_MOM_SP_QUERY)
-            int_data = utils.fetch_sql_data(conn, ANSI_INT_SP_QUERY)
+            cur = utils.connect_to_sql_file(filepath)
+            mom_data = utils.fetch_sql_data(cur, ANSI_MOM_SP_QUERY)
+            int_data = utils.fetch_sql_data(cur, ANSI_INT_SP_QUERY)
             config = Path(filepath).stem
             if config not in self.ansi_data:
                 self.ansi_data[config] = {}
@@ -86,8 +84,8 @@ class DeviceDutyParser:
         It processes interrupting duties for both three-phase and single-phase systems.
         """
         for filepath in self.iec_filepaths:
-            conn = utils.connect_to_sql_file(filepath)
-            int_data = utils.fetch_sql_data(conn, IEC_INT_QUERY)
+            cur = utils.connect_to_sql_file(filepath)
+            int_data = utils.fetch_sql_data(cur, IEC_INT_QUERY)
             config = Path(filepath).stem
             self.iec_data.update({
                 config: {
@@ -95,8 +93,8 @@ class DeviceDutyParser:
                 }
             })
         for filepath in self.iec_sp_filepaths:
-            conn = utils.connect_to_sql_file(filepath)
-            int_data = utils.fetch_sql_data(conn, IEC_INT_QUERY)
+            cur = utils.connect_to_sql_file(filepath)
+            int_data = utils.fetch_sql_data(cur, IEC_INT_QUERY)
             config = Path(filepath).stem
             if config not in self.iec_data:
                 self.iec_data[config] = {}
@@ -164,12 +162,7 @@ class DeviceDutyParser:
             if _type.strip() not in valid_types:
                 continue
 
-            if (any(word in _id for word in exclude_contains)
-                    and all(word not in _id for word in exclude_except)):
-                continue
-
-            if (any(_id.startswith(word) for word in exclude_startswith)
-                    and all(not _id.startswith(word) for word in exclude_except)):
+            if utils.is_exclusion(_id, exclude_startswith, exclude_contains, exclude_except):
                 continue
 
             if _type.endswith('Switch'):
@@ -221,12 +214,7 @@ class DeviceDutyParser:
             _bus = entry[2]
             _device = entry[3]
 
-            if (any(word in _id for word in exclude_contains)
-                    and all(word not in _id for word in exclude_except)):
-                continue
-
-            if (any(_id.startswith(word) for word in exclude_startswith)
-                    and all(not _id.startswith(word) for word in exclude_except)):
+            if utils.is_exclusion(_id, exclude_startswith, exclude_contains, exclude_except):
                 continue
 
             if _id in self.parsed_ansi_data[self.mode_int]:
@@ -264,12 +252,7 @@ class DeviceDutyParser:
             if _device.strip() not in ['CB', 'Fuse']:
                 continue
 
-            if (any(word in _id for word in exclude_contains)
-                    and all(word not in _id for word in exclude_except)):
-                continue
-
-            if (any(_id.startswith(word) for word in exclude_startswith)
-                    and all(not _id.startswith(word) for word in exclude_except)):
+            if utils.is_exclusion(_id, exclude_startswith, exclude_contains, exclude_except):
                 continue
 
             if _id in self.parsed_iec_data[self.mode_int]:
@@ -356,7 +339,7 @@ class DeviceDutyParser:
 
         if not self.tree:
             elem_type = TYPE_MAP.get(element_type, BUS_TAG)
-            get_element_prop = self._etap.projectdata.getelementprop
+            get_element_prop = self._etap.projectdata.get_element_prop
             value = json.loads(get_element_prop(elem_type, element_id, COMMENT_VAR))
             if value.get('Value') == 'Invalid element name':
                 raise AttributeError(f'No element with ID {element_id} found')

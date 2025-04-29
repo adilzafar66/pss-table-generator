@@ -18,10 +18,10 @@ class Scenario:
         :param str url: local URL for connecting to ETAP datahub.
         """
         self.scenario_ids = []
-        self.etap = etap.api.connect(url)
+        self._etap = etap.api.connect(url)
         self.scenario_xml_path = self.get_scenario_xml_path()
         self.scenario_xml = self.get_scenario_xml()
-        self.presentation = json.loads(self.etap.application.getactivescenario())['Presentation']
+        self.presentation = json.loads(self._etap.application.get_active_scenario())['Presentation']
 
     def get_scenario_xml(self):
         """
@@ -48,7 +48,7 @@ class Scenario:
         Runs all scenarios listed in self.scenario_ids by invoking ETAP scenario run method.
         """
         for scenario_id in self.scenario_ids:
-            self.etap.scenario.run(scenario_id)
+            self._etap.scenario.run(scenario_id)
 
     def get_project_path(self) -> Path:
         """
@@ -57,7 +57,7 @@ class Scenario:
         :return: The full path to the current ETAP project as a Path object.
         :rtype: Path
         """
-        return Path(json.loads(self.etap.application.projectfile())['FullPath'])
+        return Path(json.loads(self._etap.application.project_file())['FullPath'])
 
     def get_project_dir(self) -> Path:
         """

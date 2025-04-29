@@ -114,15 +114,8 @@ class ArcFlashParser:
                     data[i] = round(data[i], ROUND_DIGITS)
             data[0] = round(data[0], ROUND_DIGITS + 1)
 
-        def filter_func(pair):
-            _id, value = pair
-            if (any(word in _id for word in exclude_contains)
-                    and all(word not in _id for word in exclude_except)):
-                return False
-            if (any(_id.startswith(word) for word in exclude_startswith)
-                    and all(not _id.startswith(word) for word in exclude_except)):
-                return False
-            return True
+        def filter_func(pair: tuple):
+            return not utils.is_exclusion(next(iter(pair)), exclude_startswith, exclude_contains, exclude_except)
 
         self.parsed_ansi_data = dict(filter(filter_func, self.parsed_ansi_data.items()))
         self.parsed_ansi_data = dict(sorted(self.parsed_ansi_data.items(),

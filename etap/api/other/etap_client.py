@@ -1,156 +1,178 @@
-#***********************
-#
-# Copyright (c) 2021-2023, Operation Technology, Inc.
-#
-# THIS PROGRAM IS CONFIDENTIAL AND PROPRIETARY TO OPERATION TECHNOLOGY, INC. 
-# ANY USE OF THIS PROGRAM IS SUBJECT TO THE PROGRAM SOFTWARE LICENSE AGREEMENT, 
-# EXCEPT THAT THE USER MAY MODIFY THE PROGRAM FOR ITS OWN USE. 
-# HOWEVER, THE PROGRAM MAY NOT BE REPRODUCED, PUBLISHED, OR DISCLOSED TO OTHERS 
-# WITHOUT THE PRIOR WRITTEN CONSENT OF OPERATION TECHNOLOGY, INC.
-#
-#***********************
+import os
+import signal
 import sys
-import urllib.request
 import re
 import json
-import xml.etree.ElementTree as ET
-import urllib.parse
-import base64
-import os
 import subprocess
-import signal
+import urllib.request
 from pathlib import Path
-
-from .. import studies as studies
-from .. import application as application
-from .. import projectdata as projectdata
-from .. import scenario as scenario
-from .. import dnp3slave as dnp3slave
+from .. import application
+from .. import projectdata
+from .. import scenario
 from netifaces import interfaces, ifaddresses, AF_INET
-import socket
-from . import datahub
 
 
 class EtapClient:
-    """Client connection class used to communicate with ETAP.  A connection must be established before interacting with ETAP."""
-    _etapPath = None
-    
-    def connect(self, baseAddress, projectName=None):
-        self._baseAddress = baseAddress
-        self._projectName = projectName
-        self._token = self.getToken()
-        self.application  = application.Application(baseAddress, self._token, self._projectName)
-        self.projectdata  = projectdata.ProjectData(baseAddress, self._token, self._projectName)
-        self.scenario  = scenario.Scenario(baseAddress, self._token, self._projectName)        
-        self.scenario_WhatifCommands  = scenario.Scenario.WhatifCommands(baseAddress, self._token, self._projectName)   
-        self._ipAddress = self.__extractIpAddressFromBaseAddress(baseAddress)
-        self._isForRemoteEtap = self.__isRequestForRemoteMachine(self._ipAddress)
-        self.studies  = studies.Studies(baseAddress, self._isForRemoteEtap, self._token, self._projectName)
-        self.dnp3slave  = dnp3slave.Dnp3Slave(baseAddress, self._token, self._projectName)   
+    """
+    Client connection class used to communicate with ETAP.
+    A connection must be established before interacting with ETAP.
+    """
 
-    # def connect(self, ipAddressOrComputerName, portNumber):
-    #     """Forms a connection with ETAP.  This method should be called before making any
-    #     other call to ETAP."""
-    #     self._ipAddressOrComputerName = ipAddressOrComputerName
-    #     self._portNumber = portNumber + 2 # true port number is the DataHub port number + 2
-    #     #self._projectNameNoExtension = re.sub(r'[^a-zA-Z0-9_]', 'x', projectNameNoExtension)
-    #     self._isForRemoteEtap = self.__isRequestForRemoteMachine(ipAddressOrComputerName)
-    #     #print(f"Connected to ETAP @ http://{ipAddressOrComputerName}:{str(portNumber)}")
+    _etap_path = None
 
-    
-    def getToken(self):
+    def __init__(self):
+        self._is_for_remote_etap = None
+        self._ip_address = None
+        self.scenario = None
+        self.projectdata = None
+        self.application = None
+        self._token = None
+        self._project_name = None
+        self._base_address = None
+
+    def connect(self, base_address: str, project_name: str = None) -> None:
+        """
+        Establishes a connection with ETAP.
+
+        :param str base_address: Base address of the ETAP server
+        :param str project_name: Optional project name
+        """
+        self._base_address = base_address
+        self._project_name = project_name
+        self._token = self._get_token()
+        self.application = application.Application(base_address, self._token, self._project_name)
+        self.projectdata = projectdata.ProjectData(base_address, self._token, self._project_name)
+        self.scenario = scenario.Scenario(base_address, self._token, self._project_name)
+        self._ip_address = self._extract_ip_address_from_base_address(base_address)
+        self._is_for_remote_etap = self._is_request_for_remote_machine(self._ip_address)
+
+    def _get_token(self) -> str | None:
+        """
+        Reads token from keyFile.json based on the project name.
+
+        :return: Token string
+        :rtype: str
+        """
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             app_path = Path(sys._MEIPASS)
         else:
             app_path = Path(sys.argv[0]).parent
-        with open(app_path / 'res' / 'keyFile.json', 'r') as f:
-            content_list = json.load(f)
-        for dicts in content_list:
-            if dicts["projectName"] == self._projectName:
-                return dicts["token"]
-        self._token = None
-    
 
-    def getProcessId(self)->int:
+        with open(app_path / 'res' / 'keyFile.json', 'r', encoding='utf-8') as file:
+            content_list = json.load(file)
+
+        for entry in content_list:
+            if entry.get("projectName") == self._project_name:
+                return entry.get("token")
+
+    @staticmethod
+    def set_etap_path(path: str) -> None:
+        """
+        Sets the ETAP executable path.
+
+        :param str path: Path to etaps64.exe
+        """
+        EtapClient._etap_path = path
+
+    @staticmethod
+    def open(project: str = None):
+        """
+        Opens an ETAP project if the path is set.
+
+        :param str project: Optional project name
+        :return: subprocess.Popen instance or False
+        """
+        if EtapClient._etap_path is None:
+            print("Please set the path of etaps64.exe with set_etap_path first")
+            return False
+
+        return subprocess.Popen(fr"{EtapClient._etap_path}\etaps64.exe {project}")
+
+    def getProcessId(self) -> int:
         """Returns the Process Id of the etap client"""
 
-        address = "http://{}:{}/pythonservice2/{}/pid".format(self._ipAddressOrComputerName, self._portNumber, self._projectNameNoExtension)
+        address = "http://{}:{}/pythonservice2/{}/pid".format(self._ipAddressOrComputerName, self._portNumber,
+                                                              self._projectNameNoExtension)
         try:
             h = urllib.request.urlopen(address)
-            xmlString = "".join(map(chr, h.read()))
-            xmlString = self.__removeUnwantedChars(xmlString)
-            xmlString = self.__decodeUnicodeEncodedString(xmlString)
-            xmlString = self.__removeXmlVersionTag(xmlString)
-            rtn = xmlString[xmlString.find(">") + 1:xmlString.rfind("<")]
+            xml_string = "".join(map(chr, h.read()))
+            xml_string = self._remove_unwanted_chars(xml_string)
+            xml_string = self._decode_unicode_encoded_string(xml_string)
+            xml_string = self._remove_xml_version_tag(xml_string)
+            rtn = xml_string[xml_string.find(">") + 1:xml_string.rfind("<")]
             return rtn
-        except :
+        except:
             return -1
 
     def close(self):
         """Kills the connected instance of etap"""
 
         pid = int(self.getProcessId())
-        if(pid > -1):
+        if pid > -1:
             os.kill(pid, signal.SIGTERM)
-            
-    def setEtapPath(path):
-        EtapClient._etapPath = path
-        
-    def open(project = None):
-        if(EtapClient._etapPath == None):
-            print("Please set the path of etaps64.exe with setEtapPath first")
-        else:
-            return subprocess.Popen(r"{}\etaps64.exe {}".format(EtapClient._etapPath, project))
-            return False
 
-    
-    def __extractIpAddressFromBaseAddress(self, baseAddress):
-        """Extracts IP address from the base address"""
-        regex = re.compile('{}(.*){}'.format(re.escape('//'), re.escape(':')))
-        ipAddresses = regex.findall(baseAddress)
-        return ipAddresses[0]
+    @staticmethod
+    def _extract_ip_address_from_base_address(base_address: str) -> str:
+        """
+        Extracts IP address from the base address.
 
-    def __isRequestForRemoteMachine(self, ipAddress):
-        """Determines whether this request if for a remote machine running ETAP"""
-        result = True
-        ip_list = []    
+        :param str base_address: Base address URL
+        :return: Extracted IP address
+        :rtype: str
+        """
+        regex = re.compile(f'{re.escape('//')}(.*){re.escape(':')}')
+        matches = regex.findall(base_address)
+        return matches[0] if matches else ''
+
+    @staticmethod
+    def _is_request_for_remote_machine(ip_address: str) -> bool:
+        """
+        Determines whether this request is for a remote machine running ETAP.
+
+        :param str ip_address: IP address to check
+        :return: True if remote, False otherwise
+        :rtype: bool
+        """
         try:
-            for interface in interfaces():            
+            for interface in interfaces():
                 if len(ifaddresses(interface)) - 1 < AF_INET:
                     continue
                 for link in ifaddresses(interface)[AF_INET]:
-                    ip_list.append(link['addr'])
-            index = ip_list.index(ipAddress)
-            if index >= 0:
-                result = False
-            return result
+                    if link['addr'] == ip_address:
+                        return False
         except ValueError:
-            return result
-        
-        # return socket.gethostbyname(socket.gethostname()) != ipAddress
+            pass
+        return True
 
-
-    def __removeUnwantedChars(self, xmlString):
+    @staticmethod
+    def _remove_unwanted_chars(xml_string: str) -> str:
         """
-        Replace the unwanted chars (ÿþ) added by DataHub Python for Unicode encoding
-        """
-        if xmlString.startswith('ÿþ'):
-            #return xmlString.replace('ÿþ','')
-            return xmlString[len('ÿþ'):]
-        return xmlString
+        Removes unwanted Unicode prefix characters.
 
-
-    def __removeXmlVersionTag(self, xmlString):
+        :param str xml_string: XML string to clean
+        :return: Cleaned XML string
+        :rtype: str
         """
-        Remove the <?xml version="1.0" encoding="utf-16"?> tag added by DataHub Python for Unicode encoding
-        """
-        if xmlString.find('<?xml version="1.0" encoding="utf-16"?>') >= 0:
-            return xmlString.replace('<?xml version="1.0" encoding="utf-16"?>','')
-        return xmlString
+        return xml_string[len('ÿþ'):] if xml_string.startswith('ÿþ') else xml_string
 
-
-    def __decodeUnicodeEncodedString(self, xmlString):
+    @staticmethod
+    def _remove_xml_version_tag(xml_string: str) -> str:
         """
-        Decode the Unicode encoded string
-        """            
-        return xmlString.encode().decode('utf-16')
+        Removes the XML version tag if present.
+
+        :param str xml_string: XML string
+        :return: Modified XML string
+        :rtype: str
+        """
+        return xml_string.replace('<?xml version="1.0" encoding="utf-16"?>', '')
+
+    @staticmethod
+    def _decode_unicode_encoded_string(xml_string: str) -> str:
+        """
+        Decodes a UTF-16 encoded string.
+
+        :param str xml_string: Encoded string
+        :return: Decoded string
+        :rtype: str
+        """
+        return xml_string.encode().decode('utf-16')
