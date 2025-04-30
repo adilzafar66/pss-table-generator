@@ -173,18 +173,3 @@ class ShortCircuitParser:
                 'ZZeroOhm': {config: _z_zero}
             }
             self.parsed_ansi_data[IMP_TAG].update({_id: entry_data})
-
-    # def filter_filepaths(self):
-    #     def filter_func(path_str):
-    #         filename = Path(path_str).stem
-    #         if filename.split('_')[0] in SC_STUDY_TAG:
-    #             return True
-    #         return False
-    #     self.ansi_filepaths = list(filter(filter_func, self.ansi_filepaths))
-#
-# sc = ShortCircuitParser(Path(r"/Users/adil/Downloads/Table Gen Test"))
-# sc.extract_ansi_data()
-# sc.parse_ansi_data([],[],[])
-#
-# for _id, values in sc.parsed_sc_data[FAULT].items():
-#     print(_id, values)
