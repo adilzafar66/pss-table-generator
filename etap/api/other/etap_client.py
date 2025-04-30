@@ -1,10 +1,7 @@
-import os
-import signal
 import sys
 import re
 import json
 import subprocess
-import urllib.request
 from pathlib import Path
 from .. import application
 from .. import projectdata
@@ -87,29 +84,6 @@ class EtapClient:
             return False
 
         return subprocess.Popen(fr"{EtapClient._etap_path}\etaps64.exe {project}")
-
-    def getProcessId(self) -> int:
-        """Returns the Process Id of the etap client"""
-
-        address = "http://{}:{}/pythonservice2/{}/pid".format(self._ipAddressOrComputerName, self._portNumber,
-                                                              self._projectNameNoExtension)
-        try:
-            h = urllib.request.urlopen(address)
-            xml_string = "".join(map(chr, h.read()))
-            xml_string = self._remove_unwanted_chars(xml_string)
-            xml_string = self._decode_unicode_encoded_string(xml_string)
-            xml_string = self._remove_xml_version_tag(xml_string)
-            rtn = xml_string[xml_string.find(">") + 1:xml_string.rfind("<")]
-            return rtn
-        except:
-            return -1
-
-    def close(self):
-        """Kills the connected instance of etap"""
-
-        pid = int(self.getProcessId())
-        if pid > -1:
-            os.kill(pid, signal.SIGTERM)
 
     @staticmethod
     def _extract_ip_address_from_base_address(base_address: str) -> str:

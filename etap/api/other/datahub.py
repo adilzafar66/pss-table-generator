@@ -13,7 +13,7 @@ def get(url_absolute: str, token: str = None) -> str:
     :return: Response text from the GET request
     """
     headers = {"Authorization": token} if token else {}
-    response = requests.get(url_absolute, headers=headers)
+    response = requests.get(url_absolute, verify=not settings.https_enable, headers=headers)
     return response.text
 
 
