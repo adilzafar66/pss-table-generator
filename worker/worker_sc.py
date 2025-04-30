@@ -3,6 +3,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from consts.common import SUBHEAD_ROW
 from consts.filenames import SC_FILENAME
+from consts.keys import KEYS_SC_FAULT, KEYS_SC_IMP
 from consts.tags import FAULT_TAG, IMP_TAG
 from exporters.exporter_sc import ShortCircuitExporter
 from parser.parser_sc import ShortCircuitParser
@@ -70,8 +71,8 @@ class ShortCircuitWorker(Worker):
         sc_exporter.create_headers(1, SC_IMP_CONST_COLS, SC_IMP_VAR_COLS, 'Fault Type')
 
         # Insert data into the sheets
-        sc_exporter.insert_data(0, FAULT_TAG)
-        sc_exporter.insert_data(1, IMP_TAG)
+        sc_exporter.insert_data(0, FAULT_TAG, KEYS_SC_FAULT)
+        sc_exporter.insert_data(1, IMP_TAG, KEYS_SC_IMP, round_to=3)
 
         # Format headers for each sheet
         sc_exporter.format_headers(0)

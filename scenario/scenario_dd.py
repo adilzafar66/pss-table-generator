@@ -1,4 +1,3 @@
-import json
 from scenario import utils
 from scenario.scenario import Scenario
 from consts.common import INV_CONFIG_MAP
@@ -35,12 +34,12 @@ class DeviceDutyScenario(Scenario):
         """
 
         study_cases = {DD_STUDY_MODE: DD_STUDY_CASE}
-        etap_study_cases = utils.get_study_cases(self._etap)
+        etap_study_cases = self._etap.projectdata.get_study_case_names()['NonDefault']
 
         if DD_STUDY_CASE_IEC in etap_study_cases:
             study_cases.update({DD_STUDY_MODE_IEC: DD_STUDY_CASE_IEC})
 
-        switching_configs = json.loads(self._etap.projectdata.getconfigurations())
+        switching_configs = self._etap.projectdata.get_configurations()
 
         if not self.use_all_sw_configs:
             switching_configs = list(filter(utils.filter_switching_configs, switching_configs))

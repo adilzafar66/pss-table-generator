@@ -1,3 +1,4 @@
+import json
 import urllib.parse
 from typing import Optional, Any
 import requests
@@ -30,7 +31,7 @@ class ProjectData:
                 f'{self._base_address}{api_constants.projectdata_getallelementdata}?'
                 f'elementType={urllib.parse.quote(element_type)}'
             )
-            return datahub.get(address, token=self._token)
+            return json.loads(datahub.get(address, token=self._token))
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to get all element data: {e}") from e
 
@@ -41,7 +42,8 @@ class ProjectData:
         :return str: Configurations.
         """
         try:
-            return datahub.get(f'{self._base_address}{api_constants.projectdata_getconfigurations}', token=self._token)
+            address = f'{self._base_address}{api_constants.projectdata_getconfigurations}'
+            return json.loads(datahub.get(address, token=self._token))
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to get configurations: {e}") from e
 
@@ -57,7 +59,7 @@ class ProjectData:
                 f'{self._base_address}{api_constants.projectdata_getelementnames}?'
                 f'elementType={urllib.parse.quote(element_type)}'
             )
-            return datahub.get(address, token=self._token)
+            return json.loads(datahub.get(address, token=self._token))
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to get element names: {e}") from e
 
@@ -68,7 +70,8 @@ class ProjectData:
         :return str: Revision names.
         """
         try:
-            return datahub.get(f'{self._base_address}{api_constants.projectdata_getrevisions}', token=self._token)
+            address = f'{self._base_address}{api_constants.projectdata_getrevisions}'
+            return json.loads(datahub.get(address, token=self._token))
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to get revisions: {e}") from e
 
@@ -113,7 +116,12 @@ class ProjectData:
                 f'{self._base_address}{api_constants.projectdata_getelementprop}?'
                 f'{encoded["elementType"]}&elementName={encoded["elementName"]}&fieldName={encoded["fieldName"]}'
             )
-            return datahub.get(address, token=self._token)
+            response = json.loads(datahub.get(address, token=self._token))
+            if response.get('Value') == 'Invalid element name':
+                raise AttributeError(f'No element with ID {element_name} found')
+            if response.get('Value') == 'Invalid element type':
+                raise AttributeError(f'Invalid element type: {element_type.strip()}')
+            return response
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to get element property: {e}") from e
 
@@ -161,7 +169,8 @@ class ProjectData:
         :return str: Study case IDs.
         """
         try:
-            return datahub.get(f'{self._base_address}{api_constants.projectdata_getstudycasenames}', token=self._token)
+            address = f'{self._base_address}{api_constants.projectdata_getstudycasenames}'
+            return json.loads(datahub.get(address, token=self._token))
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to get study case names: {e}") from e
 
@@ -177,7 +186,7 @@ class ProjectData:
                 f'{self._base_address}{api_constants.projectdata_getstudycase}?'
                 f'studyCaseId={urllib.parse.quote(study_case_id)}'
             )
-            return datahub.get(address, token=self._token)
+            return json.loads(datahub.get(address, token=self._token))
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to get study case: {e}") from e
 

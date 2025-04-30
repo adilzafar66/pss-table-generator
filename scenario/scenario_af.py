@@ -1,4 +1,3 @@
-import json
 from scenario.scenario import Scenario
 from consts.common import INV_CONFIG_MAP, CONFIG_MAP
 from consts.tags import AF_VCB_CONFIG, AF_VCBB_CONFIG, AF_TAG, AF_STUDY_MODE, BASE_REVISION
@@ -39,8 +38,8 @@ class ArcFlashScenario(Scenario):
         - Revisions: Derived from the ETAP project revisions.
         """
         # Retrieve switching configurations and remove the 'Ultimate' configuration
-        all_revisions = json.loads(self._etap.projectdata.getrevisions())
-        switching_configs = json.loads(self._etap.projectdata.getconfigurations())
+        all_revisions = self._etap.projectdata.get_revisions()
+        switching_configs = self._etap.projectdata.get_configurations()
         if self.revisions is None:
             self.revisions = all_revisions
         if isinstance(self.revisions, list):

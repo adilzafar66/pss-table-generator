@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 import requests
 from .other import datahub
@@ -24,7 +25,8 @@ class Application:
         :return str: Project file information.
         """
         try:
-            return datahub.get(f'{self._base_address}{api_constants.application_projectfile}', token=self._token)
+            address = f'{self._base_address}{api_constants.application_projectfile}'
+            return json.loads(datahub.get(address, token=self._token))
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to retrieve project file information: {e}") from e
 
@@ -35,7 +37,8 @@ class Application:
         :return str: Version string.
         """
         try:
-            return datahub.get(f'{self._base_address}{api_constants.application_version}', token=self._token)
+            address = f'{self._base_address}{api_constants.application_version}'
+            return json.loads(datahub.get(address, token=self._token))
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to retrieve version information: {e}") from e
 
@@ -45,4 +48,8 @@ class Application:
 
         :return str: Active scenario string.
         """
-        return datahub.get(f'{self._base_address}{api_constants.application_getactivescenario}', token=self._token)
+        try:
+            address = f'{self._base_address}{api_constants.application_getactivescenario}'
+            return json.loads(datahub.get(address, token=self._token))
+        except requests.RequestException as e:
+            raise RuntimeError(f"Failed to retrieve active scenario information: {e}") from e

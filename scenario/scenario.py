@@ -1,4 +1,3 @@
-import json
 import etap.api
 from pathlib import Path
 import xml.etree.ElementTree as ET
@@ -21,7 +20,7 @@ class Scenario:
         self._etap = etap.api.connect(url)
         self.scenario_xml_path = self.get_scenario_xml_path()
         self.scenario_xml = self.get_scenario_xml()
-        self.presentation = json.loads(self._etap.application.get_active_scenario())['Presentation']
+        self.presentation = self._etap.application.get_active_scenario()['Presentation']
 
     def get_scenario_xml(self):
         """
@@ -57,7 +56,7 @@ class Scenario:
         :return: The full path to the current ETAP project as a Path object.
         :rtype: Path
         """
-        return Path(json.loads(self._etap.application.project_file())['FullPath'])
+        return Path(self._etap.application.project_file()['FullPath'])
 
     def get_project_dir(self) -> Path:
         """
@@ -75,7 +74,7 @@ class Scenario:
         :return: The path to the scenarios XML file as a Path object.
         :rtype: Path
         """
-        return self.get_project_dir() / (self.get_project_path().stem + '.scenarios.xml')
+        return Path(self._etap.scenario.get_xml_file_path()['FilePath'])
 
     def write_scenario_xml(self):
         """

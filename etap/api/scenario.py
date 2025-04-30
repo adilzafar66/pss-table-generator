@@ -1,3 +1,4 @@
+import json
 import urllib.parse
 import requests
 from typing import Optional, Any
@@ -25,10 +26,8 @@ class Scenario:
         :return str: URL or file path to the XML file.
         """
         try:
-            return datahub.get(
-                f'{self._base_address}{api_constants.scenario_getxmlfilepath}',
-                token=self._token
-            )
+            address = f'{self._base_address}{api_constants.scenario_getxmlfilepath}'
+            return json.loads(datahub.get(address, token=self._token))
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to get XML file path: {e}") from e
 
@@ -47,10 +46,10 @@ class Scenario:
             raise RuntimeError(f"Failed to get scenario XML: {e}") from e
 
     def run(
-        self,
-        scenario_id: str,
-        get_online_data: Optional[str] = None,
-        what_if_commands: Optional[Any] = None
+            self,
+            scenario_id: str,
+            get_online_data: Optional[str] = None,
+            what_if_commands: Optional[Any] = None
     ) -> str:
         """
         Run the specified scenario.
@@ -73,17 +72,17 @@ class Scenario:
             raise RuntimeError(f"Failed to run scenario: {error_message}") from e
 
     def create_scenario(
-        self,
-        scenario_id: str,
-        system: str,
-        presentation: str,
-        revision_name: str,
-        config_name: str,
-        study_mode: str,
-        study_type: str,
-        study_case: str,
-        output_report: str,
-        what_if_commands: Optional[Any] = None
+            self,
+            scenario_id: str,
+            system: str,
+            presentation: str,
+            revision_name: str,
+            config_name: str,
+            study_mode: str,
+            study_type: str,
+            study_case: str,
+            output_report: str,
+            what_if_commands: Optional[Any] = None
     ) -> bool:
         """
         Create a new scenario using the given parameters.

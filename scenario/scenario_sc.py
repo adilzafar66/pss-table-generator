@@ -1,4 +1,3 @@
-import json
 from scenario.scenario import Scenario
 from consts.common import INV_CONFIG_MAP
 from consts.tags import SC_TAG, SC_STUDY_MODE, SC_STUDY_CASE, BASE_REVISION
@@ -29,7 +28,7 @@ class ShortCircuitScenario(Scenario):
 
         - Switching configurations: Derived from the ETAP project configurations.
         """
-        switching_configs = json.loads(self._etap.projectdata.getconfigurations())
+        switching_configs = self._etap.projectdata.get_configurations()
 
         if not self.use_all_sw_configs:
             switching_configs = list(filter(utils.filter_switching_configs, switching_configs))

@@ -192,6 +192,10 @@ class Interface(QMainWindow, Ui_MainWindow):
             self.create_reports_checkbox.isChecked()
         ]
 
+        short_circuit_args = common_args + [
+            self.use_all_checkbox.isChecked(),
+        ]
+
         device_duty_args = common_args + [
             self.sw_checkbox.isChecked(),
             self.use_all_checkbox.isChecked(),
@@ -206,7 +210,7 @@ class Interface(QMainWindow, Ui_MainWindow):
             self._get_revisions()
         ]
 
-        return common_args, device_duty_args, arc_flash_args
+        return short_circuit_args, device_duty_args, arc_flash_args
 
     def _get_datahub_url(self) -> str:
         """
@@ -248,6 +252,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         """
         self.sc_worker = ShortCircuitWorker(*sc_args)
         self.sc_worker.error_occurred.connect(self._handle_error)
+        self.sc_worker.process_finished.connect(self._handle_process_finished)
         self.sc_worker.start_device_duty_process.connect(lambda: self._run_device_duty(dd_args, af_args))
         self.sc_worker.start()
 

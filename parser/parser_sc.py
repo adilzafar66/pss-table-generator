@@ -134,12 +134,7 @@ class ShortCircuitParser:
         for entry in entries:
             _id = entry[0]
 
-            if (any(word in _id for word in exclude_contains)
-                    and all(word not in _id for word in exclude_except)):
-                continue
-
-            if (any(_id.startswith(word) for word in exclude_startswith)
-                    and all(not _id.startswith(word) for word in exclude_except)):
+            if utils.is_exclusion(_id, exclude_startswith, exclude_contains, exclude_except):
                 continue
 
             _voltage = entry[1]
@@ -153,19 +148,31 @@ class ShortCircuitParser:
             _x_zero = entry[9]
             _z_zero = entry[10]
 
-            entry_data = {
-                'RPosOhm': _r_pos,
-                'XPosOhm': _x_pos,
-                'ZPosOhm': _z_pos,
-                'RNegOhm': _r_neg,
-                'XNegOhm': _x_neg,
-                'ZNegOhm': _z_neg,
-                'RZeroOhm': _r_zero,
-                'XZeroOhm': _x_zero,
-                'ZZeroOhm': _z_zero
-            }
+            if _id in self.parsed_ansi_data[IMP_TAG]:
+                self.parsed_ansi_data[IMP_TAG][_id]['RPosOhm'].update({config: _r_pos})
+                self.parsed_ansi_data[IMP_TAG][_id]['XPosOhm'].update({config: _x_pos})
+                self.parsed_ansi_data[IMP_TAG][_id]['ZPosOhm'].update({config: _z_pos})
+                self.parsed_ansi_data[IMP_TAG][_id]['RNegOhm'].update({config: _r_neg})
+                self.parsed_ansi_data[IMP_TAG][_id]['XNegOhm'].update({config: _x_neg})
+                self.parsed_ansi_data[IMP_TAG][_id]['ZNegOhm'].update({config: _z_neg})
+                self.parsed_ansi_data[IMP_TAG][_id]['RZeroOhm'].update({config: _r_zero})
+                self.parsed_ansi_data[IMP_TAG][_id]['XZeroOhm'].update({config: _x_zero})
+                self.parsed_ansi_data[IMP_TAG][_id]['ZZeroOhm'].update({config: _z_zero})
+                continue
 
-            self.parsed_ansi_data[IMP_TAG].update({config: entry_data})
+            entry_data = {
+                'Voltage': _voltage,
+                'RPosOhm': {config: _r_pos},
+                'XPosOhm': {config: _x_pos},
+                'ZPosOhm': {config: _z_pos},
+                'RNegOhm': {config: _r_neg},
+                'XNegOhm': {config: _x_neg},
+                'ZNegOhm': {config: _z_neg},
+                'RZeroOhm': {config: _r_zero},
+                'XZeroOhm': {config: _x_zero},
+                'ZZeroOhm': {config: _z_zero}
+            }
+            self.parsed_ansi_data[IMP_TAG].update({_id: entry_data})
 
     # def filter_filepaths(self):
     #     def filter_func(path_str):

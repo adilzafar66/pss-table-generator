@@ -2,7 +2,7 @@ SC_CONST_HEADERS = ['Device', None]
 SC_FAULT_CONST_COLS = ['Bus', 'kV']
 SC_FAULT_VAR_COLS = ['3PH', 'LG', 'LL', 'LLG']
 SC_IMP_CONST_COLS = ['Bus', 'kV']
-SC_IMP_VAR_COLS = ['Pos. Seq.', ]
+SC_IMP_VAR_COLS = ['Pos. Seq. R', 'Pos Seq. X', 'Zero Seq. R', 'Zero Seq. X']
 
 DD_CONST_HEADERS = ['Device', 'Device Capability']
 DD_MOM_CONST_COLS = ['ID', 'Nominal kV', 'Type']

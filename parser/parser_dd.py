@@ -1,4 +1,3 @@
-import json
 import etap.api
 from pathlib import Path
 import xml.etree.ElementTree as ET
@@ -45,7 +44,7 @@ class DeviceDutyParser:
         :param str url: local URL for connecting to the datahub.
         """
         self._etap = etap.api.connect(url)
-        version = json.loads(self._etap.application.version())['Version']
+        version = self._etap.application.version()['Version']
         if version.startswith('22'):
             self.tree = ET.fromstring(self._etap.projectdata.get_xml())
 
@@ -339,13 +338,8 @@ class DeviceDutyParser:
 
         if not self.tree:
             elem_type = TYPE_MAP.get(element_type.strip(), BUS_TAG)
-            get_element_prop = self._etap.projectdata.get_element_prop
-            value = json.loads(get_element_prop(elem_type, element_id, COMMENT_VAR))
-            if value.get('Value') == 'Invalid element name':
-                raise AttributeError(f'No element with ID {element_id} found')
-            if value.get('Value') == 'Invalid element type':
-                raise AttributeError(f'Invalid element type: {element_type.strip()}')
-            comment = value.get('Value') and value.get('Value').lower()
+            prop = self._etap.projectdata.get_element_prop(elem_type, element_id, COMMENT_VAR)
+            comment = prop.get('Value') and prop.get('Value').lower()
         else:
             element = self.tree.find(f'.//LAYOUT//*[@ID="{element_id}"]')
             if element is None:
