@@ -1,6 +1,6 @@
 from pathlib import Path
-
 from consts.columns import AF_CONST_COLS
+from consts.common import HEADER_ROW
 from consts.filenames import AF_FILENAME
 from consts.styles import WIDTH_COL_LRG
 from parser.parser_af import ArcFlashParser
@@ -69,7 +69,7 @@ class ArcFlashWorker(Worker):
         af_exporter = ArcFlashExporter()
         af_exporter.create_headers(self.use_si_units)
         af_exporter.add_data(self.parsed_ansi_data)
-        af_exporter.format_sheet(0, len(AF_CONST_COLS), 0, WIDTH_COL_LRG)
+        af_exporter.format_sheet(0, HEADER_ROW, len(AF_CONST_COLS), 0, WIDTH_COL_LRG)
         af_exporter.highlight_high_energy(self.low_energy, self.high_energy)
         project_number = self.input_dir_path.stem
         filename = f'{project_number}_{AF_FILENAME}'

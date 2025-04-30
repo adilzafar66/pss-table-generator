@@ -13,7 +13,7 @@ KEYS_DD_INT = {
 KEYS_DD_INT_IEC = {
     'Type': 'Bus',
     'Fault': ['LbSym', 'LbAsym'],
-    'Cap': ['CapLbSym', 'CapLbAsym']
+    'Capability': ['CapLbSym', 'CapLbAsym']
 }
 
 KEYS_SC_FAULT = ['Mag3Ph', 'MagLG', 'MagLL', 'MagLLG']

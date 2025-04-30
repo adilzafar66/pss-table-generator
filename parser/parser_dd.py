@@ -338,11 +338,13 @@ class DeviceDutyParser:
             return self.comments.get(element_id)
 
         if not self.tree:
-            elem_type = TYPE_MAP.get(element_type, BUS_TAG)
+            elem_type = TYPE_MAP.get(element_type.strip(), BUS_TAG)
             get_element_prop = self._etap.projectdata.get_element_prop
             value = json.loads(get_element_prop(elem_type, element_id, COMMENT_VAR))
             if value.get('Value') == 'Invalid element name':
                 raise AttributeError(f'No element with ID {element_id} found')
+            if value.get('Value') == 'Invalid element type':
+                raise AttributeError(f'Invalid element type: {element_type.strip()}')
             comment = value.get('Value') and value.get('Value').lower()
         else:
             element = self.tree.find(f'.//LAYOUT//*[@ID="{element_id}"]')

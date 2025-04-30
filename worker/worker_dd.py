@@ -1,5 +1,7 @@
 from pathlib import Path
 from PyQt5.QtCore import pyqtSignal
+
+from consts.common import SUBHEAD_ROW
 from worker.worker import Worker
 from parser.parser_dd import DeviceDutyParser
 from exporters.exporter_dd import DeviceDutyExporter
@@ -73,9 +75,9 @@ class DeviceDutyWorker(Worker):
 
     def execute_data_export(self) -> Path:
         """
-        Executes the export of parsed device duty data to an Excel workbook.
-        Creates headers, inserts data, and formats the sheets for ANSI momentary, ANSI interrupting, and IEC interrupting data.
-        Saves the workbook to the output directory.
+        Executes the export of parsed device duty data to an Excel workbook. Creates headers, inserts data,
+        and formats the sheets for ANSI momentary, ANSI interrupting, and IEC interrupting data. Saves the workbook
+        to the output directory.
 
         :return: The path to the saved Excel workbook.
         :rtype: Path
@@ -100,9 +102,9 @@ class DeviceDutyWorker(Worker):
         dd_exporter.format_headers(2)
 
         # Apply formatting to each sheet
-        dd_exporter.format_sheet(0, len(DD_MOM_CONST_COLS), len(DD_MOM_VAR_COLS), 16)
-        dd_exporter.format_sheet(1, len(DD_INT_CONST_COLS), len(DD_INT_VAR_COLS), 22)
-        dd_exporter.format_sheet(2, len(DD_INT_CONST_COLS), len(DD_INT_IEC_VAR_COLS), 16)
+        dd_exporter.format_sheet(0, SUBHEAD_ROW, len(DD_MOM_CONST_COLS), len(DD_MOM_VAR_COLS), 16)
+        dd_exporter.format_sheet(1, SUBHEAD_ROW, len(DD_INT_CONST_COLS), len(DD_INT_VAR_COLS), 22)
+        dd_exporter.format_sheet(2, SUBHEAD_ROW, len(DD_INT_CONST_COLS), len(DD_INT_IEC_VAR_COLS), 16)
 
         # Save the workbook
         project_number = self.input_dir_path.stem

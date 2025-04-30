@@ -17,6 +17,7 @@ def apply_row_format(sheet: Worksheet, start_row):
             fill = get_row_cell_fill(cell)
             apply_cell_format(cell, styles.FONT_ENTRIES, styles.ALIGNMENT, styles.BORDER_ALL, fill)
 
+
 def get_sorted_configs(data: dict) -> list:
     """
     Retrieves and sorts switching configurations based on passed data.
@@ -30,6 +31,7 @@ def get_sorted_configs(data: dict) -> list:
         random_dict = next((v for v in entry.values() if isinstance(v, dict)), {})
         configs.update(random_dict.keys())
     return rearrange_list(list(configs), list(CONFIG_MAP.keys()))
+
 
 def rearrange_list(target_list: list, reference_list: list) -> list:
     """
@@ -46,6 +48,7 @@ def rearrange_list(target_list: list, reference_list: list) -> list:
     in_reference_sorted = sorted(in_reference, key=lambda x: reference_dict[x])
     return in_reference_sorted + not_in_reference
 
+
 def set_const_cols_header(sheet: Worksheet, header: str, const_cols: list):
     """
     Helper method to set the main header for a sheet.
@@ -58,8 +61,9 @@ def set_const_cols_header(sheet: Worksheet, header: str, const_cols: list):
     sheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(const_cols))
     set_cols_subheads(sheet, const_cols, start_col=1)
 
+
 def set_var_cols_headers(sheet: Worksheet, configs: list, var_cols: list, col_prefix: str,
-                          const_cols_buff: int, var_cols_buff: int):
+                         const_cols_buff: int, var_cols_buff: int):
     """
     Helper method to set dynamic headers for configurations.
 
@@ -77,6 +81,7 @@ def set_var_cols_headers(sheet: Worksheet, configs: list, var_cols: list, col_pr
         sheet.merge_cells(start_row=1, start_column=col_index, end_row=1,
                           end_column=col_index + len(var_cols) - 1)
         set_cols_subheads(sheet, var_cols, start_col=col_index)
+
 
 def set_end_cols_headers(sheet: Worksheet, header: str | None, var_cols: list, const_cols_buff: int, offset: int):
     """
@@ -96,6 +101,7 @@ def set_end_cols_headers(sheet: Worksheet, header: str | None, var_cols: list, c
                       end_column=last_col_index + len(var_cols) - 1)
     set_cols_subheads(sheet, var_cols, start_col=last_col_index)
 
+
 def set_cols_subheads(sheet: Worksheet, columns: list, start_col: int):
     """
     Helper method to set subheads for a worksheet.
@@ -106,6 +112,7 @@ def set_cols_subheads(sheet: Worksheet, columns: list, start_col: int):
     """
     for i, col_name in enumerate(columns):
         sheet.cell(SUBHEAD_ROW, start_col + i).value = col_name
+
 
 def apply_cell_format(cell: Cell, font, align, border, fill=None):
     """
@@ -123,6 +130,7 @@ def apply_cell_format(cell: Cell, font, align, border, fill=None):
     if fill is not None:
         cell.fill = fill
 
+
 def get_row_cell_fill(cell: Cell):
     """
     Applies fill to a single row cell.
@@ -131,6 +139,7 @@ def get_row_cell_fill(cell: Cell):
     """
     if cell.row % 2 == 0 and not cell.fill.patternType:
         return styles.FILL_ROW_BLUE
+
 
 def set_column_widths(sheet: Worksheet, const_cols_len: int, var_cols_len: int, col_width: float):
     """
@@ -150,6 +159,7 @@ def set_column_widths(sheet: Worksheet, const_cols_len: int, var_cols_len: int, 
                     cell.border = styles.BORDER_VERTICAL
         else:
             sheet.column_dimensions[get_column_letter(i)].width = col_width
+
 
 def format_numbers(sheet: Worksheet):
     """

@@ -87,17 +87,19 @@ class Exporter:
                 utils.apply_cell_format(cell, styles.FONT_HEADER, styles.ALIGNMENT,
                                         styles.BORDER_ALL, styles.FILL_HEADER)
 
-    def format_sheet(self, sheet_index: int, const_cols_len: int, var_cols_len: int, col_width: float):
+    def format_sheet(self, sheet_index: int, start_after_row: int, const_cols_len: int, var_cols_len: int,
+                     col_width: float):
         """
         Applies formatting to the entire sheet.
 
         :param int sheet_index: Index of the worksheet in the workbook.
+        :param start_after_row: Index of the row to start formatting after.
         :param int const_cols_len: Number of constant columns.
         :param int var_cols_len: Number of variable columns.
         :param float col_width: Width of the columns.
         """
         sheet = self.wb.worksheets[sheet_index]
-        utils.apply_row_format(sheet, SUBHEAD_ROW + 1)
+        utils.apply_row_format(sheet, start_after_row + 1)
         utils.set_column_widths(sheet, const_cols_len, var_cols_len, col_width)
         utils.format_numbers(sheet)
 

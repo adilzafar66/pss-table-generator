@@ -106,7 +106,6 @@ class DeviceDutyExporter(Exporter):
             ws_row[last_col_index + j].value = round(cap_val, 2) or '--'
             self.highlight_series_rated(ws_row[last_col_index + j], entry_data.get('SeriesRated'))
 
-
     def insert_fault_data(self, ws_index: int, ws_row: tuple, values: dict, cap_val: float, offset: int = 0):
         """
         Inserts fault data into specified cells in a row.

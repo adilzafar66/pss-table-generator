@@ -235,7 +235,8 @@ class Interface(QMainWindow, Ui_MainWindow):
 
         :return list: Tags entered for exclusion exception.
         """
-        return utils.split_string_tags(self.exclude_except_input.text()) if self.exclude_except_radio.isChecked() else []
+        return utils.split_string_tags(
+            self.exclude_except_input.text()) if self.exclude_except_radio.isChecked() else []
 
     def _run_short_circuit(self, sc_args: list, dd_args: list, af_args: list) -> None:
         """
@@ -257,11 +258,12 @@ class Interface(QMainWindow, Ui_MainWindow):
         :param list dd_args: Device Duty arguments.
         :param list af_args: Arc Flash arguments.
         """
-        self.dd_worker = DeviceDutyWorker(*dd_args)
-        self.dd_worker.error_occurred.connect(self._handle_error)
-        self.dd_worker.process_finished.connect(self._handle_process_finished)
-        self.dd_worker.start_arc_flash_process.connect(lambda: self._run_arc_flash(af_args))
-        self.dd_worker.start()
+        if self.device_duty_checkbox.isChecked():
+            self.dd_worker = DeviceDutyWorker(*dd_args)
+            self.dd_worker.error_occurred.connect(self._handle_error)
+            self.dd_worker.process_finished.connect(self._handle_process_finished)
+            self.dd_worker.start_arc_flash_process.connect(lambda: self._run_arc_flash(af_args))
+            self.dd_worker.start()
 
     def _run_arc_flash(self, af_args: list) -> None:
         """
@@ -269,10 +271,11 @@ class Interface(QMainWindow, Ui_MainWindow):
 
         :param list af_args: Arc Flash arguments.
         """
-        self.af_worker = ArcFlashWorker(*af_args)
-        self.af_worker.error_occurred.connect(self._handle_error)
-        self.af_worker.process_finished.connect(self._handle_process_finished)
-        self.af_worker.start()
+        if self.arc_flash_checkbox.isChecked():
+            self.af_worker = ArcFlashWorker(*af_args)
+            self.af_worker.error_occurred.connect(self._handle_error)
+            self.af_worker.process_finished.connect(self._handle_process_finished)
+            self.af_worker.start()
 
     def _handle_error(self, message: str) -> None:
         """

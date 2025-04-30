@@ -1,5 +1,7 @@
 from pathlib import Path
 from PyQt5.QtCore import pyqtSignal
+
+from consts.common import SUBHEAD_ROW
 from consts.filenames import SC_FILENAME
 from consts.tags import FAULT_TAG, IMP_TAG
 from exporters.exporter_sc import ShortCircuitExporter
@@ -76,8 +78,8 @@ class ShortCircuitWorker(Worker):
         sc_exporter.format_headers(1)
 
         # Apply formatting to each sheet
-        sc_exporter.format_sheet(0, len(SC_FAULT_CONST_COLS), len(SC_FAULT_VAR_COLS), 16)
-        sc_exporter.format_sheet(1, len(SC_IMP_CONST_COLS), len(SC_IMP_VAR_COLS), 16)
+        sc_exporter.format_sheet(0, SUBHEAD_ROW, len(SC_FAULT_CONST_COLS), len(SC_FAULT_VAR_COLS), 16)
+        sc_exporter.format_sheet(1, SUBHEAD_ROW, len(SC_IMP_CONST_COLS), len(SC_IMP_VAR_COLS), 16)
 
         # Save the workbook
         project_number = self.input_dir_path.stem

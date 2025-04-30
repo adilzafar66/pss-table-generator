@@ -1,6 +1,8 @@
 import requests
 from .. import settings
 
+requests.packages.urllib3.disable_warnings()
+
 
 def get(url_absolute: str, token: str = None) -> str:
     """
