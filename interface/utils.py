@@ -1,9 +1,11 @@
+import json
 import os
 import sys
 import pickle
 import subprocess
 from pathlib import Path
 from PyQt5.QtWidgets import QLineEdit
+from consts.common import HTTP, HTTPS, ETAP22_PORT, DATAHUB_FILENAME
 
 
 def save_line_edit_text(file_path: Path, line_edit: QLineEdit, on_error: callable) -> None:
@@ -69,3 +71,14 @@ def split_string_tags(tag_string: str, delimiter: str = ';') -> list[str]:
     :return list[str]: A list of non-empty, trimmed tag strings.
     """
     return [tag.strip() for tag in tag_string.split(delimiter) if tag.strip()]
+
+
+def get_datahub_info(project_path: str):
+    filepath = Path(project_path) / DATAHUB_FILENAME
+    try:
+        with open(filepath, 'r') as file:
+            services = json.load(file)['Services']
+    except FileNotFoundError:
+        return HTTP, ETAP22_PORT
+    port_number = next((s['Port'] for s in services if s['ServiceName'] == 'EtapApi'), None)
+    return HTTPS, str(port_number)

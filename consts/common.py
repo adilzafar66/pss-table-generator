@@ -3,9 +3,12 @@ PORT_FILE = 'port_number.pickle'
 
 HTTP = 'http'
 HTTPS = 'https'
+ETAP22_PORT = 65358
 HEADER_ROW = 1
 SUBHEAD_ROW = 2
 ROUND_DIGITS = 2
+
+DATAHUB_FILENAME = 'dataHubSettings.json'
 
 DEFAULT_SW_CONFIGS = [
     'Normal',

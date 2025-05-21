@@ -46,7 +46,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         self._set_logo(app_path)
         self._connect_buttons()
         self._add_additional_connections()
-        self._load_port_settings()
+        # self._load_port_settings()
         self._configure_initial_visibility()
         self.setMinimumWidth(475)
         self.adjustSize()
@@ -93,8 +93,8 @@ class Interface(QMainWindow, Ui_MainWindow):
             checkbox.toggled.connect(self._toggle_datahub_note_visibility)
 
         self.etap_dir_checkbox.clicked.connect(self._sync_output_directory)
-        self.action_save_port.triggered.connect(self._save_port_settings)
-        self.action_load_port.triggered.connect(self._load_port_settings)
+        # self.action_save_port.triggered.connect(self._save_port_settings)
+        # self.action_load_port.triggered.connect(self._load_port_settings)
 
     def _browse_input_directory(self) -> None:
         """
@@ -140,21 +140,21 @@ class Interface(QMainWindow, Ui_MainWindow):
         ]
         self.datahub_note.setVisible(any(options))
 
-    def _save_port_settings(self) -> None:
-        """
-        Saves port settings to file.
-        """
-        port_file = self.default_path / PORT_FILE
-        error_func = lambda ex: self._show_message(errors.SAVE_ERROR_TITLE, errors.PORT_SAVE_ERROR, str(ex))
-        utils.save_line_edit_text(port_file, self.port, error_func)
-
-    def _load_port_settings(self) -> None:
-        """
-        Loads port settings from file.
-        """
-        port_file = self.default_path / PORT_FILE
-        error_func = lambda ex: self._show_message(errors.LOAD_ERROR_TITLE, errors.PORT_LOAD_ERROR, str(ex))
-        utils.load_line_edit_text(port_file, self.port, error_func)
+    # def _save_port_settings(self) -> None:
+    #     """
+    #     Saves port settings to file.
+    #     """
+    #     port_file = self.default_path / PORT_FILE
+    #     error_func = lambda ex: self._show_message(errors.SAVE_ERROR_TITLE, errors.PORT_SAVE_ERROR, str(ex))
+    #     utils.save_line_edit_text(port_file, self.port, error_func)
+    #
+    # def _load_port_settings(self) -> None:
+    #     """
+    #     Loads port settings from file.
+    #     """
+    #     port_file = self.default_path / PORT_FILE
+    #     error_func = lambda ex: self._show_message(errors.LOAD_ERROR_TITLE, errors.PORT_LOAD_ERROR, str(ex))
+    #     utils.load_line_edit_text(port_file, self.port, error_func)
 
     def _start_analysis(self) -> None:
         """
@@ -218,8 +218,8 @@ class Interface(QMainWindow, Ui_MainWindow):
 
         :return str: The constructed URL.
         """
-        protocol = HTTPS if self.radio_etap24.isChecked() else HTTP
-        return f'{protocol}://localhost:{self.port.text()}'
+        protocol, port_number = utils.get_datahub_info(self.etap_dir.text())
+        return f'{protocol}://localhost:{port_number}'
 
     def _get_revisions(self) -> list | None:
         """
@@ -333,13 +333,13 @@ class Interface(QMainWindow, Ui_MainWindow):
             self._show_message(errors.INPUT_ERROR_TITLE, errors.NO_OPTION_SELECTED_MSG)
             return False
 
-        if any([
-            self.create_scenarios_checkbox.isChecked(),
-            self.series_rating_checkbox.isChecked(),
-            self.mark_assumed_checkbox.isChecked()
-        ]) and (not self.port.text().isnumeric() or len(self.port.text()) < 5):
-            self._show_message(errors.DATA_VALIDATION_ERROR_TITLE, errors.INVALID_PORT_MSG)
-            return False
+        # if any([
+        #     self.create_scenarios_checkbox.isChecked(),
+        #     self.series_rating_checkbox.isChecked(),
+        #     self.mark_assumed_checkbox.isChecked()
+        # ]) and (not self.port.text().isnumeric() or len(self.port.text()) < 5):
+        #     self._show_message(errors.DATA_VALIDATION_ERROR_TITLE, errors.INVALID_PORT_MSG)
+        #     return False
 
         if self.etap_dir.isEnabled() and not Path(self.etap_dir.text()).is_dir():
             self._show_message(errors.DATA_VALIDATION_ERROR_TITLE, errors.INVALID_ETAP_DIR_MSG)

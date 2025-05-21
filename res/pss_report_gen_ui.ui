@@ -5,12 +5,15 @@
   <property name="windowModality">
    <enum>Qt::NonModal</enum>
   </property>
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>475</width>
-    <height>849</height>
+    <height>788</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -60,71 +63,6 @@
          </widget>
         </item>
        </layout>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="port_group">
-        <property name="title">
-         <string>Datahub Port</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <layout class="QHBoxLayout" name="port_layout">
-           <item>
-            <widget class="QLineEdit" name="port">
-             <property name="maximumSize">
-              <size>
-               <width>60</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="maxLength">
-              <number>5</number>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="port_spacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radio_etap24">
-             <property name="text">
-              <string>ETAP 24</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radio_etap22">
-             <property name="text">
-              <string>ETAP 22</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
       </item>
       <item>
        <layout class="QGridLayout" name="report_options_grid">
@@ -836,7 +774,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>276</x>
-     <y>152</y>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
      <x>155</x>
@@ -852,11 +790,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>297</x>
-     <y>402</y>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
      <x>331</x>
-     <y>435</y>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
@@ -868,11 +806,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>315</x>
-     <y>149</y>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
      <x>206</x>
-     <y>402</y>
+     <y>341</y>
     </hint>
    </hints>
   </connection>
@@ -884,11 +822,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>361</x>
-     <y>153</y>
+     <y>92</y>
     </hint>
     <hint type="destinationlabel">
      <x>246</x>
-     <y>402</y>
+     <y>341</y>
     </hint>
    </hints>
   </connection>
@@ -900,11 +838,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>354</x>
-     <y>149</y>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
      <x>297</x>
-     <y>402</y>
+     <y>341</y>
     </hint>
    </hints>
   </connection>
@@ -916,11 +854,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>331</x>
-     <y>197</y>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
      <x>241</x>
-     <y>375</y>
+     <y>314</y>
     </hint>
    </hints>
   </connection>
@@ -932,11 +870,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>199</y>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
      <x>347</x>
-     <y>375</y>
+     <y>314</y>
     </hint>
    </hints>
   </connection>
@@ -948,7 +886,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>386</x>
-     <y>198</y>
+     <y>137</y>
     </hint>
     <hint type="destinationlabel">
      <x>392</x>
@@ -964,7 +902,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>166</x>
-     <y>205</y>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
      <x>141</x>
@@ -980,7 +918,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>139</x>
-     <y>182</y>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>103</x>
@@ -996,11 +934,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>334</x>
-     <y>197</y>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
      <x>441</x>
-     <y>288</y>
+     <y>227</y>
     </hint>
    </hints>
   </connection>
@@ -1012,11 +950,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>329</x>
-     <y>194</y>
+     <y>133</y>
     </hint>
     <hint type="destinationlabel">
      <x>95</x>
-     <y>288</y>
+     <y>227</y>
     </hint>
    </hints>
   </connection>
@@ -1028,11 +966,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>335</x>
-     <y>198</y>
+     <y>137</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
-     <y>265</y>
+     <y>204</y>
     </hint>
    </hints>
   </connection>
@@ -1044,11 +982,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>332</x>
-     <y>158</y>
+     <y>97</y>
     </hint>
     <hint type="destinationlabel">
      <x>442</x>
-     <y>435</y>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
@@ -1060,7 +998,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>386</x>
-     <y>155</y>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
      <x>346</x>
@@ -1076,11 +1014,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>414</x>
-     <y>159</y>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
      <x>414</x>
-     <y>182</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -1092,11 +1030,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>101</x>
-     <y>551</y>
+     <y>490</y>
     </hint>
     <hint type="destinationlabel">
      <x>177</x>
-     <y>547</y>
+     <y>486</y>
     </hint>
    </hints>
   </connection>

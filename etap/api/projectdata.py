@@ -114,7 +114,7 @@ class ProjectData:
             }
             address = (
                 f'{self._base_address}{api_constants.projectdata_getelementprop}?'
-                f'{encoded["elementType"]}&elementName={encoded["elementName"]}&fieldName={encoded["fieldName"]}'
+                f'elementType={encoded["elementType"]}&elementName={encoded["elementName"]}&fieldName={encoded["fieldName"]}'
             )
             response = json.loads(datahub.get(address, token=self._token))
             if response.get('Value') == 'Invalid element name':
