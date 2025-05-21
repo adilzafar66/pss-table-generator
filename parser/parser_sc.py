@@ -4,14 +4,14 @@ from pathlib import Path
 from sqlite3 import Error, OperationalError
 from consts.filenames import SC_ANSI_EXT
 from consts.queries import ANSI_SC_FAULT_QUERY, ANSI_SC_IMP_QUERY
-from consts.tags import FAULT_TAG, IMP_TAG
+from consts.tags import FAULT_TAG, IMP_TAG, SC_TAG
 
 
 class ShortCircuitParser:
     def __init__(self, etap_dir: Path):
         self.ansi_sc_data = {}
         self.parsed_ansi_data = {FAULT_TAG: {}, IMP_TAG: {}}
-        self.filepaths = utils.get_filepaths(etap_dir, SC_ANSI_EXT)
+        self.filepaths = utils.get_filepaths(etap_dir, SC_ANSI_EXT, SC_TAG)
 
     def extract_ansi_data(self):
         """

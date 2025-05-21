@@ -2,6 +2,7 @@ import sqlite3
 from parser import utils
 from pathlib import Path
 from sqlite3 import Error, OperationalError
+from consts.tags import AF_TAG
 from consts.common import ROUND_DIGITS
 from consts.columns import AF_COL_INDICES
 from consts.filenames import AF_ANSI_EXT
@@ -21,7 +22,7 @@ class ArcFlashParser:
         :param Path etap_dir: Path to the directory containing the arc flash study files (AAFS files).
         """
         self.parsed_ansi_data = {}
-        self.filepaths = utils.get_filepaths(etap_dir, AF_ANSI_EXT)
+        self.filepaths = utils.get_filepaths(etap_dir, AF_ANSI_EXT, AF_TAG)
 
     def extract_ansi_af_data(self):
         """

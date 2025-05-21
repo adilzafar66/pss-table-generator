@@ -1,6 +1,5 @@
 from pathlib import Path
 from PyQt5.QtCore import pyqtSignal
-
 from consts.common import SUBHEAD_ROW
 from consts.filenames import SC_FILENAME
 from consts.keys import KEYS_SC_FAULT, KEYS_SC_IMP

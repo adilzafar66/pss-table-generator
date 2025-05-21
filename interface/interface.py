@@ -1,11 +1,12 @@
 from pathlib import Path
+from PyQt5.QtCore import Qt
 from consts import errors
-from consts.errors import RUNTIME_ERROR_TITLE
 from interface import utils
 from PyQt5.QtGui import QIcon, QPixmap
+from interface.interface_pb import Ui_Dialog
 from interface.interface_ui import Ui_MainWindow
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
-from consts.common import HTTPS, HTTP, PROGRAM_TITLE, PORT_FILE
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QDialog
+from consts.common import PROGRAM_TITLE
 from worker.worker_af import ArcFlashWorker
 from worker.worker_dd import DeviceDutyWorker
 from worker.worker_sc import ShortCircuitWorker
@@ -46,7 +47,6 @@ class Interface(QMainWindow, Ui_MainWindow):
         self._set_logo(app_path)
         self._connect_buttons()
         self._add_additional_connections()
-        # self._load_port_settings()
         self._configure_initial_visibility()
         self.setMinimumWidth(475)
         self.adjustSize()
@@ -93,8 +93,6 @@ class Interface(QMainWindow, Ui_MainWindow):
             checkbox.toggled.connect(self._toggle_datahub_note_visibility)
 
         self.etap_dir_checkbox.clicked.connect(self._sync_output_directory)
-        # self.action_save_port.triggered.connect(self._save_port_settings)
-        # self.action_load_port.triggered.connect(self._load_port_settings)
 
     def _browse_input_directory(self) -> None:
         """
@@ -140,28 +138,14 @@ class Interface(QMainWindow, Ui_MainWindow):
         ]
         self.datahub_note.setVisible(any(options))
 
-    # def _save_port_settings(self) -> None:
-    #     """
-    #     Saves port settings to file.
-    #     """
-    #     port_file = self.default_path / PORT_FILE
-    #     error_func = lambda ex: self._show_message(errors.SAVE_ERROR_TITLE, errors.PORT_SAVE_ERROR, str(ex))
-    #     utils.save_line_edit_text(port_file, self.port, error_func)
-    #
-    # def _load_port_settings(self) -> None:
-    #     """
-    #     Loads port settings from file.
-    #     """
-    #     port_file = self.default_path / PORT_FILE
-    #     error_func = lambda ex: self._show_message(errors.LOAD_ERROR_TITLE, errors.PORT_LOAD_ERROR, str(ex))
-    #     utils.load_line_edit_text(port_file, self.port, error_func)
-
     def _start_analysis(self) -> None:
         """
         Initiates the analysis process based on user selections.
         """
         if not self._validate_inputs():
             return
+
+        self._show_progress_dialog()
 
         args_sc, args_dd, args_af = self._collect_analysis_arguments()
 
@@ -288,7 +272,7 @@ class Interface(QMainWindow, Ui_MainWindow):
 
         :param str message: The error message.
         """
-        self._show_message(RUNTIME_ERROR_TITLE, message, icon=QMessageBox.Critical)
+        self._show_message(errors.RUNTIME_ERROR_TITLE, message, icon=QMessageBox.Critical)
 
     def _show_message(self, title: str, message: str, description: str = '',
                       icon: QMessageBox.Icon = QMessageBox.Warning) -> None:
@@ -309,14 +293,28 @@ class Interface(QMainWindow, Ui_MainWindow):
         box.setStandardButtons(QMessageBox.Ok)
         box.exec_()
 
-    @staticmethod
-    def _handle_process_finished(output_path: str) -> None:
+    def _show_progress_dialog(self) -> None:
+        """
+        Creates and displays a progress dialog until the process is completed.
+        """
+        self.progress_dialog = Dialog(QIcon(self.icon_path))
+        self.progress_dialog.setWindowModality(Qt.ApplicationModal)
+        self.progress_dialog.show()
+
+    def _handle_process_finished(self, output_path: str) -> None:
         """
         Handles worker completion.
 
         :param str output_path: Path to the output file.
         """
         utils.open_file(Path(output_path))
+        threads = [worker for worker in [self.sc_worker, self.dd_worker, self.af_worker] if worker is not None]
+        thread_cbs = [self.short_circuit_checkbox, self.device_duty_checkbox, self.arc_flash_checkbox]
+        checked_cbs = [cb for cb in thread_cbs if cb.isChecked()]
+
+        # Check if all threads are finished and the counts match
+        if all(thread.isFinished() for thread in threads) and len(threads) == len(checked_cbs):
+            self.progress_dialog.close()
 
     def _validate_inputs(self) -> bool:
         """
@@ -333,19 +331,14 @@ class Interface(QMainWindow, Ui_MainWindow):
             self._show_message(errors.INPUT_ERROR_TITLE, errors.NO_OPTION_SELECTED_MSG)
             return False
 
-        # if any([
-        #     self.create_scenarios_checkbox.isChecked(),
-        #     self.series_rating_checkbox.isChecked(),
-        #     self.mark_assumed_checkbox.isChecked()
-        # ]) and (not self.port.text().isnumeric() or len(self.port.text()) < 5):
-        #     self._show_message(errors.DATA_VALIDATION_ERROR_TITLE, errors.INVALID_PORT_MSG)
-        #     return False
+        def is_input_empty(i):
+            return not i.text() or not Path(i.text()).is_dir()
 
-        if self.etap_dir.isEnabled() and not Path(self.etap_dir.text()).is_dir():
+        if is_input_empty(self.etap_dir):
             self._show_message(errors.DATA_VALIDATION_ERROR_TITLE, errors.INVALID_ETAP_DIR_MSG)
             return False
 
-        if self.output_dir.isEnabled() and not Path(self.output_dir.text()).is_dir():
+        if self.output_dir.isEnabled() and is_input_empty(self.output_dir):
             self._show_message(errors.DATA_VALIDATION_ERROR_TITLE, errors.INVALID_OUTPUT_DIR_MSG)
             return False
 
@@ -375,3 +368,21 @@ class Interface(QMainWindow, Ui_MainWindow):
 
         self.include_base_radio.setChecked(True)
         self.exclude_all_radio.setChecked(True)
+
+
+class Dialog(QDialog, Ui_Dialog):
+    """
+    Custom dialog for showing progress during long-running tasks.
+    """
+
+    def __init__(self, icon: QIcon, *args, **kwargs):
+        """
+        Initializes the progress dialog with the given icon.
+
+        :param QIcon icon: Icon for the dialog.
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        """
+        super().__init__(*args, **kwargs)
+        self.setupUi(self)
+        self.setWindowIcon(icon)

@@ -73,7 +73,13 @@ def split_string_tags(tag_string: str, delimiter: str = ';') -> list[str]:
     return [tag.strip() for tag in tag_string.split(delimiter) if tag.strip()]
 
 
-def get_datahub_info(project_path: str):
+def get_datahub_info(project_path: str) -> tuple[str, str]:
+    """
+    Retrieves and returns the datahub settings for a project for API connection.
+
+    :param str project_path: Path to the ETAP project files.
+    :return tuple[str, str]: returns the protocol and the port number to connect to datahub.
+    """
     filepath = Path(project_path) / DATAHUB_FILENAME
     try:
         with open(filepath, 'r') as file:

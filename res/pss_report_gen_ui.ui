@@ -687,8 +687,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="action_save_port"/>
-    <addaction name="action_load_port"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -700,8 +698,14 @@
      <string>Help</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -726,7 +730,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>451</x>
-     <y>816</y>
+     <y>755</y>
     </hint>
     <hint type="destinationlabel">
      <x>309</x>
@@ -742,11 +746,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>228</x>
-     <y>745</y>
+     <y>684</y>
     </hint>
     <hint type="destinationlabel">
-     <x>314</x>
-     <y>718</y>
+     <x>345</x>
+     <y>657</y>
     </hint>
    </hints>
   </connection>
@@ -758,27 +762,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>228</x>
-     <y>745</y>
+     <y>684</y>
     </hint>
     <hint type="destinationlabel">
      <x>106</x>
-     <y>748</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>create_scenarios_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>etap_dir_group</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>276</x>
-     <y>91</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>155</x>
-     <y>665</y>
+     <y>687</y>
     </hint>
    </hints>
   </connection>
@@ -889,8 +877,8 @@
      <y>137</y>
     </hint>
     <hint type="destinationlabel">
-     <x>392</x>
-     <y>759</y>
+     <x>413</x>
+     <y>698</y>
     </hint>
    </hints>
   </connection>
@@ -987,22 +975,6 @@
     <hint type="destinationlabel">
      <x>442</x>
      <y>374</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>create_scenarios_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>etap_dir</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>386</x>
-     <y>94</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>346</x>
-     <y>624</y>
     </hint>
    </hints>
   </connection>

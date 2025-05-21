@@ -1,5 +1,4 @@
 PROGRAM_TITLE = 'ETAP Report Generator'
-PORT_FILE = 'port_number.pickle'
 
 HTTP = 'http'
 HTTPS = 'https'

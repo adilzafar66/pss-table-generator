@@ -301,6 +301,8 @@ class Ui_MainWindow(object):
         self.menuEdit.setObjectName("menuEdit")
         self.menuHelp = QtWidgets.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
+        self.menuView = QtWidgets.QMenu(self.menubar)
+        self.menuView.setObjectName("menuView")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -309,17 +311,15 @@ class Ui_MainWindow(object):
         self.action_save_port.setObjectName("action_save_port")
         self.action_load_port = QtWidgets.QAction(MainWindow)
         self.action_load_port.setObjectName("action_load_port")
-        self.menuFile.addAction(self.action_save_port)
-        self.menuFile.addAction(self.action_load_port)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
+        self.menubar.addAction(self.menuView.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
         self.close_btn.clicked.connect(MainWindow.close) # type: ignore
         self.etap_dir_checkbox.toggled['bool'].connect(self.output_dir.setDisabled) # type: ignore
         self.etap_dir_checkbox.toggled['bool'].connect(self.browse_btn_2.setDisabled) # type: ignore
-        self.create_scenarios_checkbox.toggled['bool'].connect(self.etap_dir_group.setDisabled) # type: ignore
         self.include_only_radio.toggled['bool'].connect(self.include_revisions_input.setVisible) # type: ignore
         self.create_scenarios_checkbox.toggled['bool'].connect(self.include_base_radio.setEnabled) # type: ignore
         self.create_scenarios_checkbox.toggled['bool'].connect(self.include_all_radio.setEnabled) # type: ignore
@@ -333,7 +333,6 @@ class Ui_MainWindow(object):
         self.create_reports_checkbox.toggled['bool'].connect(self.series_rating_checkbox.setEnabled) # type: ignore
         self.create_reports_checkbox.toggled['bool'].connect(self.sw_checkbox.setEnabled) # type: ignore
         self.create_scenarios_checkbox.toggled['bool'].connect(self.include_revisions_input.setEnabled) # type: ignore
-        self.create_scenarios_checkbox.toggled['bool'].connect(self.etap_dir.clear) # type: ignore
         self.create_scenarios_checkbox.toggled['bool'].connect(self.run_scenarios_checkbox.setEnabled) # type: ignore
         self.exclude_except_radio.toggled['bool'].connect(self.exclude_except_input.setEnabled) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -388,5 +387,6 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
+        self.menuView.setTitle(_translate("MainWindow", "View"))
         self.action_save_port.setText(_translate("MainWindow", "Save Port Number"))
         self.action_load_port.setText(_translate("MainWindow", "Load Port Number"))

@@ -52,11 +52,8 @@ class Worker(QThread):
         if self.create_scenarios:
             scenario = self.scenario_class()
             scenario.create_scenarios()
-            self.input_dir_path = scenario.get_project_dir()
             if self.run_scenarios:
                 scenario.run_scenarios()
-            if str(self.output_dir_path) == '.':
-                self.output_dir_path = self.input_dir_path
 
     def execute_data_parsing(self):
         """
@@ -82,8 +79,8 @@ class Worker(QThread):
         data parsing, and data export, emitting signals on completion or error.
         """
         try:
-            self.execute_scenarios()
             output_path = None
+            self.execute_scenarios()
             if self.create_table:
                 self.execute_data_parsing()
                 output_path = self.execute_data_export()

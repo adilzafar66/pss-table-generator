@@ -1,6 +1,5 @@
 from pathlib import Path
 from PyQt5.QtCore import pyqtSignal
-
 from consts.common import SUBHEAD_ROW
 from worker.worker import Worker
 from parser.parser_dd import DeviceDutyParser

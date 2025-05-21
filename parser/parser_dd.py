@@ -32,10 +32,10 @@ class DeviceDutyParser:
         self.mode_int = INT_TAG
         self.parsed_iec_data = {self.mode_int: {}}
         self.parsed_ansi_data = {self.mode_mom: {}, self.mode_int: {}}
-        self.ansi_filepaths = utils.get_filepaths(etap_dir, DD_ANSI_EXT)
-        self.ansi_sp_filepaths = utils.get_filepaths(etap_dir, DD_ANSI_SP_EXT)
-        self.iec_filepaths = utils.get_filepaths(etap_dir, DD_IEC_EXT)
-        self.iec_sp_filepaths = utils.get_filepaths(etap_dir, DD_IEC_SP_EXT)
+        self.ansi_filepaths = utils.get_filepaths(etap_dir, DD_ANSI_EXT, DD_TAG)
+        self.ansi_sp_filepaths = utils.get_filepaths(etap_dir, DD_ANSI_SP_EXT, DD_TAG)
+        self.iec_filepaths = utils.get_filepaths(etap_dir, DD_IEC_EXT, DD_TAG)
+        self.iec_sp_filepaths = utils.get_filepaths(etap_dir, DD_IEC_SP_EXT, DD_TAG)
 
     def connect_to_etap(self, url: str):
         """
