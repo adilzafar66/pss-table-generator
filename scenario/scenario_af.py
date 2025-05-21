@@ -49,7 +49,9 @@ class ArcFlashScenario(Scenario):
 
         # Remove ultimate switching configuration
         for item in [CONFIG_MAP.get('ULT'), 'ULT']:
-            switching_configs.discard(item)
+            for config in switching_configs:
+                if item in config:
+                    switching_configs.remove(config)
 
         # Define electrode configurations for arc flash studies
         electrode_configs = [AF_VCB_CONFIG, AF_VCBB_CONFIG]

@@ -272,6 +272,7 @@ class Interface(QMainWindow, Ui_MainWindow):
 
         :param str message: The error message.
         """
+        self.progress_dialog and self.progress_dialog.close()
         self._show_message(errors.RUNTIME_ERROR_TITLE, message, icon=QMessageBox.Critical)
 
     def _show_message(self, title: str, message: str, description: str = '',
@@ -309,12 +310,17 @@ class Interface(QMainWindow, Ui_MainWindow):
         """
         utils.open_file(Path(output_path))
         threads = [worker for worker in [self.sc_worker, self.dd_worker, self.af_worker] if worker is not None]
+        print([thread.isFinished() for thread in threads])
         thread_cbs = [self.short_circuit_checkbox, self.device_duty_checkbox, self.arc_flash_checkbox]
         checked_cbs = [cb for cb in thread_cbs if cb.isChecked()]
+        print(len(checked_cbs))
 
         # Check if all threads are finished and the counts match
         if all(thread.isFinished() for thread in threads) and len(threads) == len(checked_cbs):
             self.progress_dialog.close()
+            self.sc_worker = None
+            self.dd_worker = None
+            self.af_worker = None
 
     def _validate_inputs(self) -> bool:
         """

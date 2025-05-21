@@ -101,6 +101,7 @@ class Ui_MainWindow(object):
         self.mark_assumed_checkbox.setObjectName("mark_assumed_checkbox")
         self.device_duty_grid.addWidget(self.mark_assumed_checkbox, 1, 1, 1, 1)
         self.use_all_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
+        self.use_all_checkbox.setChecked(True)
         self.use_all_checkbox.setObjectName("use_all_checkbox")
         self.device_duty_grid.addWidget(self.use_all_checkbox, 0, 1, 1, 1)
         self.sw_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
