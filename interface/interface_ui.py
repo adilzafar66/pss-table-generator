@@ -368,8 +368,8 @@ class Ui_MainWindow(object):
         self.create_reports_checkbox.toggled['bool'].connect(self.sw_checkbox.setEnabled) # type: ignore
         self.create_scenarios_checkbox.toggled['bool'].connect(self.include_revisions_input.setEnabled) # type: ignore
         self.create_scenarios_checkbox.toggled['bool'].connect(self.run_scenarios_checkbox.setEnabled) # type: ignore
-        self.exclude_except_radio.toggled['bool'].connect(self.exclude_except_input.setEnabled) # type: ignore
         self.create_scenarios_checkbox.toggled['bool'].connect(self.include_only_radio.setEnabled) # type: ignore
+        self.exclude_except_radio.toggled['bool'].connect(self.exclude_except_input.setEnabled) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -390,7 +390,7 @@ class Ui_MainWindow(object):
         self.use_all_checkbox.setText(_translate("MainWindow", "Use All Switching Configs"))
         self.sw_checkbox.setText(_translate("MainWindow", "Include Switches"))
         self.arc_flash_group.setTitle(_translate("MainWindow", "Arc Flash"))
-        self.include_revisions_input.setPlaceholderText(_translate("MainWindow", "Revisions to include in Create Scenarios..."))
+        self.include_revisions_input.setPlaceholderText(_translate("MainWindow", "[;] separated list of revision names..."))
         self.incident_energy_label.setText(_translate("MainWindow", "Incident Energy:              "))
         self.low_energy_label.setText(_translate("MainWindow", "High"))
         self.high_energy_label.setText(_translate("MainWindow", "Critical"))
@@ -401,10 +401,13 @@ class Ui_MainWindow(object):
         self.si_units_checkbox.setText(_translate("MainWindow", "Use SI Units"))
         self.options_label.setText(_translate("MainWindow", "Options:"))
         self.exclude_group.setTitle(_translate("MainWindow", "Exclude"))
-        self.exclude_start_label.setText(_translate("MainWindow", "Element ID Starting With:"))
-        self.exclude_contain_label.setText(_translate("MainWindow", "Element ID Containing:"))
+        self.exclude_start_label.setText(_translate("MainWindow", "Elements Starting With:"))
+        self.exclude_start_input.setPlaceholderText(_translate("MainWindow", "[;] separated list of element ids..."))
+        self.exclude_contain_label.setText(_translate("MainWindow", "Elements Containing:"))
+        self.exclude_contain_input.setPlaceholderText(_translate("MainWindow", "[;] separated list of element ids..."))
         self.exclude_all_radio.setText(_translate("MainWindow", "All"))
         self.exclude_except_radio.setText(_translate("MainWindow", "Except"))
+        self.exclude_except_input.setPlaceholderText(_translate("MainWindow", "[;] separated list of element ids..."))
         self.etap_dir_group.setTitle(_translate("MainWindow", "ETAP Directory"))
         self.etap_dir.setPlaceholderText(_translate("MainWindow", "Path to Project ETAP Folder..."))
         self.browse_btn.setText(_translate("MainWindow", "Browse"))

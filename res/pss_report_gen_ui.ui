@@ -240,7 +240,7 @@
               <string/>
              </property>
              <property name="placeholderText">
-              <string>Revisions to include in Create Scenarios...</string>
+              <string>[;] separated list of revision names...</string>
              </property>
             </widget>
            </item>
@@ -397,7 +397,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="exclude_start_label">
              <property name="text">
-              <string>Element ID Starting With:</string>
+              <string>Elements Starting With:</string>
              </property>
             </widget>
            </item>
@@ -412,6 +412,9 @@
              <property name="text">
               <string/>
              </property>
+             <property name="placeholderText">
+              <string>[;] separated list of element ids...</string>
+             </property>
              <property name="clearButtonEnabled">
               <bool>true</bool>
              </property>
@@ -420,7 +423,7 @@
            <item row="2" column="0">
             <widget class="QLabel" name="exclude_contain_label">
              <property name="text">
-              <string>Element ID Containing:</string>
+              <string>Elements Containing:</string>
              </property>
             </widget>
            </item>
@@ -434,6 +437,9 @@
              </property>
              <property name="text">
               <string/>
+             </property>
+             <property name="placeholderText">
+              <string>[;] separated list of element ids...</string>
              </property>
              <property name="clearButtonEnabled">
               <bool>true</bool>
@@ -474,6 +480,9 @@
                <width>0</width>
                <height>24</height>
               </size>
+             </property>
+             <property name="placeholderText">
+              <string>[;] separated list of element ids...</string>
              </property>
              <property name="clearButtonEnabled">
               <bool>true</bool>
@@ -1022,22 +1031,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>exclude_except_radio</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>exclude_except_input</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>101</x>
-     <y>490</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>177</x>
-     <y>486</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>create_scenarios_checkbox</sender>
    <signal>toggled(bool)</signal>
    <receiver>include_only_radio</receiver>
@@ -1050,6 +1043,22 @@
     <hint type="destinationlabel">
      <x>297</x>
      <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exclude_except_radio</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exclude_except_input</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>101</x>
+     <y>490</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>177</x>
+     <y>486</y>
     </hint>
    </hints>
   </connection>
