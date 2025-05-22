@@ -106,7 +106,7 @@
                 <string>Create Reports</string>
                </property>
                <property name="checked">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -196,7 +196,7 @@
                 <string>Use All Switching Configs</string>
                </property>
                <property name="checked">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -206,7 +206,7 @@
                 <string>Include Switches</string>
                </property>
                <property name="checked">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -218,7 +218,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QGroupBox" name="arc_flash_layout">
+       <widget class="QGroupBox" name="arc_flash_group">
         <property name="title">
          <string>Arc Flash</string>
         </property>
@@ -237,7 +237,7 @@
               </size>
              </property>
              <property name="text">
-              <string>Base;</string>
+              <string/>
              </property>
              <property name="placeholderText">
               <string>Revisions to include in Create Scenarios...</string>
@@ -268,7 +268,7 @@
                <item>
                 <widget class="QDoubleSpinBox" name="low_energy_box">
                  <property name="value">
-                  <double>12.000000000000000</double>
+                  <double>0.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -286,7 +286,7 @@
                <item>
                 <widget class="QDoubleSpinBox" name="high_energy_box">
                  <property name="value">
-                  <double>40.000000000000000</double>
+                  <double>0.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -410,7 +410,7 @@
               </size>
              </property>
              <property name="text">
-              <string>BUS;</string>
+              <string/>
              </property>
              <property name="clearButtonEnabled">
               <bool>true</bool>
@@ -433,7 +433,7 @@
               </size>
              </property>
              <property name="text">
-              <string>BCH;FORTIS;</string>
+              <string/>
              </property>
              <property name="clearButtonEnabled">
               <bool>true</bool>
@@ -690,6 +690,10 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="action_open"/>
+    <addaction name="action_open_defaults"/>
+    <addaction name="action_save"/>
+    <addaction name="action_save_defaults"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -700,11 +704,16 @@
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="action_manual"/>
+    <addaction name="action_about"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
      <string>View</string>
     </property>
+    <addaction name="action_exclude"/>
+    <addaction name="action_device_duty"/>
+    <addaction name="action_arc_flash"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -720,6 +729,69 @@
   <action name="action_load_port">
    <property name="text">
     <string>Load Port Number</string>
+   </property>
+  </action>
+  <action name="action_open">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+  </action>
+  <action name="action_open_defaults">
+   <property name="text">
+    <string>Open Defaults</string>
+   </property>
+  </action>
+  <action name="action_save">
+   <property name="text">
+    <string>Save As...</string>
+   </property>
+  </action>
+  <action name="action_save_defaults">
+   <property name="text">
+    <string>Save Defaults</string>
+   </property>
+  </action>
+  <action name="action_exclude">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Exclude</string>
+   </property>
+  </action>
+  <action name="action_device_duty">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Device Duty</string>
+   </property>
+  </action>
+  <action name="action_arc_flash">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Arc Flash</string>
+   </property>
+  </action>
+  <action name="action_manual">
+   <property name="text">
+    <string>Manual</string>
+   </property>
+  </action>
+  <action name="action_about">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>
@@ -774,22 +846,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>include_only_radio</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>include_revisions_input</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>297</x>
-     <y>341</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>331</x>
-     <y>374</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>create_scenarios_checkbox</sender>
    <signal>toggled(bool)</signal>
    <receiver>include_base_radio</receiver>
@@ -822,22 +878,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>create_scenarios_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>include_only_radio</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>354</x>
-     <y>88</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>297</x>
-     <y>341</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>create_reports_checkbox</sender>
    <signal>toggled(bool)</signal>
    <receiver>low_energy_box</receiver>
@@ -849,22 +889,6 @@
     </hint>
     <hint type="destinationlabel">
      <x>241</x>
-     <y>314</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>create_reports_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>high_energy_box</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>366</x>
-     <y>138</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>347</x>
      <y>314</y>
     </hint>
    </hints>
@@ -888,7 +912,7 @@
   <connection>
    <sender>arc_flash_checkbox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>arc_flash_layout</receiver>
+   <receiver>arc_flash_group</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1010,6 +1034,22 @@
     <hint type="destinationlabel">
      <x>177</x>
      <y>486</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_scenarios_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>include_only_radio</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>354</x>
+     <y>88</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>297</x>
+     <y>341</y>
     </hint>
    </hints>
   </connection>

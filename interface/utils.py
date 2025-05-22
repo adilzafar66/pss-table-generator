@@ -1,46 +1,97 @@
-import json
 import os
 import sys
-import pickle
+import json
 import subprocess
 from pathlib import Path
-from PyQt5.QtWidgets import QLineEdit
+from typing import Optional, Any
 from consts.common import HTTP, HTTPS, ETAP22_PORT, DATAHUB_FILENAME
+from PyQt5.QtWidgets import QLineEdit, QDoubleSpinBox, QCheckBox, QRadioButton, QWidget, QMainWindow
 
 
-def save_line_edit_text(file_path: Path, line_edit: QLineEdit, on_error: callable) -> None:
+def get_widget_value(widget: QWidget) -> Optional[Any]:
     """
-    Saves the text from a QLineEdit widget to a binary file using pickle.
+    Retrieves the current value of a given widget.
 
-    :param Path file_path: Path where the file will be saved.
-    :param QLineEdit line_edit: QLineEdit widget containing the text to save.
-    :param callable on_error: Function to call with an Exception object if saving fails.
+    :param QWidget widget: The widget to extract the value from.
+    :return: The widget's value if supported, otherwise None.
+    :rtype: Optional[Any]
     """
-    try:
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        with file_path.open('wb') as f:
-            pickle.dump(line_edit.text(), f, protocol=pickle.HIGHEST_PROTOCOL)
-    except Exception as ex:
-        on_error(ex)
+    if isinstance(widget, QLineEdit):
+        return widget.text()
+    elif isinstance(widget, QDoubleSpinBox):
+        return widget.value()
+    elif isinstance(widget, (QCheckBox, QRadioButton)):
+        return widget.isChecked()
+    return None
 
 
-def load_line_edit_text(file_path: Path, line_edit: QLineEdit, on_error: callable) -> None:
+def set_widget_value(widget: QWidget, value: Any) -> Optional[None]:
     """
-    Loads text from a binary file and sets it into a QLineEdit widget.
+    Sets the given value to a supported widget.
 
-    :param Path file_path: Path of the file to load.
-    :param QLineEdit line_edit: QLineEdit widget where the loaded text will be set.
-    :param callable on_error: Function to call with an Exception object if loading fails.
+    :param QWidget widget: The widget to update.
+    :param Any value: The value to set.
+    :return: None if successful or if widget type is unsupported.
+    :rtype: Optional[None]
     """
-    if not file_path.is_file():
-        return
-    try:
-        with file_path.open('rb') as f:
-            text = pickle.load(f)
-            if isinstance(text, str):
-                line_edit.setText(text)
-    except Exception as ex:
-        on_error(ex)
+    if isinstance(widget, QLineEdit):
+        return widget.setText(value)
+    elif isinstance(widget, QDoubleSpinBox):
+        return widget.setValue(value)
+    elif isinstance(widget, (QCheckBox, QRadioButton)):
+        return widget.setChecked(value)
+    return None
+
+
+def get_all_inputs(main_window: QMainWindow) -> dict:
+    """
+    Retrieves values from all supported input widgets in the given main window.
+
+    :param QMainWindow main_window: The main window containing input widgets.
+    :return: A dictionary mapping object names to their current values.
+    :rtype: dict
+    """
+    values = {}
+    for widget in main_window.findChildren(QWidget):
+        value = get_widget_value(widget)
+        if value is not None and widget.objectName() and 'spinbox' not in widget.objectName():
+            values[widget.objectName()] = value
+    return values
+
+
+def set_all_inputs(main_window: QMainWindow, values: dict) -> None:
+    """
+    Sets values to widgets in the main window based on the provided dictionary.
+
+    :param QMainWindow main_window: The main window containing the widgets.
+    :param dict values: A dictionary mapping object names to values to be set.
+    """
+    for widget in main_window.findChildren(QWidget):
+        obj_name = widget.objectName()
+        if obj_name in values:
+            set_widget_value(widget, values[obj_name])
+
+
+def save_inputs(main_window: QMainWindow, path: str) -> None:
+    """
+    Saves the current widget input values to a JSON file.
+
+    :param QMainWindow main_window: The main window containing the input widgets.
+    :param str | Path path: The file path to save the JSON data.
+    """
+    with open(path, 'w') as f:
+        json.dump(get_all_inputs(main_window), f)
+
+
+def load_inputs(main_window: QMainWindow, path: str | Path) -> None:
+    """
+    Loads widget input values from a JSON file and sets them in the UI.
+
+    :param QMainWindow main_window: The main window to populate with loaded values.
+    :param str | Path path: The file path to load the JSON data from.
+    """
+    with open(path, 'r') as f:
+        set_all_inputs(main_window, json.load(f))
 
 
 def open_file(file_path: Path) -> None:
@@ -73,11 +124,11 @@ def split_string_tags(tag_string: str, delimiter: str = ';') -> list[str]:
     return [tag.strip() for tag in tag_string.split(delimiter) if tag.strip()]
 
 
-def get_datahub_info(project_path: str) -> tuple[str, str]:
+def get_datahub_info(project_path: str | Path) -> tuple[str, str]:
     """
     Retrieves and returns the datahub settings for a project for API connection.
 
-    :param str project_path: Path to the ETAP project files.
+    :param str | Path project_path: Path to the ETAP project files.
     :return tuple[str, str]: returns the protocol and the port number to connect to datahub.
     """
     filepath = Path(project_path) / DATAHUB_FILENAME

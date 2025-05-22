@@ -1,12 +1,12 @@
 from pathlib import Path
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from consts import errors
 from interface import utils
 from PyQt5.QtGui import QIcon, QPixmap
 from interface.interface_pb import Ui_Dialog
 from interface.interface_ui import Ui_MainWindow
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QDialog
-from consts.common import PROGRAM_TITLE
+from consts.common import PROGRAM_TITLE, DEFAULTS_FILENAME, JSON_FORMAT
 from worker.worker_af import ArcFlashWorker
 from worker.worker_dd import DeviceDutyWorker
 from worker.worker_sc import ShortCircuitWorker
@@ -48,6 +48,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         self._connect_buttons()
         self._add_additional_connections()
         self._configure_initial_visibility()
+        self.load_default_inputs()
         self.setMinimumWidth(475)
         self.adjustSize()
         self.show()
@@ -68,7 +69,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         self.include_revisions_input.setVisible(False)
         self.datahub_note.setVisible(False)
         self.device_duty_group.setDisabled(True)
-        self.arc_flash_layout.setDisabled(True)
+        self.arc_flash_group.setDisabled(True)
 
     def _connect_buttons(self) -> None:
         """
@@ -93,6 +94,19 @@ class Interface(QMainWindow, Ui_MainWindow):
             checkbox.toggled.connect(self._toggle_datahub_note_visibility)
 
         self.etap_dir_checkbox.clicked.connect(self._sync_output_directory)
+        self.action_save_defaults.triggered.connect(self.save_default_inputs)
+        self.action_open_defaults.triggered.connect(self.load_default_inputs)
+        self.action_save.triggered.connect(self.save_as_inputs)
+        self.action_open.triggered.connect(self.load_as_inputs)
+
+        self.action_exclude.triggered.connect(lambda a: self.set_visible(self.exclude_group, a))
+        self.action_device_duty.triggered.connect(lambda a: self.set_visible(self.device_duty_group, a))
+        self.action_arc_flash.triggered.connect(lambda a: self.set_visible(self.arc_flash_group, a))
+        self.include_only_radio.toggled.connect(lambda a: self.set_visible(self.include_revisions_input, a))
+
+    def set_visible(self, element, visible):
+        element.setVisible(visible)
+        QTimer.singleShot(0, self.adjustSize)
 
     def _browse_input_directory(self) -> None:
         """
@@ -136,7 +150,7 @@ class Interface(QMainWindow, Ui_MainWindow):
             self.series_rating_checkbox.isChecked(),
             self.mark_assumed_checkbox.isChecked()
         ]
-        self.datahub_note.setVisible(any(options))
+        self.set_visible(self.datahub_note, any(options))
 
     def _start_analysis(self) -> None:
         """
@@ -310,10 +324,8 @@ class Interface(QMainWindow, Ui_MainWindow):
         """
         utils.open_file(Path(output_path))
         threads = [worker for worker in [self.sc_worker, self.dd_worker, self.af_worker] if worker is not None]
-        print([thread.isFinished() for thread in threads])
         thread_cbs = [self.short_circuit_checkbox, self.device_duty_checkbox, self.arc_flash_checkbox]
         checked_cbs = [cb for cb in thread_cbs if cb.isChecked()]
-        print(len(checked_cbs))
 
         # Check if all threads are finished and the counts match
         if all(thread.isFinished() for thread in threads) and len(threads) == len(checked_cbs):
@@ -374,6 +386,34 @@ class Interface(QMainWindow, Ui_MainWindow):
 
         self.include_base_radio.setChecked(True)
         self.exclude_all_radio.setChecked(True)
+
+    def save_default_inputs(self) -> None:
+        """
+        Saves current input values to the default file.
+        """
+        utils.save_inputs(self, self.default_path / DEFAULTS_FILENAME)
+
+    def load_default_inputs(self) -> None:
+        """
+        Loads input values from the default file.
+        """
+        utils.load_inputs(self, self.default_path / DEFAULTS_FILENAME)
+
+    def save_as_inputs(self) -> None:
+        """
+        Opens a file dialog for the user to choose a file location and
+        saves the current input values to that file.
+        """
+        filepath, _ = QFileDialog().getSaveFileName(self, 'Save', str(Path.home() / 'inputs.json'), JSON_FORMAT)
+        filepath and utils.save_inputs(self, filepath)
+
+    def load_as_inputs(self) -> None:
+        """
+        Opens a file dialog for the user to choose a file and
+        loads input values from the selected file.
+        """
+        filepath, _ = QFileDialog().getOpenFileName(self, 'Open', str(Path.home()), JSON_FORMAT)
+        filepath and utils.load_inputs(self, filepath)
 
 
 class Dialog(QDialog, Ui_Dialog):

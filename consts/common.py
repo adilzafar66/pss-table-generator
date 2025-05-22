@@ -7,6 +7,8 @@ HEADER_ROW = 1
 SUBHEAD_ROW = 2
 ROUND_DIGITS = 2
 
+JSON_FORMAT = 'JSON Source File (*.json)'
+DEFAULTS_FILENAME = 'defaults.json'
 DATAHUB_FILENAME = 'dataHubSettings.json'
 
 DEFAULT_SW_CONFIGS = [
