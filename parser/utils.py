@@ -130,6 +130,7 @@ def get_filepaths(input_dir: Path, ext: str, study_tag: str) -> list[str]:
     """
     filepaths = []
     for path in input_dir.iterdir():
-        if path.is_file() and path.suffix == f'.{ext}' and path.stem.startswith(f'{study_tag}_'):
+        if path.is_file() and path.suffix == f'.{ext}':
             filepaths.append(str(path))
     return filepaths
+# and path.stem.startswith(f'{study_tag}_')

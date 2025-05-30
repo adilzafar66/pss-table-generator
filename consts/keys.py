@@ -17,4 +17,5 @@ KEYS_DD_INT_IEC = {
 }
 
 KEYS_SC_FAULT = ['Mag3Ph', 'MagLG', 'MagLL', 'MagLLG']
-KEYS_SC_IMP = ['RPosOhm', 'XPosOhm', 'RZeroOhm', 'XZeroOhm']
+KEYS_SC_FAULT_PHASOR = ['Phasor3Ph', 'PhasorLG', 'PhasorLL', 'PhasorLLG']
+KEYS_SC_IMP = ['RPosOhm', 'XPosOhm', 'RNegOhm', 'XNegOhm', 'RZeroOhm', 'XZeroOhm']

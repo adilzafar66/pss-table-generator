@@ -93,7 +93,7 @@ class DeviceDutyParser:
             })
         for filepath in self.iec_sp_filepaths:
             cur = utils.connect_to_sql_file(filepath)
-            int_data = utils.fetch_sql_data(cur, IEC_INT_QUERY)
+            int_data = utils.fetch_sql_data(cur, IEC_INT_SP_QUERY)
             config = Path(filepath).stem
             if config not in self.iec_data:
                 self.iec_data[config] = {}

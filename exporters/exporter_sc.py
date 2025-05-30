@@ -73,4 +73,9 @@ class ShortCircuitExporter(Exporter):
             col_index = self._get_col_index(sheet_index, heading_key)
             if col_index:
                 cell = row[col_index + offset]
-                cell.value = round(fault_val, round_to)
+                if isinstance(fault_val, list):
+                    mag = round(fault_val[0], round_to)
+                    phase = round(fault_val[1])
+                    cell.value = f"{mag} ∠ {phase}°"
+                else:
+                    cell.value = round(fault_val, round_to)

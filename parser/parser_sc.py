@@ -1,3 +1,4 @@
+import math
 import sqlite3
 from parser import utils
 from pathlib import Path
@@ -87,29 +88,41 @@ class ShortCircuitParser:
             _real_3ph = entry[2]
             _ima_3ph = entry[3]
             _mag_3ph = entry[4]
+            _phase_3ph = math.degrees(math.atan(_ima_3ph / _real_3ph))
             _real_lg = entry[5]
             _ima_lg = entry[6]
             _mag_lg = entry[7]
+            _phase_lg = math.degrees(math.atan(_ima_lg / _real_lg))
             _real_ll = entry[8]
             _ima_ll = entry[9]
             _mag_ll = entry[10]
+            _phase_ll = math.degrees(math.atan(_ima_ll / _real_ll))
             _real_llg = entry[11]
             _ima_llg = entry[12]
             _mag_llg = entry[13]
+            _phase_llg = math.degrees(math.atan(_ima_llg / _real_llg))
 
             if _id in self.parsed_ansi_data[FAULT_TAG]:
                 self.parsed_ansi_data[FAULT_TAG][_id]['Real3Ph'].update({config: _real_3ph})
                 self.parsed_ansi_data[FAULT_TAG][_id]['Imag3Ph'].update({config: _ima_3ph})
                 self.parsed_ansi_data[FAULT_TAG][_id]['Mag3Ph'].update({config: _mag_3ph})
+                self.parsed_ansi_data[FAULT_TAG][_id]['Ph3Ph'].update({config: _phase_3ph})
+                self.parsed_ansi_data[FAULT_TAG][_id]['Phasor3Ph'].update({config: [_mag_3ph, _phase_3ph]})
                 self.parsed_ansi_data[FAULT_TAG][_id]['RealLG'].update({config: _real_lg})
                 self.parsed_ansi_data[FAULT_TAG][_id]['ImagLG'].update({config: _ima_lg})
                 self.parsed_ansi_data[FAULT_TAG][_id]['MagLG'].update({config: _mag_lg})
+                self.parsed_ansi_data[FAULT_TAG][_id]['PhLG'].update({config: _phase_lg})
+                self.parsed_ansi_data[FAULT_TAG][_id]['PhasorLG'].update({config: [_mag_lg, _phase_lg]})
                 self.parsed_ansi_data[FAULT_TAG][_id]['RealLL'].update({config: _real_ll})
                 self.parsed_ansi_data[FAULT_TAG][_id]['ImagLL'].update({config: _ima_ll})
                 self.parsed_ansi_data[FAULT_TAG][_id]['MagLL'].update({config: _mag_ll})
+                self.parsed_ansi_data[FAULT_TAG][_id]['PhLL'].update({config: _phase_ll})
+                self.parsed_ansi_data[FAULT_TAG][_id]['PhasorLL'].update({config: [_mag_ll, _phase_ll]})
                 self.parsed_ansi_data[FAULT_TAG][_id]['RealLLG'].update({config: _real_llg})
                 self.parsed_ansi_data[FAULT_TAG][_id]['ImagLLG'].update({config: _ima_llg})
                 self.parsed_ansi_data[FAULT_TAG][_id]['MagLLG'].update({config: _mag_llg})
+                self.parsed_ansi_data[FAULT_TAG][_id]['PhLLG'].update({config: _phase_llg})
+                self.parsed_ansi_data[FAULT_TAG][_id]['PhasorLLG'].update({config: [_mag_llg, _phase_llg]})
                 continue
 
             entry_data = {
@@ -117,15 +130,23 @@ class ShortCircuitParser:
                 'Real3Ph': {config: _real_3ph},
                 'Imag3Ph': {config: _ima_3ph},
                 'Mag3Ph': {config: _mag_3ph},
+                'Ph3Ph': {config: _phase_3ph},
+                'Phasor3Ph': {config: [_mag_3ph, _phase_3ph]},
                 'RealLG': {config: _real_lg},
                 'ImagLG': {config: _ima_lg},
                 'MagLG': {config: _mag_lg},
+                'PhLG': {config: _phase_lg},
+                'PhasorLG': {config: [_mag_lg, _phase_lg]},
                 'RealLL': {config: _real_ll},
                 'ImagLL': {config: _ima_ll},
                 'MagLL': {config: _mag_ll},
+                'PhLL': {config: _phase_ll},
+                'PhasorLL': {config: [_mag_ll, _phase_ll]},
                 'RealLLG': {config: _real_llg},
                 'ImagLLG': {config: _ima_llg},
                 'MagLLG': {config: _mag_llg},
+                'PhLLG': {config: _phase_llg},
+                'PhasorLLG': {config: [_mag_llg, _phase_llg]},
             }
             self.parsed_ansi_data[FAULT_TAG].update({_id: entry_data})
 

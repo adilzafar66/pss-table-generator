@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from consts import styles
 from exporters import utils
@@ -38,7 +39,13 @@ class Exporter:
         """
         sheet = self.wb.worksheets[sheet_index]
         for col in sheet.iter_cols(1, sheet.max_column):
-            if col[0].value and heading in col[0].value:
+            if col[0].value is None:
+                continue
+            if col[0].value.strip() == heading:
+                return col[0].column - 1
+            match = re.search(r':(.*)', col[0].value)
+            col_name = match and match.group(1).strip()
+            if heading == col_name:
                 return col[0].column - 1
 
     def set_ansi_data(self, ansi_data: dict):

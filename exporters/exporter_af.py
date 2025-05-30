@@ -59,7 +59,7 @@ class ArcFlashExporter(Exporter):
         :param float max_energy: The maximum energy threshold for applying low energy highlighting.
         :param float crit_energy: The critical energy threshold for applying high energy highlighting.
         """
-        energy_col = self._get_col_index(0, 'Total Energy') + 1
+        energy_col = self._get_col_index(0, 'Total Energy (cal/cm²)') + 1
         for column in self.ws.iter_cols(energy_col, energy_col, min_row=SUBHEAD_ROW):
             for cell in column:
                 if max_energy < cell.value < crit_energy:
