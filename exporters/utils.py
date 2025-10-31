@@ -43,10 +43,13 @@ def rearrange_list(target_list: list, reference_list: list) -> list:
     :rtype: list
     """
     reference_dict = {element: index for index, element in enumerate(reference_list)}
-    in_reference = [element for element in target_list if element in reference_dict]
-    not_in_reference = [element for element in target_list if element not in reference_dict]
-    in_reference_sorted = sorted(in_reference, key=lambda x: reference_dict[x])
-    return in_reference_sorted + not_in_reference
+    in_reference_check = lambda element: any(c in element for c in reference_dict)
+    in_reference_elem = lambda element: next(c for c in reference_dict if c in element)
+    in_reference = [element for element in target_list if in_reference_check(element)]
+    not_in_reference = [element for element in target_list if element not in in_reference]
+    in_reference_sorted = sorted(in_reference, key=lambda x: reference_dict[in_reference_elem(x)])
+    not_in_reference_sorted = sorted(not_in_reference)
+    return in_reference_sorted + not_in_reference_sorted
 
 
 def set_const_cols_header(sheet: Worksheet, header: str, const_cols: list):

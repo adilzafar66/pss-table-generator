@@ -93,18 +93,22 @@ class Ui_MainWindow(object):
         self.device_duty_grid = QtWidgets.QGridLayout()
         self.device_duty_grid.setObjectName("device_duty_grid")
         self.series_rating_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
+        self.series_rating_checkbox.setEnabled(False)
         self.series_rating_checkbox.setChecked(False)
         self.series_rating_checkbox.setObjectName("series_rating_checkbox")
         self.device_duty_grid.addWidget(self.series_rating_checkbox, 1, 0, 1, 1)
         self.mark_assumed_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
+        self.mark_assumed_checkbox.setEnabled(False)
         self.mark_assumed_checkbox.setChecked(False)
         self.mark_assumed_checkbox.setObjectName("mark_assumed_checkbox")
         self.device_duty_grid.addWidget(self.mark_assumed_checkbox, 1, 1, 1, 1)
         self.use_all_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
+        self.use_all_checkbox.setEnabled(False)
         self.use_all_checkbox.setChecked(False)
         self.use_all_checkbox.setObjectName("use_all_checkbox")
         self.device_duty_grid.addWidget(self.use_all_checkbox, 0, 1, 1, 1)
         self.sw_checkbox = QtWidgets.QCheckBox(self.device_duty_group)
+        self.sw_checkbox.setEnabled(False)
         self.sw_checkbox.setChecked(False)
         self.sw_checkbox.setObjectName("sw_checkbox")
         self.device_duty_grid.addWidget(self.sw_checkbox, 0, 0, 1, 1)
@@ -135,6 +139,7 @@ class Ui_MainWindow(object):
         self.low_energy_label.setObjectName("low_energy_label")
         self.low_energy_layout.addWidget(self.low_energy_label)
         self.low_energy_box = QtWidgets.QDoubleSpinBox(self.arc_flash_group)
+        self.low_energy_box.setEnabled(False)
         self.low_energy_box.setProperty("value", 0.0)
         self.low_energy_box.setObjectName("low_energy_box")
         self.low_energy_layout.addWidget(self.low_energy_box)
@@ -145,6 +150,7 @@ class Ui_MainWindow(object):
         self.high_energy_label.setObjectName("high_energy_label")
         self.high_energy_layout.addWidget(self.high_energy_label)
         self.high_energy_box = QtWidgets.QDoubleSpinBox(self.arc_flash_group)
+        self.high_energy_box.setEnabled(False)
         self.high_energy_box.setProperty("value", 0.0)
         self.high_energy_box.setObjectName("high_energy_box")
         self.high_energy_layout.addWidget(self.high_energy_box)
@@ -175,6 +181,7 @@ class Ui_MainWindow(object):
         self.include_revisions_label.setObjectName("include_revisions_label")
         self.arc_flash_grid.addWidget(self.include_revisions_label, 2, 1, 1, 1)
         self.si_units_checkbox = QtWidgets.QCheckBox(self.arc_flash_group)
+        self.si_units_checkbox.setEnabled(False)
         self.si_units_checkbox.setObjectName("si_units_checkbox")
         self.arc_flash_grid.addWidget(self.si_units_checkbox, 0, 2, 1, 1)
         self.options_label = QtWidgets.QLabel(self.arc_flash_group)
@@ -246,10 +253,12 @@ class Ui_MainWindow(object):
         self.verticalLayout_8.addLayout(self.browse_btn_layout)
         self.main_layout.addWidget(self.etap_dir_group)
         self.output_dir_group = QtWidgets.QGroupBox(self.centralwidget)
+        self.output_dir_group.setEnabled(True)
         self.output_dir_group.setObjectName("output_dir_group")
         self.verticalLayout_9 = QtWidgets.QVBoxLayout(self.output_dir_group)
         self.verticalLayout_9.setObjectName("verticalLayout_9")
         self.output_dir = QtWidgets.QLineEdit(self.output_dir_group)
+        self.output_dir.setEnabled(True)
         self.output_dir.setMinimumSize(QtCore.QSize(0, 24))
         self.output_dir.setClearButtonEnabled(True)
         self.output_dir.setObjectName("output_dir")
@@ -260,6 +269,7 @@ class Ui_MainWindow(object):
         self.browse_btn_2.setObjectName("browse_btn_2")
         self.browse_btn_layout_2.addWidget(self.browse_btn_2)
         self.etap_dir_checkbox = QtWidgets.QCheckBox(self.output_dir_group)
+        self.etap_dir_checkbox.setEnabled(True)
         self.etap_dir_checkbox.setObjectName("etap_dir_checkbox")
         self.browse_btn_layout_2.addWidget(self.etap_dir_checkbox)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -360,7 +370,6 @@ class Ui_MainWindow(object):
         self.create_scenarios_checkbox.toggled['bool'].connect(self.include_base_radio.setEnabled) # type: ignore
         self.create_scenarios_checkbox.toggled['bool'].connect(self.include_all_radio.setEnabled) # type: ignore
         self.create_reports_checkbox.toggled['bool'].connect(self.low_energy_box.setEnabled) # type: ignore
-        self.create_reports_checkbox.toggled['bool'].connect(self.output_dir_group.setEnabled) # type: ignore
         self.arc_flash_checkbox.toggled['bool'].connect(self.arc_flash_group.setEnabled) # type: ignore
         self.device_duty_checkbox.toggled['bool'].connect(self.device_duty_group.setEnabled) # type: ignore
         self.create_reports_checkbox.toggled['bool'].connect(self.mark_assumed_checkbox.setEnabled) # type: ignore
@@ -370,6 +379,10 @@ class Ui_MainWindow(object):
         self.create_scenarios_checkbox.toggled['bool'].connect(self.run_scenarios_checkbox.setEnabled) # type: ignore
         self.create_scenarios_checkbox.toggled['bool'].connect(self.include_only_radio.setEnabled) # type: ignore
         self.exclude_except_radio.toggled['bool'].connect(self.exclude_except_input.setEnabled) # type: ignore
+        self.create_scenarios_checkbox.toggled['bool'].connect(self.use_all_checkbox.setEnabled) # type: ignore
+        self.create_reports_checkbox.toggled['bool'].connect(self.si_units_checkbox.setEnabled) # type: ignore
+        self.create_reports_checkbox.toggled['bool'].connect(self.high_energy_box.setEnabled) # type: ignore
+        self.create_reports_checkbox.toggled['bool'].connect(self.output_dir_group.setEnabled) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

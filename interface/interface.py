@@ -93,7 +93,7 @@ class Interface(QMainWindow, Ui_MainWindow):
         for checkbox in option_checkboxes:
             checkbox.toggled.connect(self._toggle_datahub_note_visibility)
 
-        self.etap_dir_checkbox.clicked.connect(self._sync_output_directory)
+        self.etap_dir_checkbox.toggled.connect(self._sync_output_directory)
         self.action_save_defaults.triggered.connect(self.save_default_inputs)
         self.action_open_defaults.triggered.connect(self.load_default_inputs)
         self.action_save.triggered.connect(self.save_as_inputs)

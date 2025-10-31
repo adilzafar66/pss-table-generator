@@ -172,6 +172,9 @@
             <layout class="QGridLayout" name="device_duty_grid">
              <item row="1" column="0">
               <widget class="QCheckBox" name="series_rating_checkbox">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Add Series Ratings *</string>
                </property>
@@ -182,6 +185,9 @@
              </item>
              <item row="1" column="1">
               <widget class="QCheckBox" name="mark_assumed_checkbox">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Mark Assumed Equipment *</string>
                </property>
@@ -192,6 +198,9 @@
              </item>
              <item row="0" column="1">
               <widget class="QCheckBox" name="use_all_checkbox">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Use All Switching Configs</string>
                </property>
@@ -202,6 +211,9 @@
              </item>
              <item row="0" column="0">
               <widget class="QCheckBox" name="sw_checkbox">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Include Switches</string>
                </property>
@@ -267,6 +279,9 @@
                </item>
                <item>
                 <widget class="QDoubleSpinBox" name="low_energy_box">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="value">
                   <double>0.000000000000000</double>
                  </property>
@@ -285,6 +300,9 @@
                </item>
                <item>
                 <widget class="QDoubleSpinBox" name="high_energy_box">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="value">
                   <double>0.000000000000000</double>
                  </property>
@@ -369,6 +387,9 @@
            </item>
            <item row="0" column="2">
             <widget class="QCheckBox" name="si_units_checkbox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Use SI Units</string>
              </property>
@@ -551,12 +572,18 @@
       </item>
       <item>
        <widget class="QGroupBox" name="output_dir_group">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="title">
          <string>Output Directory</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_9">
          <item>
           <widget class="QLineEdit" name="output_dir">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -582,6 +609,9 @@
            </item>
            <item>
             <widget class="QCheckBox" name="etap_dir_checkbox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="text">
               <string>Use ETAP Directory</string>
              </property>
@@ -903,22 +933,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>create_reports_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>output_dir_group</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>386</x>
-     <y>137</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>413</x>
-     <y>698</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>arc_flash_checkbox</sender>
    <signal>toggled(bool)</signal>
    <receiver>arc_flash_group</receiver>
@@ -1059,6 +1073,70 @@
     <hint type="destinationlabel">
      <x>177</x>
      <y>486</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_scenarios_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>use_all_checkbox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>90</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>247</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_reports_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>si_units_checkbox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>267</x>
+     <y>139</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>167</x>
+     <y>275</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_reports_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>high_energy_box</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>345</x>
+     <y>140</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>323</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>create_reports_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>output_dir_group</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>386</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>413</x>
+     <y>698</y>
     </hint>
    </hints>
   </connection>

@@ -36,6 +36,7 @@ class DeviceDutyParser:
         self.ansi_sp_filepaths = utils.get_filepaths(etap_dir, DD_ANSI_SP_EXT, DD_TAG)
         self.iec_filepaths = utils.get_filepaths(etap_dir, DD_IEC_EXT, DD_TAG)
         self.iec_sp_filepaths = utils.get_filepaths(etap_dir, DD_IEC_SP_EXT, DD_TAG)
+        self.filter_filepaths()
 
     def connect_to_etap(self, url: str):
         """
@@ -53,7 +54,6 @@ class DeviceDutyParser:
         Extracts ANSI data from SQLite databases and populates the `ansi_data` attribute.
         It processes both momentary and interrupting duties for three-phase and single-phase systems.
         """
-        self.filter_filepaths()
         for filepath in self.ansi_filepaths:
             cur = utils.connect_to_sql_file(filepath)
             mom_data = utils.fetch_sql_data(cur, ANSI_MOM_QUERY)
@@ -112,7 +112,7 @@ class DeviceDutyParser:
         :param bool add_switches: Flag to indicate whether to add switches to the parsed data.
         """
         for config, modes in self.ansi_data.items():
-            config_tags = config.split('_')
+            config_tags = config.split('_', 1)
             config_id = config_tags[1]
             for mode, entries in modes.items():
                 if mode == self.mode_mom:
@@ -131,7 +131,7 @@ class DeviceDutyParser:
         :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
         """
         for config, modes in self.iec_data.items():
-            config_tags = config.split('_')
+            config_tags = config.split('_', 1)
             config_id = config_tags[1]
             for mode, entries in modes.items():
                 if mode == self.mode_int:
@@ -149,7 +149,7 @@ class DeviceDutyParser:
         :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
         :param bool add_switches: Flag to indicate whether to add switches to the parsed data.
         """
-        valid_types = ['Panelboard', 'Switchboard', 'Switchgear', 'MCC']
+        valid_types = ['Panelboard', 'Switchboard', 'Switchgear', 'MCC', 'Bus']
         if add_switches:
             valid_types += ['SPST Switch', 'SPDT Switch']
 
@@ -373,5 +373,10 @@ class DeviceDutyParser:
             filename = Path(path_str).stem
             if filename.split('_')[0] in DD_TAG:
                 return True
+            if DD_TAG in filename:
+                raise RuntimeError('Please make sure all your device duty file names have an underscore.')
             return False
         self.ansi_filepaths = list(filter(filter_func, self.ansi_filepaths))
+        self.iec_filepaths = list(filter(filter_func, self.iec_filepaths))
+        self.ansi_sp_filepaths = list(filter(filter_func, self.ansi_sp_filepaths))
+        self.iec_sp_filepaths = list(filter(filter_func, self.iec_sp_filepaths))
