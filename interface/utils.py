@@ -59,6 +59,20 @@ def get_all_inputs(main_window: QMainWindow) -> dict:
     return values
 
 
+def ensure_json_file(path: str | Path, default_data: dict | None = None) -> None:
+    """
+    Ensures that the given JSON file exists. If it doesn't, creates it with default data.
+
+    :param str | Path path: The file path to check or create.
+    :param dict | None default_data: Default data to write if file is created.
+    """
+    path = Path(path)
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w') as f:
+            json.dump(default_data or {}, f)
+
+
 def set_all_inputs(main_window: QMainWindow, values: dict) -> None:
     """
     Sets values to widgets in the main window based on the provided dictionary.
@@ -79,6 +93,7 @@ def save_inputs(main_window: QMainWindow, path: str) -> None:
     :param QMainWindow main_window: The main window containing the input widgets.
     :param str | Path path: The file path to save the JSON data.
     """
+    ensure_json_file(path)
     with open(path, 'w') as f:
         json.dump(get_all_inputs(main_window), f)
 
@@ -90,6 +105,7 @@ def load_inputs(main_window: QMainWindow, path: str | Path) -> None:
     :param QMainWindow main_window: The main window to populate with loaded values.
     :param str | Path path: The file path to load the JSON data from.
     """
+    ensure_json_file(path)
     with open(path, 'r') as f:
         set_all_inputs(main_window, json.load(f))
 
