@@ -131,8 +131,11 @@ class DeviceDutyParser:
         :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
         """
         for config, modes in self.iec_data.items():
-            config_tags = config.split('_', 1)
-            config_id = config_tags[1]
+            config_tags = config.split('_')
+            if 'IEC' in config_tags:
+                config_id = '_'.join(config_tags[1:-1])
+            else:
+                config_id = '_'.join(config_tags[1:])
             for mode, entries in modes.items():
                 if mode == self.mode_int:
                     self.parse_iec_int_entries(entries, config_id, exclude_startswith, exclude_contains, exclude_except)

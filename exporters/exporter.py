@@ -3,7 +3,7 @@ from pathlib import Path
 from consts import styles
 from exporters import utils
 from openpyxl.workbook import Workbook
-from consts.common import CONFIG_MAP, SUBHEAD_ROW, HEADER_ROW
+from consts.common import SUBHEAD_ROW, HEADER_ROW
 
 
 class Exporter:
@@ -76,7 +76,7 @@ class Exporter:
         var_cols_buff = len(var_cols) + 1
         const_cols_buff = len(const_cols) + 2
         sheet = self.wb.worksheets[sheet_index]
-        configs = utils.get_sorted_configs(self.ansi_data)
+        configs = utils.get_sorted_configs(self.ansi_data) or utils.get_sorted_configs(self.iec_data)
         const_cols_header, end_cols_header = self.header_names
         utils.set_const_cols_header(sheet, const_cols_header, const_cols)
         utils.set_var_cols_headers(sheet, configs, var_cols, col_prefix, const_cols_buff, var_cols_buff)
