@@ -152,7 +152,7 @@ class DeviceDutyParser:
         :param list[str] exclude_except: List of substrings that, if present in an ID, should not exclude the entry.
         :param bool add_switches: Flag to indicate whether to add switches to the parsed data.
         """
-        valid_types = ['Panelboard', 'Switchboard', 'Switchgear', 'MCC', 'Bus']
+        valid_types = ['Panelboard', 'Switchboard', 'Switchgear', 'MCC']
         if add_switches:
             valid_types += ['SPST Switch', 'SPDT Switch']
 

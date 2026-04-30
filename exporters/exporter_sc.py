@@ -75,7 +75,7 @@ class ShortCircuitExporter(Exporter):
                 cell = row[col_index + offset]
                 if isinstance(fault_val, list):
                     mag = round(fault_val[0], round_to)
-                    phase = round(fault_val[1])
+                    phase = round(fault_val[1], round_to)
                     cell.value = f"{mag} ∠ {phase}°"
                 else:
                     cell.value = round(fault_val, round_to)
