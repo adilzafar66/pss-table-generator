@@ -38,8 +38,6 @@ The PSS Table Generator is developed to automate the Excel table generation proc
 
 The program has been designed to work with minimal inputs and requires no external software or library to work besides a working installation of ETAP.
 
-Open image-20241015-182911.png
-
 ![image-20241015-182911.png](https://media-cdn.atlassian.com/file/c1a00c7b-a7eb-4254-b511-1b74d07dfe18/image/cdn?allowAnimated=true&client=4ead6351-03ca-42fb-bbd7-8037c700c997&collection=contentId-3060957274&height=125&max-age=2592000&mode=full-fit&source=mediaCard&token=eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI0ZWFkNjM1MS0wM2NhLTQyZmItYmJkNy04MDM3YzcwMGM5OTciLCJhY2Nlc3MiOnsidXJuOmZpbGVzdG9yZTpjb2xsZWN0aW9uOmNvbnRlbnRJZC0zMDYwOTU3Mjc0IjpbInJlYWQiXX0sImV4cCI6MTc3ODE4MTc0MiwibmJmIjoxNzc4MTc4ODYyLCJhYUlkIjoiNjEzNzlkMTUxNTZhYjMwMDcxNzVkZmNmIiwiaHR0cHM6Ly9pZC5hdGxhc3NpYW4uY29tL2FwcEFjY3JlZGl0ZWQiOmZhbHNlLCJhdXRoVHlwZSI6InNlc3Npb24ifQ.NKxaVnseEdbut9ORpLcNpszC1L2IB23pgyNioAB3B-g&width=624#media-blob-url=true&id=c1a00c7b-a7eb-4254-b511-1b74d07dfe18&clientId=4ead6351-03ca-42fb-bbd7-8037c700c997&contextId=contentId-3060957274&collection=contentId-3060957274)
 
 Figure 1. User Interface of the PSS Table Generator
@@ -104,7 +102,6 @@ There is no strict naming convention required for the short circuit table genera
 1. SC\_PRES
 2. SC\_ULT
 3. SC\_Generator
-  
 
 Any report files contained in the ETAP project folder that do not start with the `SC_` will not be included in the short circuit table generation.
 
@@ -121,8 +118,6 @@ To ensure the program runs smoothly and without any logical inconsistencies, use
 
 The output reports can be named while creating a Scenario. Refer to Figure 2 for an example.
 
-Open image-20240719-221217.png
-
 ![image-20240719-221217.png](https://media-cdn.atlassian.com/file/580bb7f2-c0d5-4043-ab00-5395dd079810/image/cdn?allowAnimated=true&client=4ead6351-03ca-42fb-bbd7-8037c700c997&collection=contentId-3060957274&height=125&max-age=2592000&mode=full-fit&source=mediaCard&token=eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI0ZWFkNjM1MS0wM2NhLTQyZmItYmJkNy04MDM3YzcwMGM5OTciLCJhY2Nlc3MiOnsidXJuOmZpbGVzdG9yZTpjb2xsZWN0aW9uOmNvbnRlbnRJZC0zMDYwOTU3Mjc0IjpbInJlYWQiXX0sImV4cCI6MTc3ODE4MTc0MiwibmJmIjoxNzc4MTc4ODYyLCJhYUlkIjoiNjEzNzlkMTUxNTZhYjMwMDcxNzVkZmNmIiwiaHR0cHM6Ly9pZC5hdGxhc3NpYW4uY29tL2FwcEFjY3JlZGl0ZWQiOmZhbHNlLCJhdXRoVHlwZSI6InNlc3Npb24ifQ.NKxaVnseEdbut9ORpLcNpszC1L2IB23pgyNioAB3B-g&width=563#media-blob-url=true&id=580bb7f2-c0d5-4043-ab00-5395dd079810&clientId=4ead6351-03ca-42fb-bbd7-8037c700c997&contextId=contentId-3060957274&collection=contentId-3060957274)
 
 Figure 2. Setting Output Report for Device Duty scenario in ETAP
@@ -135,7 +130,6 @@ As for the short circuit component, there is no specific naming convention requi
 2. AF\_VCBB\_ULT
 3. AF\_VCBB\_Gen
   
-
 Any report files contained in the ETAP project folder that do not start with the `AF_` will not be included in the short circuit table generation.
 
 # 4\. Short Circuit
@@ -211,8 +205,6 @@ Enabling this option adds an asterisk (\*) to the IDs of equipment that have ass
 In order to allow the program to find the equipment with assumed ratings, the user must ensure that the assumed rating equipment includes ‘assumed’ (capitalization does not matter) in its comment field in ETAP.
 
 Note: requires ETAP project and datahub running.
-
-Open 101946\_Device Duty Report1.png
 
 ![101946_Device Duty Report1.png](https://media-cdn.atlassian.com/file/050d8f5f-ff87-4ef9-9f28-43fd2fa9b5b0/image/cdn?allowAnimated=true&client=4ead6351-03ca-42fb-bbd7-8037c700c997&collection=contentId-3060957274&height=125&max-age=2592000&mode=full-fit&source=mediaCard&token=eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI0ZWFkNjM1MS0wM2NhLTQyZmItYmJkNy04MDM3YzcwMGM5OTciLCJhY2Nlc3MiOnsidXJuOmZpbGVzdG9yZTpjb2xsZWN0aW9uOmNvbnRlbnRJZC0zMDYwOTU3Mjc0IjpbInJlYWQiXX0sImV4cCI6MTc3ODE4MTc0MiwibmJmIjoxNzc4MTc4ODYyLCJhYUlkIjoiNjEzNzlkMTUxNTZhYjMwMDcxNzVkZmNmIiwiaHR0cHM6Ly9pZC5hdGxhc3NpYW4uY29tL2FwcEFjY3JlZGl0ZWQiOmZhbHNlLCJhdXRoVHlwZSI6InNlc3Npb24ifQ.NKxaVnseEdbut9ORpLcNpszC1L2IB23pgyNioAB3B-g&width=692#media-blob-url=true&id=050d8f5f-ff87-4ef9-9f28-43fd2fa9b5b0&clientId=4ead6351-03ca-42fb-bbd7-8037c700c997&contextId=contentId-3060957274&collection=contentId-3060957274)
 
