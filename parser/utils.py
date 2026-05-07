@@ -48,12 +48,13 @@ def is_exclusion(_id: str, exclude_startswith: list[str], exclude_contains: list
     :return: True if the ID matches exclusion criteria, False otherwise.
     :rtype: bool
     """
-    if (any(word in _id for word in exclude_contains)
-            and all(word not in _id for word in exclude_except)):
+    if any(word in _id for word in exclude_except):
+        return False
+
+    if any(word in _id for word in exclude_contains):
         return True
 
-    if (any(_id.startswith(word) for word in exclude_startswith)
-            and all(not _id.startswith(word) for word in exclude_except)):
+    if any(_id.startswith(word) for word in exclude_startswith):
         return True
 
 

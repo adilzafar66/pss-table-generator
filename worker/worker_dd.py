@@ -86,9 +86,9 @@ class DeviceDutyWorker(Worker):
         dd_exporter.set_iec_data(self.parsed_iec_data)
 
         # Create headers for ANSI momentary, ANSI interrupting, and IEC interrupting sheets
-        dd_exporter.create_headers(0, DD_MOM_CONST_COLS, DD_MOM_VAR_COLS, 'Momentary Duty')
-        dd_exporter.create_headers(1, DD_INT_CONST_COLS, DD_INT_VAR_COLS, 'Interrupting Duty')
-        dd_exporter.create_headers(2, DD_INT_CONST_COLS, DD_INT_IEC_VAR_COLS, 'Interrupting Duty')
+        dd_exporter.create_headers(0, DD_MOM_CONST_COLS, DD_MOM_VAR_COLS)
+        dd_exporter.create_headers(1, DD_INT_CONST_COLS, DD_INT_VAR_COLS)
+        dd_exporter.create_headers(2, DD_INT_CONST_COLS, DD_INT_IEC_VAR_COLS)
 
         # Insert data into the sheets
         dd_exporter.insert_data(0, MOM_TAG, KEYS_DD_MOM)
@@ -102,7 +102,7 @@ class DeviceDutyWorker(Worker):
 
         # Apply formatting to each sheet
         dd_exporter.format_sheet(0, SUBHEAD_ROW, len(DD_MOM_CONST_COLS), len(DD_MOM_VAR_COLS), 16)
-        dd_exporter.format_sheet(1, SUBHEAD_ROW, len(DD_INT_CONST_COLS), len(DD_INT_VAR_COLS), 22)
+        dd_exporter.format_sheet(1, SUBHEAD_ROW, len(DD_INT_CONST_COLS), len(DD_INT_VAR_COLS), 16)
         dd_exporter.format_sheet(2, SUBHEAD_ROW, len(DD_INT_CONST_COLS), len(DD_INT_IEC_VAR_COLS), 16)
 
         # Save the workbook

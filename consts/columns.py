@@ -1,5 +1,6 @@
 SC_CONST_HEADERS = ['Device', None]
 SC_FAULT_CONST_COLS = ['Bus', 'kV']
+SC_VAR_COLS_PREFIX = 'Fault Config'
 SC_FAULT_VAR_COLS = ['3PH kA', 'LG kA', 'LL kA', 'LLG kA']
 SC_IMP_CONST_COLS = ['Bus', 'kV']
 SC_IMP_VAR_COLS = ['Pos. Seq. R (Ω)', 'Pos Seq. X (Ω)', 'Neg. Seq. R (Ω)', 'Neg Seq. X (Ω)', 'Zero Seq. R (Ω)', 'Zero Seq. X (Ω)']

@@ -2,13 +2,13 @@ from pathlib import Path
 from PyQt5.QtCore import pyqtSignal
 from consts.common import SUBHEAD_ROW
 from consts.filenames import SC_FILENAME
-from consts.keys import KEYS_SC_FAULT, KEYS_SC_IMP, KEYS_SC_FAULT_PHASOR
+from consts.keys import KEYS_SC_IMP, KEYS_SC_FAULT_PHASOR
 from consts.tags import FAULT_TAG, IMP_TAG
 from exporters.exporter_sc import ShortCircuitExporter
 from parser.parser_sc import ShortCircuitParser
 from scenario.scenario_sc import ShortCircuitScenario
 from worker.worker import Worker
-from consts.columns import SC_FAULT_CONST_COLS, SC_FAULT_VAR_COLS, SC_IMP_CONST_COLS, SC_IMP_VAR_COLS
+from consts.columns import SC_FAULT_CONST_COLS, SC_FAULT_VAR_COLS, SC_IMP_CONST_COLS, SC_IMP_VAR_COLS, SC_VAR_COLS_PREFIX
 
 
 class ShortCircuitWorker(Worker):
@@ -66,8 +66,8 @@ class ShortCircuitWorker(Worker):
         sc_exporter.set_ansi_data(self.parsed_ansi_data)
 
         # Create headers for ANSI momentary, ANSI interrupting, and IEC interrupting sheets
-        sc_exporter.create_headers(0, SC_FAULT_CONST_COLS, SC_FAULT_VAR_COLS, 'Fault Type')
-        sc_exporter.create_headers(1, SC_IMP_CONST_COLS, SC_IMP_VAR_COLS, 'Fault Type')
+        sc_exporter.create_headers(0, SC_FAULT_CONST_COLS, SC_FAULT_VAR_COLS, SC_VAR_COLS_PREFIX)
+        sc_exporter.create_headers(1, SC_IMP_CONST_COLS, SC_IMP_VAR_COLS, SC_VAR_COLS_PREFIX)
 
         # Insert data into the sheets
         sc_exporter.insert_data(0, FAULT_TAG, KEYS_SC_FAULT_PHASOR)

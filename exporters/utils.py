@@ -65,8 +65,8 @@ def set_const_cols_header(sheet: Worksheet, header: str, const_cols: list):
     set_cols_subheads(sheet, const_cols, start_col=1)
 
 
-def set_var_cols_headers(sheet: Worksheet, configs: list, var_cols: list, col_prefix: str,
-                         const_cols_buff: int, var_cols_buff: int):
+def set_var_cols_headers(sheet: Worksheet, configs: list, var_cols: list, const_cols_buff: int,
+                         var_cols_buff: int, col_prefix: str = ''):
     """
     Helper method to set dynamic headers for configurations.
 
@@ -78,7 +78,7 @@ def set_var_cols_headers(sheet: Worksheet, configs: list, var_cols: list, col_pr
     :param int var_cols_buff: Offset for variable columns.
     """
     for i, config in enumerate(configs):
-        col_name = f'{col_prefix}: {CONFIG_MAP.get(config, config)}'
+        col_name = f'{col_prefix + ': ' if col_prefix else ''}{CONFIG_MAP.get(config, config)}'
         col_index = const_cols_buff + var_cols_buff * i
         sheet.cell(HEADER_ROW, col_index).value = col_name
         sheet.merge_cells(start_row=1, start_column=col_index, end_row=1,

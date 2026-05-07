@@ -64,7 +64,7 @@ class Exporter:
         """
         self.iec_data = iec_data
 
-    def create_headers(self, sheet_index: int, const_cols: list, var_cols: list, col_prefix: str):
+    def create_headers(self, sheet_index: int, const_cols: list, var_cols: list, col_prefix: str = ''):
         """
         Creates and merges headers for a specified sheet.
 
@@ -79,7 +79,7 @@ class Exporter:
         configs = utils.get_sorted_configs(self.ansi_data) or utils.get_sorted_configs(self.iec_data)
         const_cols_header, end_cols_header = self.header_names
         utils.set_const_cols_header(sheet, const_cols_header, const_cols)
-        utils.set_var_cols_headers(sheet, configs, var_cols, col_prefix, const_cols_buff, var_cols_buff)
+        utils.set_var_cols_headers(sheet, configs, var_cols, const_cols_buff, var_cols_buff, col_prefix)
         utils.set_end_cols_headers(sheet, end_cols_header, var_cols, const_cols_buff, len(configs) * var_cols_buff)
 
     def format_headers(self, sheet_index: int):
